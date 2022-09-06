@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import MonsterABI from "../abi/Monsters.json";
 import MoonLoader from "react-spinners/MoonLoader";
-// import env from "./helpers/env";
 
 const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
 
-const DungeonMonsterSelect = ({
-  showDungeonSelect,
-  setShowDungeonSelect,
-  dungeonSelected,
-  setDungeonSelected,
-}) => {
+const MonsterSelection = ({ monsterSelected, setMonsterSelected }) => {
   const [monsters, setMonsters] = useState([]);
   const [loadingMonster, setLoadingMonster] = useState(false);
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -23,6 +16,7 @@ const DungeonMonsterSelect = ({
     MonsterABI.abi,
     signer
   );
+
   async function getMonsters() {
     let monstersTemp = [];
     setLoadingMonster(true);
@@ -46,39 +40,38 @@ const DungeonMonsterSelect = ({
     setMonsters(monstersTemp);
     setLoadingMonster(false);
   }
-  function checkSelectedMonsters(monster) {
+  function checkSelectedMonsters(_monster) {
     let result = true;
-    if (dungeonSelected.length < 1) {
-      setDungeonSelected((currentSelected) => [...currentSelected, monster]);
+    if (monsterSelected.length < 1) {
+      setMonsterSelected((currentSelected) => [...currentSelected, _monster]);
     } else {
-      for (let i = 0; i < dungeonSelected.length; i++) {
-        if (monster === dungeonSelected[i]) {
+      for (let monster of monsterSelected) {
+        if (_monster === monster) {
           result = false;
-          toast.error("Monster #" + monster + " already selected", {
+          toast.error("Monster #" + _monster + " already selected", {
             autoClose: 2000,
           });
         }
       }
       return result;
     }
-    console.log(dungeonSelected);
   }
 
   function selectMonster(index) {
-    if (dungeonSelected.length >= 6) return;
+    if (monsterSelected.length >= 6) return;
     let monster = monsters[index];
-    let result = checkSelectedMonsters(monster.id.toString());
+    let result = checkSelectedMonsters(monster.id);
     if (!result) return;
-    setDungeonSelected((currentSelected) => [
+    setMonsterSelected((currentSelected) => [
       ...currentSelected,
       monster.id.toString(),
     ]);
   }
 
   function deselectMonster(index) {
-    let monster = dungeonSelected[index];
-    setDungeonSelected((currentSelected) =>
-      currentSelected.filter((monsterSelected) => monsterSelected !== monster)
+    let monster = monsterSelected[index];
+    setMonsterSelected((currentSelected) =>
+      currentSelected.filter((selected) => selected !== monster)
     );
   }
 
@@ -86,7 +79,6 @@ const DungeonMonsterSelect = ({
     getMonsters();
   }, []);
 
-  if (!showDungeonSelect) return;
   return (
     <div className="row justify-content-center">
       <div className="col-8">
@@ -141,11 +133,11 @@ const DungeonMonsterSelect = ({
       <div className="col">
         <div className="row justify-content-center align-items-start">
           <h4 className="text-center" id="modal-title">
-            {dungeonSelected.length} Monster Selected
+            {monsterSelected.length} Monster Selected
           </h4>
         </div>
         <div className="row flex-column justify-content-start align-items-center">
-          {dungeonSelected.map((monster, index) => (
+          {monsterSelected.map((monster, index) => (
             <div
               key={index}
               className="p-2 my-2 text-cnter d-flex justify-content-center align-items-start"
@@ -164,7 +156,7 @@ const DungeonMonsterSelect = ({
                   height: "4rem",
                 }}
               >
-                {dungeonSelected[index] !== undefined ? monster : <h6> + </h6>}
+                {monsterSelected[index] !== undefined ? monster : <h6> + </h6>}
               </div>
             </div>
           ))}
@@ -174,4 +166,4 @@ const DungeonMonsterSelect = ({
   );
 };
 
-export default DungeonMonsterSelect;
+export default MonsterSelection;
