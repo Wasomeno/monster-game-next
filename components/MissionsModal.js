@@ -4,8 +4,7 @@ import { ethers } from "ethers";
 import MonsterGameABI from "../abi/MonsterGame.json";
 import MonsterABI from "../abi/Monsters.json";
 import MoonLoader from "react-spinners/MoonLoader";
-import BeginnerMissionMonsterSelect from "./BeginnerMissionMonsterSelect";
-import IntermediateMissionMonsterSelect from "./IntermediateMissionMonsterSelect";
+import MonsterSelection from "./MonsterSelection";
 
 const MonsterGameContract = "0x697049b6FcFDa75dE7bA4FBd9C364382c745BF8C";
 const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
@@ -185,9 +184,7 @@ const MissionsModal = ({
                 </div>
               </>
             ) : (
-              <BeginnerMissionMonsterSelect
-                showBeginnerSelect={showBeginnerSelect}
-                setShowBeginnerSelect={setShowBeginnerSelect}
+              <MonsterSelection
                 monsterSelected={beginnerSelected}
                 setMonsterSelected={setBeginnerSelected}
               />
@@ -277,9 +274,7 @@ const MissionsModal = ({
                 </div>
               </>
             ) : (
-              <IntermediateMissionMonsterSelect
-                showInterMediateSelect={showInterMediateSelect}
-                setShowInterMediateSelect={setShowInterMediateSelect}
+              <MonsterSelection
                 monsterSelected={interSelected}
                 setMonsterSelected={setInterSelected}
               />

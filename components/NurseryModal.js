@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ReactDom from "react-dom";
 import { BigNumber, ethers } from "ethers";
 import { motion } from "framer-motion";
 import NurseryABI from "../abi/Nursery.json";
-import MoonLoader from "react-spinners/MoonLoader";
 import { toast } from "react-toastify";
-import NurseryMonsterSelect from "./NurseryMonsterSelect";
+import MonsterSelection from "./MonsterSelection";
+
 const NurseryContract = "0xCe1641A6d54F67859AF935164E6Aa1F1Bd1a463A";
 
 const NurseryModal = ({ showNursery, setShowNursery }) => {
@@ -115,67 +114,74 @@ const NurseryModal = ({ showNursery, setShowNursery }) => {
       >
         <img
           src="/back_icon.png"
-          onClick={() => setShowNursery(false)}
+          onClick={() =>
+            !showSelectMonster
+              ? setShowNursery(false)
+              : setShowSelectMonster(false)
+          }
           width={"45px"}
           alt="back-img"
         />
-        <div className="row justify-content-center">
-          <h2 className="text-center" id="modal-title">
-            Nursery
-          </h2>
-        </div>
-        <div className="row justify-content-center">
-          <h5 id="modal-title" className="col-6">
-            You can put your monsters to rest at the nursery. Choose for how
-            long your monsters will rest (hourly) and for each hour there's a
-            fee that you need to pay. Max amount of monsters that you can send
-            is 6.
-          </h5>
-        </div>
-        <div className="row justify-content-center my-3">
-          <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-dark border-2 rounded">
-            {monsterSelected.length !== 0 ? (
-              monsterSelected.map((monster, index) => (
-                <div
-                  className="p-2 mx-2 text-center d-flex justify-content-center align-items-center"
-                  style={{
-                    backgroundColor: "#D8CCA3",
-                    width: "4rem",
-                    height: "4rem",
-                  }}
-                >
-                  {monster}
-                </div>
-              ))
-            ) : (
-              <h5 id="modal-title">No Monsters Selected</h5>
-            )}
-          </div>
-        </div>
-        <div className="row justify-content-center p-2 my-3">
-          <button
-            className="btn btn-primary p-2 col-3 m-2"
-            onClick={() => setShowSelectMonster(true)}
-          >
-            Select Monsters
-          </button>
-          {onNursery.length < 1 ? (
-            <button className="btn btn-success p-2 col-3 m-2">
-              Send Monsters
-            </button>
-          ) : (
-            <button className="btn btn-danger p-2 col-3 m-2">
-              Bring back Monsters
-            </button>
-          )}
-        </div>
+        {!showSelectMonster ? (
+          <>
+            <div className="row justify-content-center">
+              <h2 className="text-center" id="modal-title">
+                Nursery
+              </h2>
+            </div>
+            <div className="row justify-content-center">
+              <h5 id="modal-title" className="col-6">
+                You can put your monsters to rest at the nursery. Choose for how
+                long your monsters will rest (hourly) and for each hour there's
+                a fee that you need to pay. Max amount of monsters that you can
+                send is 6.
+              </h5>
+            </div>
+            <div className="row justify-content-center my-3">
+              <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-dark border-2 rounded">
+                {monsterSelected.length !== 0 ? (
+                  monsterSelected.map((monster, index) => (
+                    <div
+                      className="p-2 mx-2 text-center d-flex justify-content-center align-items-center"
+                      style={{
+                        backgroundColor: "#D8CCA3",
+                        width: "4rem",
+                        height: "4rem",
+                      }}
+                    >
+                      {monster}
+                    </div>
+                  ))
+                ) : (
+                  <h5 id="modal-title">No Monsters Selected</h5>
+                )}
+              </div>
+            </div>
+            <div className="row justify-content-center p-2 my-3">
+              <button
+                className="btn btn-primary p-2 col-3 m-2"
+                onClick={() => setShowSelectMonster(true)}
+              >
+                Select Monsters
+              </button>
+              {onNursery.length < 1 ? (
+                <button className="btn btn-success p-2 col-3 m-2">
+                  Send Monsters
+                </button>
+              ) : (
+                <button className="btn btn-danger p-2 col-3 m-2">
+                  Bring back Monsters
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <MonsterSelection
+            monsterSelected={monsterSelected}
+            setMonsterSelected={setMonsterSelected}
+          />
+        )}
       </motion.div>
-      <NurseryMonsterSelect
-        showSelectMonster={showSelectMonster}
-        setShowSelectMonster={setShowSelectMonster}
-        monsterSelected={monsterSelected}
-        setMonsterSelected={setMonsterSelected}
-      />
     </>
   );
 };

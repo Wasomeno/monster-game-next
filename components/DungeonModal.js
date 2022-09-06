@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
-import ReactDom from "react-dom";
 import MissionsModal from "./MissionsModal";
 import DungeonABI from "../abi/Dungeon.json";
-import DungeonMonsterSelect from "./DungeonMonsterSelect";
+import MonsterSelection from "./MonsterSelection";
 
 const DungeonContract = "0x4f46037fEffa0433E013b77d131019b02042197A";
 const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
@@ -97,11 +96,9 @@ const DungeonModal = ({
               alt="back-img"
             />
             {showDungeonSelect ? (
-              <DungeonMonsterSelect
-                showDungeonSelect={showDungeonSelect}
-                setShowDungeonSelect={setShowDungeonSelect}
-                dungeonSelected={dungeonSelected}
-                setDungeonSelected={setDungeonSelected}
+              <MonsterSelection
+                monsterSelected={dungeonSelected}
+                setMonsterSelected={setDungeonSelected}
               />
             ) : (
               <>
