@@ -2,6 +2,16 @@
   display: none;
 }
 
+.App {
+  overflow: hidden;
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
 #map-container {
   position: relative;
 }
@@ -107,6 +117,10 @@
 #altar-button {
   font-size: 22px;
   font-family: Monogram;
+}
+
+#dungeon-container {
+  position: relative;
 }
 
 #dungeon-button {
@@ -260,5 +274,5 @@
 
 @font-face {
   font-family: Monogram;
-  src: url("/monogram-extended.ttf");
+  src: url("../public/monogram-extended.ttf");
 }
