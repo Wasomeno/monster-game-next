@@ -10,13 +10,6 @@ const ItemsContract = "0x633c04c362381BbD1C9B8762065318Cb4F207989";
 const FeedModal = ({ showFeed, setShowFeed, tokenId, level }) => {
   const [amount, setAmount] = useState(1);
   const [potion, setPotion] = useState(0);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterGameContract = new ethers.Contract(
-    MonsterGameContract,
-    MonsterGameABI.abi,
-    signer
-  );
 
   const itemsContract = new ethers.Contract(
     ItemsContract,

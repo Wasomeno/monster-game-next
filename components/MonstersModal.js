@@ -1,37 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ReactDom from "react-dom";
 import { ethers } from "ethers";
 import { motion } from "framer-motion";
-import MonsterABI from "../abi/Monsters.json";
 import MonsterDetails from "./MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
-
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
+import { monsterContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
 const MonstersModal = ({ showMonsters, setShowMonsters }) => {
   const [monsters, setMonsters] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [tokenId, setTokenId] = useState("");
   const [loading, setLoading] = useState(false);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterContract = new ethers.Contract(
-    MonsterContract,
-    MonsterABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const monsterHandler = monsterContract();
+
   async function getMonsters() {
     let myMonsters = [];
     setLoading(true);
-    await monsterContract.getMyMonster(signer.getAddress()).then((monsters) => {
-      for (let monster of monsters) {
-        monsterContract.getMonsterStatus(monster).then((response) => {
-          let stat = response;
-          myMonsters.push({ monster: monster, status: stat });
-        });
-      }
-      setMonsters(myMonsters);
-    });
+    await monsterHandler
+      .getMyMonster(connection.account[0])
+      .then((monsters) => {
+        for (let monster of monsters) {
+          monsterHandler.getMonsterStatus(monster).then((response) => {
+            let stat = response;
+            myMonsters.push({ monster: monster, status: stat });
+          });
+        }
+        setMonsters(myMonsters);
+      });
     setLoading(false);
   }
 
@@ -43,6 +40,7 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
   useEffect(() => {
     getMonsters();
   }, []);
+
   if (!showMonsters) return;
   return (
     <>

@@ -1,27 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
-import ReactDom from "react-dom";
 import { motion } from "framer-motion";
-import ItemsABI from "../abi/Items.json";
 import MoonLoader from "react-spinners/MoonLoader";
-
-const ItemsContract = "0x633c04c362381BbD1C9B8762065318Cb4F207989";
+import { itemsContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
 function InventoryModal({ showInventory, setShowInventory }) {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const itemsContract = new ethers.Contract(
-    ItemsContract,
-    ItemsABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const items = itemsContract();
 
   async function getInventory() {
     setLoading(true);
-    await itemsContract.getInventory(signer.getAddress()).then((response) => {
+    await items.getInventory(connection.account[0]).then((response) => {
       setInventory(response);
     });
     setLoading(false);

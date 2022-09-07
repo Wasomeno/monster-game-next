@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
-import React, { useEffect, useState } from "react";
-import TraderABI from "../abi/Trader.json";
-import ItemsABI from "../abi/Items.json";
+import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { BigNumber, ethers, Signer } from "ethers";
-
-const TraderContract = "0x3CCEc613890E907ACF32a8Eb4DbD18DB700C4b64";
-const ItemsContract = "0x633c04c362381BbD1C9B8762065318Cb4F207989";
+import { BigNumber, ethers } from "ethers";
+import { traderContract, itemsContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
 const CityHallModal = ({
   shopShow,
@@ -19,24 +16,13 @@ const CityHallModal = ({
   const [trades, setTrades] = useState([]);
   const [quantity, setQuantity] = useState([]);
   const [activeItem, setActiveItem] = useState(0);
-
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const traderContract = new ethers.Contract(
-    TraderContract,
-    TraderABI.abi,
-    signer
-  );
-
-  const itemsContract = new ethers.Contract(
-    ItemsContract,
-    ItemsABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const trader = traderContract();
+  const items = itemsContract();
 
   async function getShop() {
     let quantities = [];
-    await traderContract.getDailyShop().then((shop) => {
+    await trader.getDailyShop().then((shop) => {
       setDailyShop(shop);
       for (let i = 0; i < shop.length; ++i) {
         quantities.push(1);
@@ -46,7 +32,7 @@ const CityHallModal = ({
   }
 
   async function getTrades() {
-    await traderContract.getDailyTrades().then((response) => {
+    await trader.getDailyTrades().then((response) => {
       setTrades(response);
     });
   }
@@ -62,21 +48,21 @@ const CityHallModal = ({
 
   function getTotal() {
     let totalTemp = 0;
-    for (let i = 0; i < bag.length; i++) {
-      totalTemp += bag[i].price * bag[i].quantity;
+    for (let item of bag.length) {
+      totalTemp += item.price * item.quantity;
     }
     console.log(totalTemp.toString());
     return totalTemp.toString();
   }
 
   async function buy() {
-    let items = [];
+    let itemsSelected = [];
     if (quantity.length < 1 || bag.length < 1) return;
     for (let item of bag) {
-      items.push(item.itemBigNumb);
+      itemsSelected.push(item.itemBigNumb);
     }
-    await traderContract
-      .buyItems(items, quantity, signer.getAddress(), {
+    await trader
+      .buyItems(itemsSelected, quantity, connection.account[0], {
         value: getTotal(),
       })
       .then(() => {
@@ -86,22 +72,22 @@ const CityHallModal = ({
   }
 
   async function tradeItem(index) {
-    const isApproved = await itemsContract.isApprovedForAll(
+    const isApproved = await items.isApprovedForAll(
       signer.getAddress(),
-      TraderContract
+      trader.address
     );
     if (isApproved) {
       const indexBig = BigNumber.from(index);
-      await traderContract
-        .tradeItem(indexBig, quantity[index], signer.getAddress())
+      await trader
+        .tradeItem(indexBig, quantity[index], connection.account[0])
         .then((response) => {
           console.log(response);
         });
     } else {
       const indexBig = BigNumber.from(index);
-      await itemsContract.setApprovalForAll(TraderContract, true).then(() => {
-        traderContract
-          .tradeItem(indexBig, quantity[index], signer.getAddress())
+      await items.setApprovalForAll(trader.address, true).then(() => {
+        trader
+          .tradeItem(indexBig, quantity[index], connection.account[0])
           .then((response) => {
             console.log(response);
           });

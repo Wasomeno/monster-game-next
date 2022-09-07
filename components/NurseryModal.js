@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { motion } from "framer-motion";
-import NurseryABI from "../abi/Nursery.json";
 import { toast } from "react-toastify";
+import { nurseryContract } from "../helpers/contractConnection";
 import MonsterSelection from "./MonsterSelection";
-
-const NurseryContract = "0xCe1641A6d54F67859AF935164E6Aa1F1Bd1a463A";
+import AppContext from "./AppContext";
 
 const NurseryModal = ({ showNursery, setShowNursery }) => {
   const [onNursery, setOnNursery] = useState([]);
@@ -13,23 +12,18 @@ const NurseryModal = ({ showNursery, setShowNursery }) => {
   const [monsterSelected, setMonsterSelected] = useState([]);
   const [loadingOnNursery, setLoadingOnNursery] = useState(false);
   const [duration, setDuration] = useState([]);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
 
-  const nurseryContract = new ethers.Contract(
-    NurseryContract,
-    NurseryABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const nurseryHandler = nurseryContract();
 
   async function sendToNursery(monster, index) {
     const price = 100000 * duration[index];
     const durationBigInt = BigNumber.from(duration[index]);
     await toast
       .promise(
-        nurseryContract.putOnNursery(
+        nurseryHandler.putOnNursery(
           monster,
-          signer.getAddress(),
+          connection.account[0],
           durationBigInt,
           {
             value: ethers.utils.parseUnits(price.toString(), "gwei"),
@@ -55,8 +49,8 @@ const NurseryModal = ({ showNursery, setShowNursery }) => {
   }
 
   async function goBackHome(monster) {
-    await nurseryContract
-      .goBackHome(monster, signer.getAddress())
+    await nurseryHandler
+      .goBackHome(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then((response) => {
           getOnNursery();
@@ -66,8 +60,8 @@ const NurseryModal = ({ showNursery, setShowNursery }) => {
 
   async function getOnNursery() {
     // setLoadingOnNursery(true);
-    // await nurseryContract
-    //   .getMyMonsters(signer.getAddress())
+    // await nurseryHandler
+    //   .getMyMonsters(connection.account[0])
     //   .then((response) => {
     //     setOnNursery(response);
     //   });

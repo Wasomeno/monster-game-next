@@ -1,27 +1,19 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
+import { itemsContract } from "../helpers/contractConnection";
 import InventoryModal from "./InventoryModal";
 import MonstersModal from "./MonstersModal";
-import ItemsABI from "../abi/Items.json";
 import AppContext from "./AppContext";
-
-const ItemsContract = "0x633c04c362381BbD1C9B8762065318Cb4F207989";
 
 const UserPanel = () => {
   const connection = useContext(AppContext);
   const [showInventory, setShowInventory] = useState(false);
   const [showMonsters, setShowMonsters] = useState(false);
   const [gold, setGold] = useState(0);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const itemsContract = new ethers.Contract(
-    ItemsContract,
-    ItemsABI.abi,
-    signer
-  );
+  const itemsHandler = itemsContract();
 
   async function getGold() {
-    await itemsContract.balanceOf(signer.getAddress(), 0).then((response) => {
+    await itemsHandler.balanceOf(connection.account[0], 0).then((response) => {
       setGold(response.toString());
     });
   }

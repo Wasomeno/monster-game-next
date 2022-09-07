@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
 import MissionsModal from "./MissionsModal";
 import DungeonABI from "../abi/Dungeon.json";
 import MonsterSelection from "./MonsterSelection";
-
-const DungeonContract = "0x4f46037fEffa0433E013b77d131019b02042197A";
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
+import { dungeonContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
 const DungeonModal = ({
   showDungeon,
@@ -20,38 +19,29 @@ const DungeonModal = ({
   const [onDungeon, setOnDungeon] = useState([]);
   const [dungeonSelected, setDungeonSelected] = useState([]);
   const [loadingOnDungeon, setLoadingOnDungeon] = useState(false);
+  const connection = useContext(AppContext);
+  const dungeon = dungeonContract();
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const dungeonContract = new ethers.Contract(
-    DungeonContract,
-    DungeonABI.abi,
-    signer
-  );
   async function getMonstersOnDungeon() {
     setLoadingOnDungeon(true);
-    await dungeonContract
-      .getMyMonsters(signer.getAddress())
-      .then((response) => {
-        setOnDungeon(response);
-      });
+    await dungeon.getMyMonsters(connection.account[0]).then((response) => {
+      setOnDungeon(response);
+    });
     console.log(onDungeon);
     setLoadingOnDungeon(false);
   }
 
   async function sendToBossFight(monster) {
-    await dungeonContract
-      .bossFight(monster, signer.getAddress())
-      .then((response) => {
-        provider.waitForTransaction(response.hash).then(() => {
-          getMonstersOnDungeon();
-        });
+    await dungeon.bossFight(monster, connection.account[0]).then((response) => {
+      provider.waitForTransaction(response.hash).then(() => {
+        getMonstersOnDungeon();
       });
+    });
   }
 
   async function claimBossFight(monster) {
-    await dungeonContract
-      .claimBossFight(monster, signer.getAddress())
+    await dungeon
+      .claimBossFight(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then(() => {
           getMonstersOnDungeon();

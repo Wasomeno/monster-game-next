@@ -1,26 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BigNumber, ethers } from "ethers";
-import MonsterABI from "../abi/Monsters.json";
 import MoonLoader from "react-spinners/MoonLoader";
 import FeedModal from "./FeedModal";
-
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
+import { monsterContract } from "../helpers/contractConnection";
 
 const MonsterDetails = ({ tokenId, setShowDetails }) => {
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [showFeed, setShowFeed] = useState(false);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterContract = new ethers.Contract(
-    MonsterContract,
-    MonsterABI.abi,
-    signer
-  );
+  const monster = monsterContract();
 
   async function getDetails() {
-    await monsterContract.monsterStats(tokenId).then((response) => {
+    await monster.monsterStats(tokenId).then((response) => {
       setDetails({
         level: response.level.toString(),
         hunger: response.hunger.toString(),

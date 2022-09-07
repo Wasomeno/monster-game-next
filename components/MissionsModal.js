@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
-import MonsterGameABI from "../abi/MonsterGame.json";
-import MonsterABI from "../abi/Monsters.json";
-import MoonLoader from "react-spinners/MoonLoader";
 import MonsterSelection from "./MonsterSelection";
+import { monsterGameContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
-const MonsterGameContract = "0x697049b6FcFDa75dE7bA4FBd9C364382c745BF8C";
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
 const MissionsModal = ({
   showBeginner,
   showInter,
@@ -15,38 +12,27 @@ const MissionsModal = ({
   setShowInter,
 }) => {
   const [onMission, setOnMission] = useState([]);
-  const [monsters, setMonsters] = useState([]);
   const [loadingOnMission, setLoadingOnMission] = useState(false);
   const [beginnerSelected, setBeginnerSelected] = useState([]);
   const [interSelected, setInterSelected] = useState([]);
   const [showBeginnerSelect, setShowBeginnerSelect] = useState(false);
   const [showInterMediateSelect, setShowInterMediateSelect] = useState(false);
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterGameContract = new ethers.Contract(
-    MonsterGameContract,
-    MonsterGameABI.abi,
-    signer
-  );
-  const monsterContract = new ethers.Contract(
-    MonsterContract,
-    MonsterABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const monsterGame = monsterGameContract();
 
   async function getMonstersOnMissions() {
     setLoadingOnMission(true);
     if (!showInter) {
-      await monsterGameContract
-        .getMonstersOnBeginner(signer.getAddress())
+      await monsterGame
+        .getMonstersOnBeginner(connection.account[0])
         .then((response) => {
           setOnMission(response);
         });
       setLoadingOnMission(false);
     } else {
-      await monsterGameContract
-        .getMonstersOnIntermediate(signer.getAddress())
+      await monsterGame
+        .getMonstersOnIntermediate(connection.account[0])
         .then((response) => {
           setOnMission(response);
         });
@@ -55,8 +41,8 @@ const MissionsModal = ({
   }
 
   async function sendToBeginner(monster) {
-    await monsterGameContract
-      .beginnerMission(monster, signer.getAddress())
+    await monsterGame
+      .beginnerMission(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then(() => {
           getMonstersOnMissions();
@@ -65,8 +51,8 @@ const MissionsModal = ({
   }
 
   async function claimBeginner(monster) {
-    await monsterGameContract
-      .claimBeginnerMission(monster, signer.getAddress())
+    await monsterGame
+      .claimBeginnerMission(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then(() => {
           getMonstersOnMissions();
@@ -75,8 +61,8 @@ const MissionsModal = ({
   }
 
   async function sendToIntermediate(monster) {
-    await monsterGameContract
-      .intermediateMission(monster, signer.getAddress())
+    await monsterGame
+      .intermediateMission(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then(() => {
           getMonstersOnMissions();
@@ -85,8 +71,8 @@ const MissionsModal = ({
   }
 
   async function claimIntermediate(monster) {
-    await monsterGameContract
-      .claimIntermediateMission(monster, signer.getAddress())
+    await monsterGame
+      .claimIntermediateMission(monster, connection.account[0])
       .then((response) => {
         provider.waitForTransaction(response.hash).then(() => {
           getMonstersOnMissions();

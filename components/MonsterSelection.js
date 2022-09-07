@@ -1,33 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
-import MonsterABI from "../abi/Monsters.json";
 import MoonLoader from "react-spinners/MoonLoader";
-
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
+import { monsterContract } from "../helpers/contractConnection";
+import AppContext from "./AppContext";
 
 const MonsterSelection = ({ monsterSelected, setMonsterSelected }) => {
   const [monsters, setMonsters] = useState([]);
   const [loadingMonster, setLoadingMonster] = useState(false);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterContract = new ethers.Contract(
-    MonsterContract,
-    MonsterABI.abi,
-    signer
-  );
+  const contract = monsterContract();
+  const connection = useContext(AppContext);
 
   async function getMonsters() {
     let monstersTemp = [];
     setLoadingMonster(true);
-    const myMonsters = await monsterContract.getMyMonster(signer.getAddress());
+    const myMonsters = await contract.getMyMonster(connection.account[0]);
     for (let monster of myMonsters) {
-      const status = await monsterContract.getMonsterStatus(monster);
+      const status = await contract.getMonsterStatus(monster);
       if (status.toString() === "0") {
-        const level = await monsterContract.getMonsterLevel(monster);
-        const exp = await monsterContract.getMonsterExp(monster);
-        const expCap = await monsterContract.getMonsterExpCap(monster);
-        const hunger = await monsterContract.getMonsterHunger(monster);
+        const level = await contract.getMonsterLevel(monster);
+        const exp = await contract.getMonsterExp(monster);
+        const expCap = await contract.getMonsterExpCap(monster);
+        const hunger = await contract.getMonsterHunger(monster);
         monstersTemp.push({
           id: monster.toString(),
           level: level.toString(),
