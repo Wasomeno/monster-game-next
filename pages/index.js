@@ -56,7 +56,6 @@ const Map = () => {
   return (
     <motion.div
       id="map-container"
-      className="container-fluid h-100 w-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -76,8 +75,10 @@ const Map = () => {
             }}
           >
             <Link href="/cityhall">
-              <a id="map-button" className="btn btn-primary">
-                City Hall
+              <a id="map-button">
+                <div id="action-button">
+                  <span id="button-text">City Hall</span>
+                </div>
               </a>
             </Link>
           </motion.div>
@@ -92,8 +93,10 @@ const Map = () => {
             }}
           >
             <Link href="/dungeon">
-              <a id="map-button" className="btn btn-primary">
-                Dungeon & Missions
+              <a id="map-button">
+                <div id="action-button">
+                  <span id="button-text">Dungeon & Missions</span>
+                </div>
               </a>
             </Link>
           </motion.div>
@@ -108,8 +111,10 @@ const Map = () => {
             }}
           >
             <Link href="/nursery">
-              <a id="map-button" className="btn btn-primary">
-                Nursery & Smelter
+              <a id="map-button">
+                <div id="action-button">
+                  <span id="button-text">Nursery & Smelter</span>
+                </div>
               </a>
             </Link>
           </motion.div>
@@ -124,8 +129,10 @@ const Map = () => {
             }}
           >
             <Link href="/altar">
-              <a id="map-button" className="btn btn-primary">
-                Summoning Altar
+              <a id="map-button">
+                <div id="action-button">
+                  <span id="button-text">Summoning Altar</span>
+                </div>
               </a>
             </Link>
           </motion.div>
