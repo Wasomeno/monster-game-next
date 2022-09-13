@@ -9,6 +9,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [showFeed, setShowFeed] = useState(false);
+  const [showPotions, setShowPotions] = useState(false);
   const monster = monsterContract();
 
   async function getDetails() {
@@ -58,12 +59,21 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
               <div className="col">
                 <div className="d-flex flex-column align-items-center justify-content-center">
                   <img alt="monster" src="/monster.png" width={"50%"} />
-                  <button
-                    className="btn btn-success col-4"
-                    onClick={() => setShowFeed(true)}
-                  >
-                    Feed
-                  </button>
+                  <div className="d-flex justify-content-center align-items-center">
+                    <button
+                      className="btn btn-success mx-1"
+                      onClick={() => setShowFeed(true)}
+                    >
+                      Feed
+                    </button>
+
+                    <button
+                      className="btn btn-success mx-1"
+                      onClick={() => setShowPotions(true)}
+                    >
+                      Potion
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="col-8">
