@@ -38,7 +38,7 @@ const Altar = () => {
       }
       var xOffset = newWidth < canvas.width ? (canvas.width - newWidth) / 2 : 0;
       var yOffset =
-        newHeight < canvas.height ? (canvas.height - newHeight) / 2 : 0;
+        newHeight < canvas.height ? (canvas.height - newHeight) / 3 : 0;
       drawCanvas(c, xOffset, yOffset, newWidth, newHeight);
     }
   }, [drawCanvas]);
@@ -53,7 +53,10 @@ const Altar = () => {
     >
       {isConnected ? (
         <>
-          <canvas ref={canvasRef} width={1000} height={window.innerHeight} />
+          <div className="d-flex justify-content-center align-items-center">
+            <canvas ref={canvasRef} width={1000} height={window.innerHeight} />
+          </div>
+
           <div id="altar-buttons" className="row justify-content-center">
             <div className="col-3">
               <button

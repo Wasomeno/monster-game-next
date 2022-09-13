@@ -56,31 +56,50 @@ const Nursery = () => {
     >
       {isConnected ? (
         <>
-          <canvas
-            ref={canvasRef}
-            className="nursery-canvas"
-            width={1000}
-            height={window.innerHeight}
-          />
+          <div className="d-flex justify-content-center align-items-center">
+            <canvas
+              ref={canvasRef}
+              className="nursery-canvas"
+              width={1000}
+              height={window.innerHeight}
+            />
+          </div>
+
           <div id="nursery-buttons" className="row justify-content-center">
-            <div className="col-3">
-              <button
-                id="nursery-button"
-                className="btn btn-primary"
-                onClick={() => setShowNursery(true)}
-              >
-                Nursery
+            <motion.div
+              id="nursery-button"
+              className="col-3"
+              initial={{ bottom: "45%" }}
+              animate={{ bottom: "46%" }}
+              transition={{
+                repeat: "Infinity",
+                repeatType: "reverse",
+                duration: 1,
+              }}
+            >
+              <button onClick={() => setShowNursery(true)}>
+                <div id="npc-button">
+                  <span id="npc-button-text">Nursery</span>
+                </div>
               </button>
-            </div>
-            <div className="col-3">
-              <button
-                id="smelter-button"
-                className="btn btn-primary"
-                onClick={() => setShowSmelter(true)}
-              >
-                Smelter
+            </motion.div>
+            <motion.div
+              id="smelter-button"
+              className="col-3"
+              initial={{ bottom: "43%" }}
+              animate={{ bottom: "44%" }}
+              transition={{
+                repeat: "Infinity",
+                repeatType: "reverse",
+                duration: 1,
+              }}
+            >
+              <button onClick={() => setShowSmelter(true)}>
+                <div id="npc-button">
+                  <span id="npc-button-text">Smelter</span>
+                </div>
               </button>
-            </div>
+            </motion.div>
           </div>
           <NurseryModal
             showNursery={showNursery}

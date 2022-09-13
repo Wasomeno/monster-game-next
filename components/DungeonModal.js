@@ -115,12 +115,8 @@ const DungeonModal = ({
                       dungeonSelected.map((monster, index) => (
                         <div
                           key={index}
+                          id="selected-monster-box"
                           className="p-2 mx-2 text-center d-flex justify-content-center align-items-center"
-                          style={{
-                            backgroundColor: "#D8CCA3",
-                            width: "4rem",
-                            height: "4rem",
-                          }}
                         >
                           {monster}
                         </div>

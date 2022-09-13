@@ -85,7 +85,7 @@ const MonsterSelection = ({ monsterSelected, setMonsterSelected }) => {
         >
           <div className="d-flex flex-wrap justify-content-center">
             {loadingMonster ? (
-              <MoonLoader size={50} loading={loadingMonster} />
+              <MoonLoader size={50} loading={loadingMonster} color="#EEEEEE" />
             ) : monsters.length < 1 ? (
               <h5 className="text-center" id="modal-title">
                 No Monsters in Inventory
@@ -94,13 +94,16 @@ const MonsterSelection = ({ monsterSelected, setMonsterSelected }) => {
               monsters.map((monster, index) => (
                 <>
                   <div
+                    id="monster-card"
                     className="card col-3 d-flex m-2 justify-content-center align-items-center"
                     key={index}
-                    style={{ backgroundColor: "#D8CCA3" }}
                     onClick={() => selectMonster(index)}
                   >
                     <img src="/monster.png" width={"50%"} alt="..." />
-                    <div className="card-body py-1 text-center">
+                    <div
+                      className="card-body py-1 text-start"
+                      style={{ color: "#EEEEEE" }}
+                    >
                       <h5 className="card-title" id="modal-title">
                         Monster #{monster.id}
                       </h5>
@@ -135,20 +138,18 @@ const MonsterSelection = ({ monsterSelected, setMonsterSelected }) => {
             <div
               key={index}
               className="p-2 my-2 text-cnter d-flex justify-content-center align-items-start"
+              style={{ position: "relative" }}
             >
               <button
                 className="btn btn-danger rounded-circle"
                 onClick={() => deselectMonster(index)}
+                style={{ position: "absolute", left: "140px", top: "0" }}
               >
                 X
               </button>
               <div
-                className="p-2 my-2 text-cnter d-flex justify-content-center align-items-center"
-                style={{
-                  backgroundColor: "#D8CCA3",
-                  width: "4rem",
-                  height: "4rem",
-                }}
+                id="selected-monster-box"
+                className="p-2 my-2 text-center d-flex justify-content-center align-items-center"
               >
                 {monsterSelected[index] !== undefined ? monster : <h6> + </h6>}
               </div>

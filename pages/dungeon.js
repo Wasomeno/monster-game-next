@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { calcLength, motion } from "framer-motion";
 import NotConnected from "../components/NotConnected";
 import DungeonModal from "../components/DungeonModal";
 import AppContext from "../components/AppContext";
@@ -39,50 +39,57 @@ const Dungeon = () => {
       }
       var xOffset = newWidth < canvas.width ? (canvas.width - newWidth) / 2 : 0;
       var yOffset =
-        newHeight < canvas.height ? (canvas.height - newHeight) / 2 : 0;
+        newHeight < canvas.height ? (canvas.height - newHeight) / 3 : 0;
       drawCanvas(c, xOffset, yOffset, newWidth, newHeight);
     }
   }, [drawCanvas]);
 
+  if (!isConnected) return;
   return (
     <motion.div
-      id="dungeon-container"
-      className="container h-100 p-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ type: "tween", duration: 1 }}
     >
-      <canvas
-        className="dungeon-canvas"
-        ref={canvasRef}
-        width={1000}
-        height={window.innerHeight}
-      />
-      <div className="col-2">
-        <button
-          id="dungeon-button"
-          className="btn btn-primary"
-          onClick={() => setShowDungeon(true)}
-        >
-          Dungeon
-        </button>
+      <div className="d-flex justify-content-center align-items-center">
+        <canvas ref={canvasRef} width={1000} height={window.innerHeight} />
       </div>
-      <div className="col-2">
-        <button
-          id="missions-button"
-          className="btn btn-primary d-flex justify-content-center align-items-center text-center"
-          onClick={() => setShowMission(true)}
-        >
-          <img
-            src="sword_icon.png"
-            className="p-1"
-            width={"35px"}
-            alt="sword-icon"
-          />
-          Missions
+
+      <motion.div
+        id="dungeon-button"
+        className="col-2"
+        initial={{ bottom: "40%" }}
+        animate={{ bottom: "41%" }}
+        transition={{
+          repeat: "Infinity",
+          repeatType: "reverse",
+          duration: 1,
+        }}
+      >
+        <button onClick={() => setShowDungeon(true)}>
+          <div id="npc-button">
+            <span id="npc-button-text">Dungeon</span>
+          </div>
         </button>
-      </div>
+      </motion.div>
+      <motion.div
+        id="mission-button"
+        className="col-2"
+        initial={{ bottom: "52%" }}
+        animate={{ bottom: "51%" }}
+        transition={{
+          repeat: "Infinity",
+          repeatType: "reverse",
+          duration: 1,
+        }}
+      >
+        <button onClick={() => setShowMission(true)}>
+          <div id="npc-button">
+            <span id="npc-button-text">Missions</span>
+          </div>
+        </button>
+      </motion.div>
       <DungeonModal
         showDungeon={showDungeon}
         showMission={showMission}

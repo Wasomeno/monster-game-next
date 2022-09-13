@@ -89,27 +89,28 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
               ) : (
                 monsters.map((details, index) => (
                   <div
+                    id="monster-card"
                     className="card col-2 mx-1 p-3 shadow-sm d-flex flex-column justify-content-end align-items-center"
                     key={index}
                     onClick={() => monsterDetails(details.monster.toString())}
                   >
                     {details.status.toString() === "1" ? (
                       <img
-                        src="sword_icon.png"
+                        src="mission_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end p-1 my-1 bg-primary bg-opacity-25 rounded-circle"
                       />
                     ) : details.status.toString() === "2" ? (
                       <img
-                        src="love_icon.png"
+                        src="resting_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end"
                       />
                     ) : details.status.toString() === "3" ? (
                       <img
-                        src="chest_icon.png"
+                        src="mission_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end"

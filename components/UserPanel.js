@@ -26,10 +26,10 @@ const UserPanel = () => {
     <>
       <div
         id="user-frame"
-        className="h-50 d-flex flex-column justify-content-top align-items-center rounded border border-2 border-dark"
-        style={{ backgroundColor: "#D8CCA3" }}
+        className="h-50 d-flex flex-column justify-content-top align-items-center rounded border border-2 border-light"
+        style={{ background: "rgba(66, 63, 62, 0.5)" }}
       >
-        <h5 id="modal-title" className="p-1">
+        <h5 id="text" className="p-1 text-white">
           {connection.account[0]
             ? connection.account[0].slice(0, 6) +
               "..." +
@@ -42,13 +42,13 @@ const UserPanel = () => {
             backgroundImage: `url(${process.env.PUBLIC_URL + "user-icon.png"})`,
           }}
         />
-        <h6 id="modal-title" className="p-1 w-100">
+        <h6 id="text" className="p-1 w-100 text-white text-center">
           Gold: {gold}
         </h6>
         <div id="user-menu">
           <h5
             id="text"
-            className="border border-dark p-1 px-2 rounded-pill"
+            className="border border-dark p-1 px-2 rounded-pill text-white"
             onClick={() => setShowInventory(true)}
           >
             <img
@@ -61,7 +61,7 @@ const UserPanel = () => {
           </h5>
           <h5
             id="text"
-            className="border border-dark p-1 px-2 rounded-pill"
+            className="border border-dark p-1 px-2 rounded-pill text-white"
             onClick={() => setShowMonsters(true)}
           >
             <img

@@ -39,44 +39,57 @@ const CityHall = () => {
       }
       var xOffset = newWidth < canvas.width ? (canvas.width - newWidth) / 2 : 0;
       var yOffset =
-        newHeight < canvas.height ? (canvas.height - newHeight) / 2 : 0;
+        newHeight < canvas.height ? (canvas.height - newHeight) / 3 : 0;
       drawCanvas(c, xOffset, yOffset, newWidth, newHeight);
     }
   }, [drawCanvas]);
 
+  if (!isConnected) return;
   return (
     <motion.div
-      id="hall-container"
-      className="container h-100 p-0"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ type: "tween", duration: 1.25 }}
     >
-      <canvas
-        className="hall-canvas"
-        ref={canvasRef}
-        width={1000}
-        height={window.innerHeight}
-      />
-      <div className="col-3">
-        <button
-          id="trader-button"
-          className="btn btn-primary"
-          onClick={() => setTraderShow(true)}
-        >
-          Trader
-        </button>
+      <div className="d-flex justify-content-center align-items-center">
+        <canvas ref={canvasRef} width={1000} height={window.innerHeight} />
       </div>
-      <div className="col-3">
-        <button
-          id="shop-button"
-          className="btn btn-primary"
-          onClick={() => setShopShow(true)}
-        >
-          Shop
+
+      <motion.div
+        id="trader-button"
+        className="col-3"
+        initial={{ bottom: "47%" }}
+        animate={{ bottom: "48%" }}
+        transition={{
+          repeat: "Infinity",
+          repeatType: "reverse",
+          duration: 1,
+        }}
+      >
+        <button id="trader-button" onClick={() => setTraderShow(true)}>
+          <div id="npc-button">
+            <span id="npc-button-text">Trader</span>
+          </div>
         </button>
-      </div>
+      </motion.div>
+      <motion.div
+        id="shop-button"
+        className="col-3"
+        initial={{ bottom: "47%" }}
+        animate={{ bottom: "48%" }}
+        transition={{
+          repeat: "Infinity",
+          repeatType: "reverse",
+          duration: 1,
+        }}
+      >
+        <button onClick={() => setShopShow(true)}>
+          <div id="npc-button">
+            <span id="npc-button-text">Shop</span>
+          </div>
+        </button>
+      </motion.div>
       <CityHallModal
         shopShow={shopShow}
         traderShow={traderShow}

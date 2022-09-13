@@ -136,12 +136,8 @@ const NurseryModal = ({ showNursery, setShowNursery }) => {
                 {monsterSelected.length !== 0 ? (
                   monsterSelected.map((monster, index) => (
                     <div
+                      id="selected-monster-box"
                       className="p-2 mx-2 text-center d-flex justify-content-center align-items-center"
-                      style={{
-                        backgroundColor: "#D8CCA3",
-                        width: "4rem",
-                        height: "4rem",
-                      }}
                     >
                       {monster}
                     </div>
