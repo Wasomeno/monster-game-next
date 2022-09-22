@@ -1,45 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import ReactDom from "react-dom";
-import { ethers } from "ethers";
 import { motion } from "framer-motion";
 import MonsterDetails from "./MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
-import { monsterContract } from "../helpers/contractConnection";
+import { BigNumber } from "ethers";
+import { useMonstersAll } from "../hooks/useMonsters";
 import AppContext from "./AppContext";
 
 const MonstersModal = ({ showMonsters, setShowMonsters }) => {
-  const [monsters, setMonsters] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
   const [tokenId, setTokenId] = useState("");
-  const [loading, setLoading] = useState(false);
   const connection = useContext(AppContext);
-  const monsterHandler = monsterContract();
+  const user = connection.account[0];
+  const { monsters, loading } = useMonstersAll(user);
 
-  async function getMonsters() {
-    let myMonsters = [];
-    setLoading(true);
-    await monsterHandler
-      .getMyMonster(connection.account[0])
-      .then((monsters) => {
-        for (let monster of monsters) {
-          monsterHandler.getMonsterStatus(monster).then((response) => {
-            let stat = response;
-            myMonsters.push({ monster: monster, status: stat });
-          });
-        }
-        setMonsters(myMonsters);
-      });
-    setLoading(false);
-  }
-
-  function monsterDetails(tokenId) {
+  function monsterDetails(monster) {
     setShowDetails(true);
-    setTokenId(tokenId);
+    setTokenId(monster);
   }
 
-  useEffect(() => {
-    getMonsters();
-  }, []);
+  useEffect(() => {}, [monsters]);
 
   if (!showMonsters) return;
   return (
@@ -74,12 +53,15 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
               </div>
               <div className="col-4">
                 <h2 className="text-center p-3" id="modal-title">
-                  My Monsters
+                  Your Monsters
                 </h2>
               </div>
               <div className="col-4" />
             </div>
-            <div className="d-flex justify-content-center flex-wrap p-3">
+            <div
+              className="d-flex justify-content-center flex-wrap p-3"
+              style={{ height: "75%", overflow: "scroll" }}
+            >
               {loading ? (
                 <MoonLoader size={50} loading={loading} />
               ) : monsters < 1 ? (
@@ -87,28 +69,28 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                   You don't have a monster
                 </h5>
               ) : (
-                monsters.map((details, index) => (
+                monsters.map((monster, index) => (
                   <div
-                    id="monster-card"
-                    className="card col-2 mx-1 p-3 shadow-sm d-flex flex-column justify-content-end align-items-center"
                     key={index}
-                    onClick={() => monsterDetails(details.monster.toString())}
+                    id="monster-card"
+                    className="card col-2 m-1 p-3 shadow-sm d-flex flex-column justify-content-end align-items-center"
+                    onClick={() => monsterDetails(monster.id.toString())}
                   >
-                    {details.status.toString() === "1" ? (
+                    {parseInt(monster.status) === 1 ? (
                       <img
                         src="mission_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end p-1 my-1 bg-primary bg-opacity-25 rounded-circle"
                       />
-                    ) : details.status.toString() === "2" ? (
+                    ) : parseInt(monster.status) === 2 ? (
                       <img
                         src="resting_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end"
                       />
-                    ) : details.status.toString() === "3" ? (
+                    ) : parseInt(monster.status) === 3 ? (
                       <img
                         src="mission_emote.gif"
                         width={"25%"}
@@ -119,10 +101,14 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                       <></>
                     )}
 
-                    <img src="/monster.png" alt="monster-img" width={"75%"} />
+                    <img
+                      src={"/monsters/" + (parseInt(monster.id) + 1) + ".png"}
+                      alt="monster-img"
+                      width={"100%"}
+                    />
                     <div className="text-center p-0">
                       <h5 className="card-title" id="modal-title">
-                        Monster #{details.monster.toString()}
+                        Monster #{monster.id.toString()}
                       </h5>
                     </div>
                   </div>
