@@ -40,6 +40,7 @@ const UserPanel = () => {
 
   useEffect(() => {
     getUserDetails();
+    getGold();
   }, [details.length]);
 
   return (
