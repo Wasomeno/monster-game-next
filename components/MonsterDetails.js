@@ -3,20 +3,21 @@ import { motion } from "framer-motion";
 import { BigNumber, ethers } from "ethers";
 import MoonLoader from "react-spinners/MoonLoader";
 import FeedModal from "./FeedModal";
-import { monsterContract } from "../helpers/contractConnection";
+import { monsterContract } from "../hooks/useContract";
+import PotionModal from "./PotionModal";
 
 const MonsterDetails = ({ tokenId, setShowDetails }) => {
   const [details, setDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [showFeed, setShowFeed] = useState(false);
   const [showPotions, setShowPotions] = useState(false);
-  const monster = monsterContract();
+  const monsterHandler = monsterContract();
 
   async function getDetails() {
-    await monster.monsterStats(tokenId).then((response) => {
+    await monsterHandler.monsterStats(tokenId).then((response) => {
       setDetails({
         level: response.level.toString(),
-        hunger: response.hunger.toString(),
+        hunger: response.energy.toString(),
         exp: response.exp.toString(),
         expCap: response.expCap.toString(),
         status: response.status.toString(),
@@ -28,7 +29,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
 
   useEffect(() => {
     getDetails();
-  }, []);
+  }, [details.energy]);
 
   return (
     <>
@@ -58,17 +59,24 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
             <>
               <div className="col">
                 <div className="d-flex flex-column align-items-center justify-content-center">
-                  <img alt="monster" src="/monster.png" width={"50%"} />
-                  <div className="d-flex justify-content-center align-items-center">
+                  <div className="col-6 m-3">
+                    <img
+                      alt="monster-img"
+                      src={"/monsters/" + (parseInt(tokenId) + 1) + ".png"}
+                      width={"100%"}
+                    />
+                  </div>
+
+                  <div className="d-flex justify-content-center align-items-center my-2">
                     <button
-                      className="btn btn-success mx-1"
+                      className="btn btn-success mx-1 col-6"
                       onClick={() => setShowFeed(true)}
                     >
                       Feed
                     </button>
 
                     <button
-                      className="btn btn-success mx-1"
+                      className="btn btn-success mx-1 col-6"
                       onClick={() => setShowPotions(true)}
                     >
                       Potion
@@ -108,7 +116,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
                   <div className="d-flex align-items-center justify-content-between">
                     <div className="col-3">
                       <h5 className="m-0" id="modal-title">
-                        Hunger :
+                        Energy :
                       </h5>
                     </div>
                     <div className="col-2">
@@ -211,8 +219,13 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
       <FeedModal
         setShowFeed={setShowFeed}
         showFeed={showFeed}
-        tokenId={tokenId}
+        monster={tokenId}
         level={details.level}
+      />
+      <PotionModal
+        setShowPotions={setShowPotions}
+        showPotions={showPotions}
+        monster={tokenId}
       />
     </>
   );
