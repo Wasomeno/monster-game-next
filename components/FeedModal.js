@@ -1,32 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import ItemsABI from "../abi/Items.json";
-import MonsterGameABI from "../abi/MonsterGame.json";
+import { itemsContract, monsterGameContract } from "../hooks/useContract";
 import { ethers } from "ethers";
+import AppContext from "./AppContext";
 
-const MonsterGameContract = "0x697049b6FcFDa75dE7bA4FBd9C364382c745BF8C";
-const ItemsContract = "0x633c04c362381BbD1C9B8762065318Cb4F207989";
-
-const FeedModal = ({ showFeed, setShowFeed, tokenId, level }) => {
+const FeedModal = ({ showFeed, setShowFeed, monster, level }) => {
+  const connection = useContext(AppContext);
   const [amount, setAmount] = useState(1);
   const [potion, setPotion] = useState(0);
-
-  const itemsContract = new ethers.Contract(
-    ItemsContract,
-    ItemsABI.abi,
-    signer
-  );
+  const user = connection.account[0];
+  const itemsHelper = itemsContract();
+  const monsterGameHelper = monsterGameContract();
 
   async function getPotion() {
-    await itemsContract.balanceOf(signer.getAddress(), 2).then((response) => {
+    await itemsHelper.balanceOf(connection.account[0], 2).then((response) => {
       setPotion(response);
     });
   }
 
-  async function payToFeed() {
-    const fee = ethers.utils.parseEther("0.0001");
-    const totalFee = 10 * amount * fee * level;
-    await monsterGameContract.feedMonster(tokenId, amount * 10, {
+  async function feed() {
+    const fee = await monsterGameHelper.FEEDING_FEE();
+    const totalAmount = amount * 10;
+    const totalFee = totalAmount * fee * level;
+    await monsterGameHelper.feedMonster(user, monster, totalAmount, {
       value: totalFee,
     });
   }
@@ -65,13 +61,13 @@ const FeedModal = ({ showFeed, setShowFeed, tokenId, level }) => {
         transition={{ type: "tween", duration: 0.25 }}
       >
         <div className="row justify-content-center align-items-center">
-          <h3 className="text-center p-2" id="modal-title">
+          <h3 className="text-center p-2 text-white" id="modal-title">
             Feed Monsters
           </h3>
         </div>
         <div className="row justify-content-center align-items-center">
           <div className="col text-center">
-            <h4 className="m-0 p-1" id="modal-title">
+            <h4 className="m-0 p-1 text-white" id="text">
               Pay to Feed
             </h4>
             <div className="d-flex justify-content-center align-items-center">
@@ -82,22 +78,18 @@ const FeedModal = ({ showFeed, setShowFeed, tokenId, level }) => {
                 type="text"
                 className="form-control w-25 mx-1 text-center"
                 value={amount}
-                id="modal-title"
+                id="text"
               />
               <button className="btn btn-success" onClick={increment}>
                 +
               </button>
             </div>
-            <button
-              className="btn btn-success"
-              id="modal-title"
-              onClick={() => payToFeed()}
-            >
+            <button className="btn btn-success my-2" id="text" onClick={feed}>
               Feed
             </button>
           </div>
           <div className="col text-center">
-            <h4 className="m-0 p-1" id="modal-title">
+            <h4 className="m-0 p-1 text-white" id="text">
               Use Potion
             </h4>
             <div className="d-flex justify-content-center align-items-center">
@@ -106,7 +98,7 @@ const FeedModal = ({ showFeed, setShowFeed, tokenId, level }) => {
                 x {potion.toString()}
               </h5>
             </div>
-            <button className="btn btn-success" id="modal-title">
+            <button className="btn btn-success" id="text">
               Use Potion
             </button>
           </div>
