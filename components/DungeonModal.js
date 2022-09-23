@@ -6,14 +6,16 @@ import { dungeonContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import useProvider from "../hooks/useProvider";
+import { dungeonTime, missionTime } from "../helpers/getTime";
 
 const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   const [showDungeonSelect, setShowDungeonSelect] = useState(false);
   const [onDungeon, setOnDungeon] = useState([]);
-  const [monsterSelected, selectMonster, deselectMonster] =
+  const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
   const [loadingOnDungeon, setLoadingOnDungeon] = useState(false);
   const [setLoadingText, toggleLoading, LoadingScreen] = setLoading();
+  const [timeElapsed, setTimeElapsed] = useState(0);
   const connection = useContext(AppContext);
   const dungeonHandler = dungeonContract();
   const provider = useProvider();
@@ -26,6 +28,11 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
         setOnDungeon(response);
       });
     setLoadingOnDungeon(false);
+  }
+
+  async function getDungeonTime() {
+    const time = await dungeonTime(connection.account[0]);
+    setTimeElapsed(time);
   }
 
   async function sendToDungeon() {
@@ -41,23 +48,25 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
       });
   }
 
-  async function finishDungeon(monster) {
+  async function finishDungeon() {
     await dungeonHandler
       .finishDungeon(connection.account[0])
       .then((response) => {
         setLoadingText("Bringing Your Monsters Back...");
         toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
-          getMonstersOnDungeon();
           toggleLoading();
+          clearMonsters();
+          getMonstersOnDungeon();
         });
       });
   }
 
   useEffect(() => {
     getMonstersOnDungeon();
-    console.log(onDungeon);
-  }, [onDungeon.length]);
+    getDungeonTime();
+    console.log(timeElapsed);
+  }, [showDungeon, onDungeon.length]);
 
   if (!showDungeon) return;
   return (
@@ -161,11 +170,14 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
                 </button>
               ) : (
                 <button
+                  disabled={timeElapsed >= 0 ? false : true}
                   style={{ fontSize: "20px", fontFamily: "Monogram" }}
                   className="btn btn-danger col-3 m-2"
                   onClick={finishDungeon}
                 >
-                  Bring back Monsters
+                  {timeElapsed >= 0
+                    ? "Finish Mission"
+                    : Math.abs(timeElapsed) + " Minutes"}
                 </button>
               )}
             </div>
