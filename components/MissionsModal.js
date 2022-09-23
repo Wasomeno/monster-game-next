@@ -6,8 +6,9 @@ import AppContext from "./AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import useProvider from "../hooks/useProvider";
 import useToggle from "../hooks/useToggle";
-import LoadingScreen from "./LoadingScreen";
+import { setLoading } from "./LoadingScreen";
 import MissionFinishedModal from "./MissionFinishedModal";
+import { missionTime } from "../helpers/getTime";
 
 const MissionsModal = ({ showMission, toggleShowMission }) => {
   const [onMission, setOnMission] = useState([]);
@@ -15,9 +16,9 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
     useMonsterSelected();
   const [showMissionSelect, setShowMissionSelect] = useState(false);
   const [missionFinished, toggleMissionFinished] = useToggle(false);
-  const [loading, toggleLoading] = useToggle(false);
+  const [setText, toggleLoading, LoadingScreen] = setLoading();
   const [rewards, setRewards] = useState([]);
-  const [text, setText] = useState("");
+  const [remainingTime, setRemainingTime] = useState(0);
   const provider = useProvider();
   const connection = useContext(AppContext);
   const monsterGameHandler = monsterGameContract();
@@ -58,8 +59,8 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
         setText("Bringing Your Monsters Back...");
         toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
-          getMonstersOnMissions();
           toggleLoading();
+          getMonstersOnMissions();
         });
       });
   }
@@ -68,16 +69,21 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
     return nonString.toString();
   }
 
+  async function getMissionTime() {
+    const time = missionTime(connection.account[0]);
+    setRemainingTime(time);
+  }
+
   useEffect(() => {
     getMonstersOnMissions();
-    console.log(onMission);
-  }, [onMission.length]);
+    getMissionTime();
+  }, [showMission, onMission.length]);
 
   if (!showMission) return;
 
   return (
     <>
-      <LoadingScreen loading={loading} text={text} />
+      <LoadingScreen />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
@@ -175,10 +181,13 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
               ) : (
                 <button
                   id="text"
+                  disabled={remainingTime >= 0 ? false : true}
                   className="btn btn-danger p-2 col-3 m-2"
                   onClick={finishMission}
                 >
-                  Bring back Monsters
+                  {remainingTime >= 0
+                    ? "Bring back Monsters"
+                    : Math.abs(remainingTime) + "  Minutes"}
                 </button>
               )}
             </div>

@@ -6,21 +6,21 @@ import MonsterSelection from "./MonsterSelection";
 import useProvider from "../hooks/useProvider";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import AppContext from "./AppContext";
-import LoadingScreen from "./LoadingScreen";
-import useToggle from "../hooks/useToggle";
+import { nurseryTime } from "../helpers/getTime";
+import { setLoading } from "./LoadingScreen";
 
 const NurseryModal = ({ showNursery, toggleShowNursery }) => {
   const connection = useContext(AppContext);
   const [onNursery, setOnNursery] = useState([]);
   const [showSelectMonster, setShowSelectMonster] = useState(false);
-  const [loading, toggleLoading] = useToggle(false);
-  const [text, setText] = useState("");
+
   const [monsterSelected, selectMonster, deselectMonster] =
     useMonsterSelected();
   const [duration, setDuration] = useState(1);
   const nurseryHandler = nurseryContract();
   const provider = useProvider();
-
+  const [setText, toggleLoading, LoadingScreen] = setLoading();
+  const [remainingTime, setRemainingTime] = useState(0);
   async function sendToNursery() {
     const fee = await nurseryHandler.RESTING_FEE();
     const totalFee = fee * duration;
@@ -33,8 +33,8 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
           setText("Sending Monsters to Nursery...");
           toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
-            toggleLoading();
             getOnNursery();
+            toggleLoading();
           });
         });
     } catch (error) {
@@ -55,6 +55,11 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
           toggleLoading();
         });
       });
+  }
+
+  async function getNurseryTime() {
+    const time = await nurseryTime(connection.account[0]);
+    setRemainingTime(time);
   }
 
   function intoString(nonString) {
@@ -81,12 +86,13 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
 
   useEffect(() => {
     getOnNursery();
-  }, [onNursery]);
+    getNurseryTime();
+  }, [onNursery.length]);
 
   if (!showNursery) return;
   return (
     <>
-      <LoadingScreen loading={loading} text={text} />
+      <LoadingScreen />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
@@ -202,10 +208,13 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
               ) : (
                 <button
                   id="text"
+                  disabled={remainingTime >= 0 ? false : true}
                   className="btn btn-danger p-2 col-3 m-2"
                   onClick={finishResting}
                 >
-                  Bring back Monsters
+                  {remainingTime >= 0
+                    ? "Bring back Monsters"
+                    : Math.abs(remainingTime) + " Minutes"}
                 </button>
               )}
             </div>
