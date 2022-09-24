@@ -6,7 +6,7 @@ import { dungeonContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import useProvider from "../hooks/useProvider";
-import { dungeonTime, missionTime } from "../helpers/getTime";
+import { dungeonTime } from "../helpers/getTime";
 
 const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   const [showDungeonSelect, setShowDungeonSelect] = useState(false);
@@ -14,52 +14,63 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
   const [loadingOnDungeon, setLoadingOnDungeon] = useState(false);
-  const [setLoadingText, toggleLoading, LoadingScreen] = setLoading();
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const connection = useContext(AppContext);
+  const user = useContext(AppContext).account[0];
+  const toast = useContext(AppContext).toast;
+  const loading = useContext(AppContext).loading;
   const dungeonHandler = dungeonContract();
   const provider = useProvider();
 
   async function getMonstersOnDungeon() {
     setLoadingOnDungeon(true);
-    await dungeonHandler
-      .getMonstersOnDungeon(connection.account[0])
-      .then((response) => {
-        setOnDungeon(response);
-      });
+    await dungeonHandler.getMonstersOnDungeon(user).then((response) => {
+      setOnDungeon(response);
+    });
     setLoadingOnDungeon(false);
   }
 
   async function getDungeonTime() {
-    const time = await dungeonTime(connection.account[0]);
+    const time = await dungeonTime(user);
     setTimeElapsed(time);
   }
 
   async function sendToDungeon() {
-    await dungeonHandler
-      .startDungeon(monsterSelected, connection.account[0])
-      .then((response) => {
-        setLoadingText("Sending Monsters to Dungeon...");
-        toggleLoading();
-        provider.waitForTransaction(response.hash).then(() => {
-          getMonstersOnDungeon();
-          toggleLoading();
+    try {
+      await dungeonHandler
+        .startDungeon(monsterSelected, user)
+        .then((response) => {
+          loading.setLoadingText("Sending Monsters to Dungeon...");
+          loading.toggleLoading();
+          provider.waitForTransaction(response.hash).then(() => {
+            loading.toggleLoading();
+            getMonstersOnDungeon();
+          });
         });
-      });
+    } catch (error) {
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(toast.toggleToast(), 2000);
+    }
   }
 
   async function finishDungeon() {
-    await dungeonHandler
-      .finishDungeon(connection.account[0])
-      .then((response) => {
-        setLoadingText("Bringing Your Monsters Back...");
-        toggleLoading();
+    try {
+      await dungeonHandler.finishDungeon(user).then((response) => {
+        loading.setLoadingText("Bringing Your Monsters Back...");
+        loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
-          toggleLoading();
           clearMonsters();
+          loading.toggleLoading();
           getMonstersOnDungeon();
         });
       });
+    } catch (error) {
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(toggleToast(), 2000);
+    }
   }
 
   useEffect(() => {
@@ -71,7 +82,6 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   if (!showDungeon) return;
   return (
     <>
-      <LoadingScreen />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
@@ -170,7 +180,7 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
                 </button>
               ) : (
                 <button
-                  disabled={timeElapsed >= 0 ? false : true}
+                  // disabled={timeElapsed >= 0 ? false : true}
                   style={{ fontSize: "20px", fontFamily: "Monogram" }}
                   className="btn btn-danger col-3 m-2"
                   onClick={finishDungeon}

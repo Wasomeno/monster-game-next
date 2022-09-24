@@ -1,77 +1,80 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { nurseryContract } from "../hooks/useContract";
-import { ethErrors } from "eth-rpc-errors";
 import MonsterSelection from "./MonsterSelection";
 import useProvider from "../hooks/useProvider";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import AppContext from "./AppContext";
 import { nurseryTime } from "../helpers/getTime";
-import { setLoading } from "./LoadingScreen";
 
 const NurseryModal = ({ showNursery, toggleShowNursery }) => {
-  const connection = useContext(AppContext);
+  const user = useContext(AppContext).account[0];
   const [onNursery, setOnNursery] = useState([]);
   const [showSelectMonster, setShowSelectMonster] = useState(false);
-
   const [monsterSelected, selectMonster, deselectMonster] =
     useMonsterSelected();
   const [duration, setDuration] = useState(1);
+  const [remainingTime, setRemainingTime] = useState(0);
   const nurseryHandler = nurseryContract();
   const provider = useProvider();
-  const [setText, toggleLoading, LoadingScreen] = setLoading();
-  const [remainingTime, setRemainingTime] = useState(0);
+  const loading = useContext(AppContext).loading;
+  const toast = useContext(AppContext).toast;
+
   async function sendToNursery() {
     const fee = await nurseryHandler.RESTING_FEE();
     const totalFee = fee * duration;
     try {
       await nurseryHandler
-        .restMonsters(monsterSelected, connection.account[0], duration, {
+        .restMonsters(monsterSelected, user, duration, {
           value: totalFee,
         })
         .then(() => {
-          setText("Sending Monsters to Nursery...");
-          toggleLoading();
+          loading.setLoadingText("Sending Monsters to Nursery...");
+          loading.toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
+            loading.toggleLoading();
             getOnNursery();
-            toggleLoading();
           });
         });
     } catch (error) {
-      let newError = ethErrors.provider.userRejectedRequest({
-        message: "User Rejected",
-      });
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(() => toast.toggleToast(), 2500);
     }
   }
 
   async function finishResting() {
-    await nurseryHandler
-      .finishResting(connection.account[0])
-      .then((response) => {
-        setText("Bringing Your Monsters Back...");
-        toggleLoading();
+    try {
+      await nurseryHandler.finishResting(user).then((response) => {
+        loading.setLoadingText("Bringing Your Monsters Back...");
+        loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
+          loading.toggleLoading();
           getOnNursery();
-          toggleLoading();
         });
       });
+    } catch (error) {
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(() => toast.toggleToast(), 2500);
+    }
   }
 
-  async function getNurseryTime() {
-    const time = await nurseryTime(connection.account[0]);
-    setRemainingTime(time);
-  }
+  // async function getNurseryTime() {
+  //   const time = await nurseryTime(user);
+  //   setRemainingTime(time);
+  // }
 
   function intoString(nonString) {
     return nonString.toString();
   }
 
   async function getOnNursery() {
-    await nurseryHandler
-      .getRestingMonsters(connection.account[0])
-      .then((monsters) => {
-        setOnNursery(monsters);
-      });
+    await nurseryHandler.getRestingMonsters(user).then((monsters) => {
+      setOnNursery(monsters);
+    });
   }
 
   const increment = () => {
@@ -86,13 +89,12 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
 
   useEffect(() => {
     getOnNursery();
-    getNurseryTime();
+    // getNurseryTime();
   }, [onNursery.length]);
 
   if (!showNursery) return;
   return (
     <>
-      <LoadingScreen />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
@@ -208,7 +210,7 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
               ) : (
                 <button
                   id="text"
-                  disabled={remainingTime >= 0 ? false : true}
+                  // disabled={remainingTime >= 0 ? false : true}
                   className="btn btn-danger p-2 col-3 m-2"
                   onClick={finishResting}
                 >

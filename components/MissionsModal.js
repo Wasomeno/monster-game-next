@@ -9,6 +9,7 @@ import useToggle from "../hooks/useToggle";
 import { setLoading } from "./LoadingScreen";
 import MissionFinishedModal from "./MissionFinishedModal";
 import { missionTime } from "../helpers/getTime";
+import { setToast } from "./Toast";
 
 const MissionsModal = ({ showMission, toggleShowMission }) => {
   const [onMission, setOnMission] = useState([]);
@@ -16,53 +17,57 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
     useMonsterSelected();
   const [showMissionSelect, setShowMissionSelect] = useState(false);
   const [missionFinished, toggleMissionFinished] = useToggle(false);
-  const [setText, toggleLoading, LoadingScreen] = setLoading();
   const [rewards, setRewards] = useState([]);
   const [remainingTime, setRemainingTime] = useState(0);
   const provider = useProvider();
-  const connection = useContext(AppContext);
+  const user = useContext(AppContext).account[0];
+  const toast = useContext(AppContext).toast;
+  const loading = useContext(AppContext).loading;
   const monsterGameHandler = monsterGameContract();
   const itemsHandler = itemsContract();
 
   async function getMonstersOnMissions() {
-    await monsterGameHandler
-      .getMonstersOnMission(connection.account[0])
-      .then((monsters) => {
-        setOnMission(monsters);
-      });
+    await monsterGameHandler.getMonstersOnMission(user).then((monsters) => {
+      setOnMission(monsters);
+    });
   }
 
   async function sendToMission() {
     try {
       await monsterGameHandler
-        .startMission(1, monsterSelected, connection.account[0])
+        .startMission(1, monsterSelected, user)
         .then((response) => {
-          setText("Sending Monsters to Mission...");
-          toggleLoading();
+          loading.setLoadingText("Sending Monsters to Mission...");
+          loading.toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
-            toggleLoading();
+            loading.toggleLoading();
             getMonstersOnMissions();
           });
         });
     } catch (error) {
-      const reason = error.reason.split(":");
-      setText(reason[1]);
-      toggleLoading();
-      setTimeout(() => toggleLoading(), 2000);
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(() => toast.toggleToast(), 2000);
     }
   }
 
   async function finishMission() {
-    await monsterGameHandler
-      .finishMission(1, connection.account[0])
-      .then((response) => {
-        setText("Bringing Your Monsters Back...");
-        toggleLoading();
+    try {
+      await monsterGameHandler.finishMission(1, user).then((response) => {
+        loading.setLoadingText("Bringing Your Monsters Back...");
+        loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
-          toggleLoading();
+          loading.toggleLoading();
           getMonstersOnMissions();
         });
       });
+    } catch (error) {
+      toast.setToastText(error.reason);
+      toast.setCondition("error");
+      toast.toggleToast();
+      setTimeout(() => toast.toggleToast(), 2500);
+    }
   }
 
   function intoString(nonString) {
@@ -70,7 +75,7 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
   }
 
   async function getMissionTime() {
-    const time = missionTime(connection.account[0]);
+    const time = await missionTime(user);
     setRemainingTime(time);
   }
 
@@ -83,7 +88,6 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
 
   return (
     <>
-      <LoadingScreen />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
