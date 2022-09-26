@@ -2,25 +2,33 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import MonsterDetails from "./MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
-import { BigNumber } from "ethers";
 import { useMonstersAll } from "../hooks/useMonsters";
 import AppContext from "./AppContext";
 
 const MonstersModal = ({ showMonsters, setShowMonsters }) => {
+  if (!showMonsters) return;
   const [showDetails, setShowDetails] = useState(false);
   const [tokenId, setTokenId] = useState("");
+  const [monsters, setMonsters] = useState([]);
   const connection = useContext(AppContext);
   const user = connection.account[0];
-  const { monsters, loading } = useMonstersAll(user);
+  const { getMonsters, loading } = useMonstersAll(user);
 
   function monsterDetails(monster) {
     setShowDetails(true);
     setTokenId(monster);
   }
 
-  useEffect(() => {}, [monsters]);
+  async function fetchMonsters() {
+    const fetchedMonsters = await getMonsters();
+    setMonsters(fetchedMonsters);
+  }
 
-  if (!showMonsters) return;
+  useEffect(() => {
+    fetchMonsters();
+    console.log(monsters);
+  }, [monsters.length]);
+
   return (
     <>
       <motion.div
@@ -59,11 +67,11 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
               <div className="col-4" />
             </div>
             <div
-              className="d-flex justify-content-center flex-wrap p-3"
+              className="d-flex justify-content-center align-items-center flex-wrap p-3 "
               style={{ height: "75%", overflow: "scroll" }}
             >
               {loading ? (
-                <MoonLoader size={50} loading={loading} />
+                <MoonLoader size={50} loading={loading} color={"#eee"} />
               ) : monsters < 1 ? (
                 <h5 className="m-0" id="modal-title">
                   You don't have a monster
@@ -73,7 +81,8 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                   <div
                     key={index}
                     id="monster-card"
-                    className="card col-2 m-1 p-3 shadow-sm d-flex flex-column justify-content-end align-items-center"
+                    style={{ height: "18rem" }}
+                    className="card col-2 m-1 p-3 shadow-sm d-flex flex-column justify-content-center align-items-center"
                     onClick={() => monsterDetails(monster.id.toString())}
                   >
                     {parseInt(monster.status) === 1 ? (
@@ -104,7 +113,8 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                     <img
                       src={"/monsters/" + (parseInt(monster.id) + 1) + ".png"}
                       alt="monster-img"
-                      width={"100%"}
+                      width={"75%"}
+                      height={"50%"}
                     />
                     <div className="text-center p-0">
                       <h5 className="card-title" id="modal-title">
