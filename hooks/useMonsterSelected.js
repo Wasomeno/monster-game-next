@@ -1,8 +1,7 @@
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 export default function () {
   const [monsterSelected, setMonsterSelected] = useState([]);
-
   const selectMonster = (monster) => {
     if (monsterSelected.length >= 6) return;
     let result = checkSelectedMonsters(monster);
@@ -33,5 +32,11 @@ export default function () {
     );
   }
 
-  return [monsterSelected, selectMonster, deselectMonster];
+  function clearMonsters() {
+    setMonsterSelected([]);
+  }
+
+  useEffect(() => {}, [monsterSelected]);
+
+  return [monsterSelected, selectMonster, deselectMonster, clearMonsters];
 }
