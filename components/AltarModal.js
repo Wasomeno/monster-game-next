@@ -1,19 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { ethers } from "ethers";
-import MonsterABI from "../abi/Monsters.json";
+import { monsterContract } from "../hooks/useContract";
+import AppContext from "./AppContext";
 
-const MonsterContract = "0x90B9aCC7C0601224310f3aFCaa451c0D545a1b41";
-
-const AltarModal = ({ showAltar, setShowAltar }) => {
+const AltarModal = ({ showAltar, toggleShowAltar }) => {
   const [quantity, setQuantity] = useState(1);
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
-  const monsterContract = new ethers.Contract(
-    MonsterContract,
-    MonsterABI.abi,
-    signer
-  );
+  const connection = useContext(AppContext);
+  const monsterHandler = monsterContract();
 
   const increment = () => {
     if (quantity >= 5) return;
@@ -26,10 +20,10 @@ const AltarModal = ({ showAltar, setShowAltar }) => {
   };
 
   async function summonMonster() {
-    const price = await monsterContract.price();
-    await monsterContract
+    const price = await monsterHandler.SUMMON_PRICE();
+    await monsterHandler
       .summon(quantity, { value: price * quantity })
-      .then((response) => {
+      .then(() => {
         setQuantity(1);
       });
   }
@@ -39,7 +33,7 @@ const AltarModal = ({ showAltar, setShowAltar }) => {
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
-        onClick={() => setShowAltar(false)}
+        onClick={toggleShowAltar}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -55,7 +49,7 @@ const AltarModal = ({ showAltar, setShowAltar }) => {
       >
         <img
           src="/back_icon.png"
-          onClick={() => setShowAltar(false)}
+          onClick={toggleShowAltar}
           width={"45px"}
           alt="back-img"
         />
@@ -85,8 +79,10 @@ const AltarModal = ({ showAltar, setShowAltar }) => {
           </button>
         </div>
         <div className="row justify-content-center">
-          <button className="btn btn-warning m-2 w-25" onClick={summonMonster}>
-            Summon
+          <button className="btn btn-primary m-2 w-25" onClick={summonMonster}>
+            <h5 id="text" className="text-white m-0">
+              Summon
+            </h5>
           </button>
         </div>
       </motion.div>
