@@ -5,20 +5,17 @@ import { itemsContract, monsterGameContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import useProvider from "../hooks/useProvider";
-import useToggle from "../hooks/useToggle";
-import { setLoading } from "./LoadingScreen";
-import MissionFinishedModal from "./MissionFinishedModal";
 import { missionTime } from "../helpers/getTime";
-import { setToast } from "./Toast";
+import { setRewardModal } from "./RewardsModal";
 
 const MissionsModal = ({ showMission, toggleShowMission }) => {
   const [onMission, setOnMission] = useState([]);
-  const [monsterSelected, selectMonster, deselectMonster] =
+  const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
+  const [setRewards, toggleRewardsModal, RewardsModal] = setRewardModal();
   const [showMissionSelect, setShowMissionSelect] = useState(false);
-  const [missionFinished, toggleMissionFinished] = useToggle(false);
-  const [rewards, setRewards] = useState([]);
   const [remainingTime, setRemainingTime] = useState(0);
+  const [mission, setMission] = useState(1);
   const provider = useProvider();
   const user = useContext(AppContext).account[0];
   const toast = useContext(AppContext).toast;
@@ -32,42 +29,75 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
     });
   }
 
+  function decrement() {
+    if (mission === 1) return;
+    setMission((current) => current - 1);
+  }
+
+  function increment() {
+    if (mission === 2) return;
+    setMission((current) => current + 1);
+  }
+
   async function sendToMission() {
     try {
       await monsterGameHandler
-        .startMission(1, monsterSelected, user)
+        .startMission(mission, monsterSelected, user)
         .then((response) => {
           loading.setLoadingText("Sending Monsters to Mission...");
           loading.toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
             loading.toggleLoading();
+            clearMonsters();
             getMonstersOnMissions();
+            toast.success("Transaction Success");
           });
         });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(() => toast.toggleToast(), 2000);
+      toast.error(error.reason);
     }
   }
 
   async function finishMission() {
     try {
-      await monsterGameHandler.finishMission(1, user).then((response) => {
+      await monsterGameHandler.finishMission(mission, user).then((response) => {
         loading.setLoadingText("Bringing Your Monsters Back...");
         loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
           loading.toggleLoading();
           getMonstersOnMissions();
+          toast.success("Transaction Success");
+          setTimeout(() => showRewards(), 1500);
         });
       });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(() => toast.toggleToast(), 2500);
+      toast.error(error.reason);
     }
+  }
+
+  function showRewards() {
+    let rewardsGot = [];
+    toast.spinner("Getting your rewards...");
+    itemsHandler.on("BeginnerMissionReward", (_monster, _items, _amount) => {
+      if (_items.length === 0 && _amount.length === 0) return;
+      rewardsGot.push({ _monster, _items, _amount });
+    });
+
+    itemsHandler.on(
+      "IntermediateMissionReward",
+      (_monster, _items, _amount) => {
+        if (_items.length === 0 && _amount.length === 0) return;
+        rewardsGot.push({ _monster, _items, _amount });
+      }
+    );
+
+    setRewards(rewardsGot);
+
+    setTimeout(() => {
+      toast.toggleToast();
+      toast.toggleSpinner();
+    }, 3000);
+    setTimeout(() => toggleRewardsModal(), 3500);
   }
 
   function intoString(nonString) {
@@ -88,6 +118,7 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
 
   return (
     <>
+      <RewardsModal />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
@@ -164,6 +195,30 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
                   ))
                 )}
               </div>
+              <div className="col-4 justify-content-center align-items-center border border-dark border-2 rounded mx-1">
+                <h5 id="text" className="m-0 p-2 text-white text-center">
+                  Mission Types
+                </h5>
+                <div className="d-flex justify-content-around align-items-center">
+                  <div className="col-2" onClick={decrement}>
+                    <h5 id="text" className="text-white m-0">
+                      {"<"}
+                    </h5>
+                  </div>
+                  <div className="col-6">
+                    <h5 id="text" className="text-white m-0 mx-1 text-center">
+                      {mission === 1
+                        ? "Beginner Mission"
+                        : "Intermediate Mission"}
+                    </h5>
+                  </div>
+                  <div className="col-2" onClick={increment}>
+                    <h5 id="text" className="text-white m-0">
+                      {">"}
+                    </h5>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="row justify-content-center p-2 my-3">
               <button
@@ -185,7 +240,7 @@ const MissionsModal = ({ showMission, toggleShowMission }) => {
               ) : (
                 <button
                   id="text"
-                  disabled={remainingTime >= 0 ? false : true}
+                  // disabled={remainingTime >= 0 ? false : true}
                   className="btn btn-danger p-2 col-3 m-2"
                   onClick={finishMission}
                 >

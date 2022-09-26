@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { setLoading } from "./LoadingScreen";
 import MonsterSelection from "./MonsterSelection";
-import { dungeonContract } from "../hooks/useContract";
+import { dungeonContract, itemsContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import useProvider from "../hooks/useProvider";
 import { dungeonTime } from "../helpers/getTime";
+import { setRewardModal } from "./RewardsModal";
 
 const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   const [showDungeonSelect, setShowDungeonSelect] = useState(false);
@@ -15,10 +16,12 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
     useMonsterSelected();
   const [loadingOnDungeon, setLoadingOnDungeon] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [setRewards, toggleRewardsModal, RewardsModal] = setRewardModal();
   const user = useContext(AppContext).account[0];
   const toast = useContext(AppContext).toast;
   const loading = useContext(AppContext).loading;
   const dungeonHandler = dungeonContract();
+  const itemsHandler = itemsContract();
   const provider = useProvider();
 
   async function getMonstersOnDungeon() {
@@ -43,14 +46,13 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
           loading.toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
             loading.toggleLoading();
+            clearMonsters();
             getMonstersOnDungeon();
+            toast.success("Transaction Success");
           });
         });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(toast.toggleToast(), 2000);
+      toast.error(error.reason);
     }
   }
 
@@ -60,17 +62,32 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
         loading.setLoadingText("Bringing Your Monsters Back...");
         loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
-          clearMonsters();
           loading.toggleLoading();
           getMonstersOnDungeon();
+          toast.success("Transaction Success");
+          setTimeout(() => showRewards(), 1500);
         });
       });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(toggleToast(), 2000);
+      toast.error(error.reason);
     }
+  }
+
+  function showRewards() {
+    let rewardsGot = [];
+    toast.spinner("Getting your rewards...");
+    itemsHandler.on("BossFightReward", (_monster, _items, _amount) => {
+      if (_items.length === 0 && _amount.length === 0) return;
+      rewardsGot.push({ _monster, _items, _amount });
+    });
+
+    setRewards(rewardsGot);
+
+    setTimeout(() => {
+      toast.toggleToast();
+      toast.toggleSpinner();
+    }, 3000);
+    setTimeout(() => toggleRewardsModal(), 3500);
   }
 
   useEffect(() => {
@@ -82,6 +99,7 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   if (!showDungeon) return;
   return (
     <>
+      <RewardsModal />
       <motion.div
         id="modal-screen"
         className="h-100 w-100 bg-dark bg-opacity-75"
