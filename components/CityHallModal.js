@@ -1,28 +1,31 @@
 import { motion } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { BigNumber, ethers } from "ethers";
-import { traderContract, itemsContract } from "../helpers/contractConnection";
+import { traderContract, itemsContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
+import useProvider from "../hooks/useProvider";
 
 const CityHallModal = ({
-  shopShow,
-  traderShow,
-  setShopShow,
-  setTraderShow,
+  showShop,
+  showTrader,
+  toggleShowShop,
+  toggleShowTrader,
 }) => {
   const [bag, setBag] = useState([]);
   const [dailyShop, setDailyShop] = useState([]);
   const [trades, setTrades] = useState([]);
   const [quantity, setQuantity] = useState([]);
   const [activeItem, setActiveItem] = useState(0);
-  const connection = useContext(AppContext);
-  const trader = traderContract();
-  const items = itemsContract();
+  const toast = useContext(AppContext).toast;
+  const loading = useContext(AppContext).loading;
+  const user = useContext(AppContext).account[0];
+  const traderHandler = traderContract();
+  const itemsHandler = itemsContract();
+  const provider = useProvider();
 
   async function getShop() {
     let quantities = [];
-    await trader.getDailyShop().then((shop) => {
+    await traderHandler.getDailyShop().then((shop) => {
       setDailyShop(shop);
       for (let i = 0; i < shop.length; ++i) {
         quantities.push(1);
@@ -32,8 +35,8 @@ const CityHallModal = ({
   }
 
   async function getTrades() {
-    await trader.getDailyTrades().then((response) => {
-      setTrades(response);
+    await traderHandler.getDailyTrades().then((trades) => {
+      setTrades(trades);
     });
   }
 
@@ -43,12 +46,12 @@ const CityHallModal = ({
     const itemBigNumb = BigNumber.from(item);
     bagTemp.push({ itemBigNumb, price, quantity });
     setBag(bagTemp);
-    toast.success(item + " added to bag");
+    toast.success("item #" + item + " added to bag");
   };
 
   function getTotal() {
     let totalTemp = 0;
-    for (let item of bag.length) {
+    for (let item of bag) {
       totalTemp += item.price * item.quantity;
     }
     console.log(totalTemp.toString());
@@ -57,41 +60,74 @@ const CityHallModal = ({
 
   async function buy() {
     let itemsSelected = [];
-    if (quantity.length < 1 || bag.length < 1) return;
-    for (let item of bag) {
-      itemsSelected.push(item.itemBigNumb);
+    if (quantity.length < 1 || bag.length < 1) {
+      toast.error("You did not select any items");
+    } else {
+      for (let item of bag) {
+        itemsSelected.push(item.itemBigNumb);
+      }
+      try {
+        await traderHandler
+          .buyItems(itemsSelected, quantity, user, {
+            value: getTotal(),
+          })
+          .then((response) => {
+            loading.setLoadingText("Items is on the way...");
+            loading.toggleLoading();
+            provider.waitForTransaction(response.hash).then(() => {
+              loading.toggleLoading();
+              setBag([]);
+              getShop();
+              toast.success("Transaction Success");
+            });
+          });
+      } catch (error) {
+        toast.error(error.reason);
+      }
     }
-    await trader
-      .buyItems(itemsSelected, quantity, connection.account[0], {
-        value: getTotal(),
-      })
-      .then(() => {
-        setBag([]);
-        setQuantity([1, 1, 1]);
-      });
   }
 
   async function tradeItem(index) {
-    const isApproved = await items.isApprovedForAll(
-      signer.getAddress(),
-      trader.address
+    const isApproved = await itemsHandler.isApprovedForAll(
+      user,
+      traderHandler.address
     );
     if (isApproved) {
-      const indexBig = BigNumber.from(index);
-      await trader
-        .tradeItem(indexBig, quantity[index], connection.account[0])
-        .then((response) => {
-          console.log(response);
-        });
-    } else {
-      const indexBig = BigNumber.from(index);
-      await items.setApprovalForAll(trader.address, true).then(() => {
-        trader
-          .tradeItem(indexBig, quantity[index], connection.account[0])
+      try {
+        await traderHandler
+          .tradeItem(index, quantity[index], user)
           .then((response) => {
-            console.log(response);
+            loading.setLoadingText("Trader preparing the trade...");
+            loading.toggleLoading();
+            provider.waitForTransaction(response.hash).then(() => {
+              loading.toggleLoading();
+              toast.success("Trade Success");
+            });
           });
-      });
+      } catch (error) {
+        toast.error(error.reason);
+      }
+    } else {
+      try {
+        await itemsHandler
+          .setApprovalForAll(traderHandler.address, true)
+          .then((response) => {
+            provider.waitForTransaction(response.hash).then(() => {
+              traderHandler
+                .tradeItem(index, quantity[index], user)
+                .then((response) => {
+                  loading.setLoadingText("Trader preparing the trade...");
+                  loading.toggleLoading();
+                  provider.waitForTransaction(response.hash).then(() => {
+                    loading.toggleLoading();
+                    toast.success("Trade Success");
+                  });
+                });
+            });
+          });
+      } catch (error) {
+        toast.error(error.reason);
+      }
     }
   }
 
@@ -114,16 +150,16 @@ const CityHallModal = ({
     getTrades();
   }, []);
 
-  if (!shopShow && !traderShow) return;
+  if (!showShop && !showTrader) return;
 
   return (
     <>
-      {shopShow ? (
+      {showShop ? (
         <>
           <motion.div
             id="modal-screen"
             className="h-100 w-100 bg-dark bg-opacity-75"
-            onClick={() => setShopShow(false)}
+            onClick={toggleShowShop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -140,7 +176,7 @@ const CityHallModal = ({
             <div id="modal-body">
               <img
                 src="/back_icon.png"
-                onClick={() => setShopShow(false)}
+                onClick={toggleShowShop}
                 width={"45px"}
                 alt="back-img"
               />
@@ -245,9 +281,8 @@ const CityHallModal = ({
                           <div className="col-4">
                             <h4 id="text" className="text-center">
                               {quantity[activeItem] *
-                                ethers.utils.formatUnits(
-                                  dailyShop[activeItem].price,
-                                  "gwei"
+                                ethers.utils.formatEther(
+                                  dailyShop[activeItem].price
                                 )}{" "}
                               ETH
                             </h4>
@@ -295,7 +330,7 @@ const CityHallModal = ({
           <motion.div
             id="modal-screen"
             className="h-100 w-100 bg-dark bg-opacity-75"
-            onClick={() => setTraderShow(false)}
+            onClick={toggleShowTrader}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -311,7 +346,7 @@ const CityHallModal = ({
           >
             <img
               src="/back_icon.png"
-              onClick={() => setTraderShow(false)}
+              onClick={toggleShowTrader}
               width={"45px"}
               alt="back-img"
             />
@@ -399,7 +434,9 @@ const CityHallModal = ({
                           />
                           <button
                             className="btn btn-success"
-                            onClick={() => increment(index)}
+                            onClick={() =>
+                              increment(index, parseInt(trade.limit))
+                            }
                           >
                             +
                           </button>
