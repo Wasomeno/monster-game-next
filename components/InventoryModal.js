@@ -1,29 +1,29 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ethers } from "ethers";
 import { motion } from "framer-motion";
 import MoonLoader from "react-spinners/MoonLoader";
-import { itemsContract } from "../helpers/contractConnection";
+import { itemsContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
+import useToggle from "../hooks/useToggle";
 
 function InventoryModal({ showInventory, setShowInventory }) {
+  if (!showInventory) return;
   const [inventory, setInventory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const connection = useContext(AppContext);
-  const items = itemsContract();
+  const [loading, toggleLoading] = useToggle(false);
+  const [activeItem, setActiveItem] = useState(0);
+  const user = useContext(AppContext).account[0];
+  const itemsHandler = itemsContract();
 
   async function getInventory() {
-    setLoading(true);
-    await items.getInventory(connection.account[0]).then((response) => {
-      setInventory(response);
+    toggleLoading();
+    await itemsHandler.getInventory(user).then((items) => {
+      setInventory(items);
+      toggleLoading();
     });
-    setLoading(false);
   }
 
   useEffect(() => {
     getInventory();
-  }, []);
-
-  if (!showInventory) return;
+  }, [inventory.length]);
   return (
     <>
       <motion.div
@@ -42,69 +42,123 @@ function InventoryModal({ showInventory, setShowInventory }) {
         exit={{ opacity: 0 }}
         transition={{ type: "tween", duration: 0.25 }}
       >
-        <div className="row justify-content-center align-items-center">
-          <div className="col-4">
-            <img
-              src="back_icon.png"
-              alt="back-icon"
-              width={"14%"}
-              onClick={() => setShowInventory(false)}
-            />
+        <>
+          <div className="row justify-content-center align-items-center">
+            <div className="col-4">
+              <img
+                src="back_icon.png"
+                alt="back-icon"
+                width={"14%"}
+                onClick={() => setShowInventory(false)}
+              />
+            </div>
+            <div className="col-4">
+              <h2 className="text-center p-3" id="modal-title">
+                Inventory
+              </h2>
+            </div>
+            <div className="col-4" />
           </div>
-          <div className="col-4">
-            <h2 className="text-center p-3" id="modal-title">
-              Inventory
-            </h2>
-          </div>
-          <div className="col-4" />
-        </div>
-        <div className="d-flex flex-wrap justify-content-center p-3">
-          {loading ? (
-            <MoonLoader size={50} loading={loading} />
-          ) : inventory.length < 1 ? (
-            <h5 className="m-0" id="modal-title">
-              No items in inventory
-            </h5>
-          ) : (
-            inventory.map((item, index) => (
+          <div className="d-flex justify-content-center align-items-center p-3 h-75">
+            {loading ? (
+              <MoonLoader size={50} loading={loading} color={"#eee"} />
+            ) : (
               <>
-                <div
-                  id="inventory-card"
-                  className="card col-4 col-sm-2 col-lg-2 m-1 p-2 d-flex flex-column justify-content-center align-items-center"
-                  key={index}
-                  style={{ backgroundColor: "#D8CCA3" }}
-                >
-                  <div className="align-self-end p-2">
+                <div className="col-8 d-flex flex-wrap justify-content-start align-items-start h-100">
+                  {inventory && inventory.length < 1 ? (
                     <h5 className="m-0" id="modal-title">
-                      x{item.toString()}
+                      No items in inventory
                     </h5>
+                  ) : (
+                    inventory.map((item, index) => (
+                      <div
+                        key={index}
+                        id="inventory-card"
+                        className="card h-50 col-3 m-1 p-2 d-flex flex-column justify-content-center align-items-center"
+                        onClick={() => setActiveItem(index)}
+                        style={{
+                          backgroundColor:
+                            activeItem === index ? "#423f3e" : "#2b2b2b",
+                        }}
+                      >
+                        <div className="align-self-end p-2">
+                          <h5 className="m-0" id="modal-title">
+                            x{item.toString()}
+                          </h5>
+                        </div>
+                        <img
+                          src={index + ".png"}
+                          alt="items-img"
+                          width={"40%"}
+                          className="p-2"
+                        />
+                        <div>
+                          <h5 className="card-title text-white" id="text">
+                            {index === 0
+                              ? "Gold Coins"
+                              : index === 1
+                              ? "Berry"
+                              : index === 2
+                              ? "Energy Potion"
+                              : index === 3
+                              ? "Exp Potion"
+                              : index === 4
+                              ? "Token Crystal"
+                              : ""}{" "}
+                          </h5>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div className="col-4 bg-light bg-opacity-25 h-100 rounded">
+                  <div className="row justify-content-center">
+                    <h3
+                      id="modal-title"
+                      className="m-0 p-2 text-white text-center"
+                    >
+                      Item Details
+                    </h3>
                   </div>
-                  <img
-                    src={index + ".png"}
-                    alt="items-img"
-                    width={"40%"}
-                    className="p-2"
-                  />
-                  <div>
-                    <h5 className="card-title" id="modal-title">
-                      {index === 0
+                  <div className="d-flex flex-column justify-content-center align-items-center">
+                    <h3 id="text" className="text-white">
+                      {activeItem === 0
                         ? "Gold Coins"
-                        : index === 1
+                        : activeItem === 1
                         ? "Berry"
-                        : index === 2
+                        : activeItem === 2
                         ? "Hunger Potion"
-                        : index === 3
+                        : activeItem === 3
                         ? "Exp Potion"
-                        : index === 4
+                        : activeItem === 4
                         ? "Token Crystal"
                         : ""}{" "}
-                    </h5>
+                    </h3>
+                    <img
+                      src={activeItem + ".png"}
+                      width={"80px"}
+                      className="p-3 m-3 border border-dark border-1 rounded"
+                      alt="shop-item-img"
+                      style={{ backgroundColor: "#fee0c0" }}
+                    />
+                    <div className="row justify-content-center align-items-center"></div>
+                    <button
+                      id="text"
+                      className={
+                        activeItem !== 2 && activeItem !== 3
+                          ? "btn btn-primary m-3 disabled"
+                          : "btn btn-primary m-3"
+                      }
+                      onClick={() => setShowUseItem(true)}
+                    >
+                      <h5 className="m-0 px-2">Use Item</h5>
+                    </button>
                   </div>
                 </div>
               </>
-            ))
-          )}
-        </div>
+            )}
+          </div>
+        </>
       </motion.div>
     </>
   );
