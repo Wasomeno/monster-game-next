@@ -13,13 +13,19 @@ const NotConnected = () => {
   }
   return (
     <div className="vh-100 bg-dark d-flex flex-column justify-content-center align-items-center h-100 w-100 text-center">
-      <h2 className="p-2 text-white">Connect Your Wallet</h2>
       <div className="row justify-content-center align-items-center">
+        <h2 id="text" className="p-2 text-white">
+          Connect Your Wallet
+        </h2>
+      </div>
+      <div className="row justify-content-center align-items-center w-100">
         <button
-          className="btn btn-primary px-3 rounded-pill"
+          className="col-2 btn btn-primary  rounded-pill"
           onClick={connectAccount}
         >
-          Connect
+          <h3 id="text" className="m-0 text-white">
+            Connect
+          </h3>
         </button>
       </div>
     </div>
