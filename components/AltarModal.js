@@ -1,12 +1,15 @@
 import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
-import { ethers } from "ethers";
 import { monsterContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
+import useProvider from "../hooks/useProvider";
+import { ethers } from "ethers";
 
 const AltarModal = ({ showAltar, toggleShowAltar }) => {
   const [quantity, setQuantity] = useState(1);
-  const connection = useContext(AppContext);
+  const provider = useProvider();
+  const toast = useContext(AppContext).toast;
+  const loading = useContext(AppContext).loading;
   const monsterHandler = monsterContract();
 
   const increment = () => {
@@ -21,11 +24,25 @@ const AltarModal = ({ showAltar, toggleShowAltar }) => {
 
   async function summonMonster() {
     const price = await monsterHandler.SUMMON_PRICE();
-    await monsterHandler
-      .summon(quantity, { value: price * quantity })
-      .then(() => {
-        setQuantity(1);
-      });
+    const formattedPrice = ethers.utils.formatEther(price);
+    const totalCost = formattedPrice * quantity;
+    try {
+      await monsterHandler
+        .summon(quantity, {
+          value: ethers.utils.parseEther(totalCost.toString()),
+        })
+        .then((response) => {
+          loading.setLoadingText("Summoning your Monsters...");
+          loading.toggleLoading();
+          provider.waitForTransaction(response.hash).then(() => {
+            loading.toggleLoading();
+            toast.success("Summon Success");
+          });
+          setQuantity(1);
+        });
+    } catch (error) {
+      toast.error(error.reason);
+    }
   }
   if (!showAltar) return;
   return (
