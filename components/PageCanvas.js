@@ -3,6 +3,7 @@ import AppContext from "./AppContext";
 import PageComponents from "./PageComponents";
 import { motion } from "framer-motion";
 import NotConnected from "./NotConnected";
+import RegisterModal from "./RegisterModal";
 const PageCanvas = ({ path }) => {
   const connection = useContext(AppContext);
   const isConnected = Boolean(connection.account[0]);
@@ -51,6 +52,7 @@ const PageCanvas = ({ path }) => {
     >
       {isConnected ? (
         <>
+          <RegisterModal />
           <div className="d-flex justify-content-center align-items-center">
             <canvas ref={canvasRef} width={1000} height={window.innerHeight} />
           </div>
