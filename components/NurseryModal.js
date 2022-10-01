@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { nurseryContract } from "../hooks/useContract";
+import { nurseryTime } from "../helpers/getTime";
 import MonsterSelection from "./MonsterSelection";
 import useProvider from "../hooks/useProvider";
 import useMonsterSelected from "../hooks/useMonsterSelected";
 import AppContext from "./AppContext";
-import { nurseryTime } from "../helpers/getTime";
 
 const NurseryModal = ({ showNursery, toggleShowNursery }) => {
   const user = useContext(AppContext).account[0];
   const [onNursery, setOnNursery] = useState([]);
   const [showSelectMonster, setShowSelectMonster] = useState(false);
-  const [monsterSelected, selectMonster, deselectMonster] =
+  const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
   const [duration, setDuration] = useState(1);
   const [remainingTime, setRemainingTime] = useState(0);
@@ -22,25 +22,24 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
 
   async function sendToNursery() {
     const fee = await nurseryHandler.RESTING_FEE();
-    const totalFee = fee * duration;
+    const totalFee = fee * duration * monsterSelected.length;
     try {
       await nurseryHandler
-        .restMonsters(monsterSelected, user, duration, {
+        .restMonsters(monsterSelected, duration, {
           value: totalFee,
         })
-        .then(() => {
+        .then((response) => {
           loading.setLoadingText("Sending Monsters to Nursery...");
           loading.toggleLoading();
           provider.waitForTransaction(response.hash).then(() => {
             loading.toggleLoading();
+            clearMonsters();
             getOnNursery();
+            toast.success("Transaction Success");
           });
         });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(() => toast.toggleToast(), 2500);
+      toast.error(error.reason);
     }
   }
 
@@ -55,17 +54,14 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
         });
       });
     } catch (error) {
-      toast.setToastText(error.reason);
-      toast.setCondition("error");
-      toast.toggleToast();
-      setTimeout(() => toast.toggleToast(), 2500);
+      toast.error(error.reason);
     }
   }
 
-  // async function getNurseryTime() {
-  //   const time = await nurseryTime(user);
-  //   setRemainingTime(time);
-  // }
+  async function getNurseryTime() {
+    const time = await nurseryTime(user);
+    setRemainingTime(time);
+  }
 
   function intoString(nonString) {
     return nonString.toString();
@@ -89,7 +85,7 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
 
   useEffect(() => {
     getOnNursery();
-    // getNurseryTime();
+    getNurseryTime();
   }, [onNursery.length]);
 
   if (!showNursery) return;
