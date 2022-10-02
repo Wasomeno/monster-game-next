@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { motion } from "framer-motion";
-import NotConnected from "../components/NotConnected";
+import Head from "next/head";
 import AppContext from "../components/AppContext";
 import Link from "next/link";
+import MapButton from "../components/buttons/MapButton";
 
 const Map = () => {
   const connection = useContext(AppContext);
@@ -24,7 +25,7 @@ const Map = () => {
   useEffect(() => {
     if (isConnected) {
       const mapImage = new Image();
-      mapImage.src = "Map.png";
+      mapImage.src = "/canvas_images/map.png";
       mapImage.onload = () => {
         setImage(mapImage);
       };
@@ -54,91 +55,23 @@ const Map = () => {
   if (!isConnected) return;
 
   return (
-    <motion.div
-      id="map-container"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ type: "tween", duration: 1 }}
-    >
-      <>
-        <canvas ref={canvasRef} className="map-canvas" />
-        <div id="map-buttons">
-          <motion.div
-            className="col-4"
-            initial={{ top: "32.5%" }}
-            animate={{ top: "31.5%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <Link href="/cityhall">
-              <a id="map-button">
-                <div id="action-button">
-                  <span id="button-text">City Hall</span>
-                </div>
-              </a>
-            </Link>
-          </motion.div>
-          <motion.div
-            className="col-4"
-            initial={{ bottom: "32.5%" }}
-            animate={{ bottom: "31.5%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <Link href="/dungeon">
-              <a id="map-button">
-                <div id="action-button">
-                  <span id="button-text">Dungeon & Missions</span>
-                </div>
-              </a>
-            </Link>
-          </motion.div>
-          <motion.div
-            className="col-4"
-            initial={{ bottom: "33.5%" }}
-            animate={{ bottom: "32.5%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <Link href="/nursery">
-              <a id="map-button">
-                <div id="action-button">
-                  <span id="button-text">Nursery & Smelter</span>
-                </div>
-              </a>
-            </Link>
-          </motion.div>
-          <motion.div
-            className="col-4"
-            initial={{ top: "25%" }}
-            animate={{ top: "26%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <Link href="/altar">
-              <a id="map-button">
-                <div id="action-button">
-                  <span id="button-text">Summoning Altar</span>
-                </div>
-              </a>
-            </Link>
-          </motion.div>
+    <>
+      <motion.div
+        id="map-container"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ type: "tween", duration: 1 }}
+      >
+        <div className="d-flex justify-content-center align-items-center">
+          <canvas ref={canvasRef} className="map-canvas" />
         </div>
-      </>
-    </motion.div>
+        <MapButton link={"cityhall"} y={"240px"} x={"53%"} />
+        <MapButton link={"dungeon"} y={"500px"} x={"24.5%"} />
+        <MapButton link={"nursery"} y={"490px"} x={"72.5%"} />
+        <MapButton link={"altar"} y={"220px"} x={"27.5%"} />
+      </motion.div>
+    </>
   );
 };
 
