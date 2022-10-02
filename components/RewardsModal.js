@@ -58,7 +58,7 @@ export const RewardsModal = ({ rewards, show, toggleShow }) => {
                     <div key={index} className="">
                       <img src={intoString(item) + ".png"} width="30px" />
                       <h5 id="text" className="text-white text-center">
-                        x {intoString(reward._amount[0])}
+                        x {intoString(reward._amount[index])}
                       </h5>
                     </div>
                   ))}
