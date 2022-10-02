@@ -7,55 +7,26 @@ import NurseryModal from "./NurseryModal";
 import SmelterModal from "./SmelterModal";
 import CityHallModal from "./CityHallModal";
 import AltarModal from "./AltarModal";
+import ModalButton from "./buttons/ModalButton";
 
 const PageComponents = ({ path }) => {
-  const [showNursery, toggleShowNursery] = useToggle(false);
-  const [showDungeon, toggleShowDungeon] = useToggle(false);
-  const [showMission, toggleShowMission] = useToggle(false);
-  const [showShop, toggleShowShop] = useToggle(false);
-  const [showTrader, toggleShowTrader] = useToggle(false);
-  const [showAltar, toggleShowAltar] = useToggle(false);
-  const [showSmelter, toggleShowSmelter] = useToggle(false);
-  const components = new Map([
-    [
-      "/nursery",
+  const Nursery = () => {
+    const [showSmelter, toggleShowSmelter] = useToggle(false);
+    const [showNursery, toggleShowNursery] = useToggle(false);
+    return (
       <>
-        <div id="nursery-buttons" className="row justify-content-center">
-          <motion.div
-            id="nursery-button"
-            className="col-3"
-            initial={{ bottom: "45%" }}
-            animate={{ bottom: "46%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <button onClick={toggleShowNursery}>
-              <div id="npc-button">
-                <span id="npc-button-text">Nursery</span>
-              </div>
-            </button>
-          </motion.div>
-          <motion.div
-            id="smelter-button"
-            className="col-3"
-            initial={{ bottom: "43%" }}
-            animate={{ bottom: "44%" }}
-            transition={{
-              repeat: "Infinity",
-              repeatType: "reverse",
-              duration: 1,
-            }}
-          >
-            <button onClick={toggleShowSmelter}>
-              <div id="npc-button">
-                <span id="npc-button-text">Smelter</span>
-              </div>
-            </button>
-          </motion.div>
-        </div>
+        <ModalButton
+          text={"Nursery"}
+          y={"370px"}
+          x={"125px"}
+          onClick={toggleShowNursery}
+        />
+        <ModalButton
+          text={"Smelter"}
+          y={"380px"}
+          x={"720px"}
+          onClick={toggleShowSmelter}
+        />
         <NurseryModal
           showNursery={showNursery}
           toggleShowNursery={toggleShowNursery}
@@ -64,45 +35,29 @@ const PageComponents = ({ path }) => {
           showSmelter={showSmelter}
           toggleShowSmelter={toggleShowSmelter}
         />
-      </>,
-    ],
-    [
-      "/dungeon",
+      </>
+    );
+  };
+
+  const Dungeon = () => {
+    const [showDungeon, toggleShowDungeon] = useToggle(false);
+    const [showMission, toggleShowMission] = useToggle(false);
+    return (
       <>
-        <motion.div
-          id="dungeon-button"
-          className="col-2"
-          initial={{ bottom: "40%" }}
-          animate={{ bottom: "41%" }}
-          transition={{
-            repeat: "Infinity",
-            repeatType: "reverse",
-            duration: 1,
-          }}
-        >
-          <button onClick={toggleShowDungeon}>
-            <div id="npc-button">
-              <span id="npc-button-text">Dungeon</span>
-            </div>
-          </button>
-        </motion.div>
-        <motion.div
-          id="mission-button"
-          className="col-2"
-          initial={{ bottom: "52%" }}
-          animate={{ bottom: "51%" }}
-          transition={{
-            repeat: "Infinity",
-            repeatType: "reverse",
-            duration: 1,
-          }}
-        >
-          <button onClick={toggleShowDungeon}>
-            <div id="npc-button">
-              <span id="npc-button-text">Missions</span>
-            </div>
-          </button>
-        </motion.div>
+        <ModalButton
+          text={"Dungeon"}
+          y={"400px"}
+          x={"450px"}
+          onClick={toggleShowDungeon}
+        />
+
+        <ModalButton
+          text={"Mission"}
+          y={"320px"}
+          x={"580px"}
+          onClick={toggleShowMission}
+        />
+
         <DungeonModal
           showDungeon={showDungeon}
           toggleShowDungeon={toggleShowDungeon}
@@ -111,75 +66,62 @@ const PageComponents = ({ path }) => {
           showMission={showMission}
           toggleShowMission={toggleShowMission}
         />
-      </>,
-    ],
-    [
-      "/cityhall",
+      </>
+    );
+  };
+
+  const CityHall = () => {
+    const [showShop, toggleShowShop] = useToggle(false);
+    const [showTrader, toggleShowTrader] = useToggle(false);
+    return (
       <>
-        <motion.div
-          id="trader-button"
-          className="col-3"
-          initial={{ bottom: "47%" }}
-          animate={{ bottom: "48%" }}
-          transition={{
-            repeat: "Infinity",
-            repeatType: "reverse",
-            duration: 1,
-          }}
-        >
-          <button id="trader-button" onClick={toggleShowTrader}>
-            <div id="npc-button">
-              <span id="npc-button-text">Trader</span>
-            </div>
-          </button>
-        </motion.div>
-        <motion.div
-          id="shop-button"
-          className="col-3"
-          initial={{ bottom: "47%" }}
-          animate={{ bottom: "48%" }}
-          transition={{
-            repeat: "Infinity",
-            repeatType: "reverse",
-            duration: 1,
-          }}
-        >
-          <button onClick={toggleShowShop}>
-            <div id="npc-button">
-              <span id="npc-button-text">Shop</span>
-            </div>
-          </button>
-        </motion.div>
+        <ModalButton
+          text={"Trader"}
+          y={"380px"}
+          x={"130px"}
+          onClick={toggleShowTrader}
+        />
+        <ModalButton
+          text={"Shop"}
+          y={"380px"}
+          x={"735px"}
+          onClick={toggleShowShop}
+        />
         <CityHallModal
           showShop={showShop}
           showTrader={showTrader}
           toggleShowShop={toggleShowShop}
           toggleShowTrader={toggleShowTrader}
         />
-      </>,
-    ],
-    [
-      "/altar",
+      </>
+    );
+  };
+
+  const Altar = () => {
+    const [showAltar, toggleShowAltar] = useToggle(false);
+    return (
       <>
-        <div id="altar-buttons" className="row justify-content-center">
-          <div className="col-3">
-            <button
-              id="altar-button"
-              className="btn btn-primary"
-              onClick={toggleShowAltar}
-            >
-              Altar
-            </button>
-          </div>
-        </div>
+        <ModalButton
+          text={"Altar"}
+          y={"490px"}
+          x={"540px"}
+          onClick={toggleShowAltar}
+        />
+
         <AltarModal showAltar={showAltar} toggleShowAltar={toggleShowAltar} />
-      </>,
-    ],
+      </>
+    );
+  };
+
+  const components = new Map([
+    ["/nursery", <Nursery />],
+    ["/dungeon", <Dungeon />],
+    ["/cityhall", <CityHall />],
+    ["/altar", <Altar />],
   ]);
 
-  useEffect(() => {
-    console.log(path);
-  }, [path]);
+  useEffect(() => {}, [path]);
+
   return components.get(path);
 };
 
