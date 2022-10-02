@@ -9,7 +9,6 @@ const Nursery = () => {
 
   return (
     <>
-      <RegisterModal />
       <PageCanvas path={router.pathname} />
     </>
   );

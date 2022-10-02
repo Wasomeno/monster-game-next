@@ -7,7 +7,6 @@ const CityHall = () => {
   const router = useRouter();
   return (
     <>
-      <RegisterModal />
       <PageCanvas path={router.pathname} />
     </>
   );
