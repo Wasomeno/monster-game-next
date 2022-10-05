@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import ReactDOM from "react-dom";
 import { itemsContract, smelterContract } from "../hooks/useContract";
 import AppContext from "./AppContext";
 import useProvider from "../hooks/useProvider";
-import { BigNumber } from "ethers";
+import TimeButton from "./TimeButton";
 
 const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
   const [inventory, setInventory] = useState(0);
@@ -29,14 +28,65 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
   }
 
   async function smelt() {
-    try {
-      await smelterHandler.smelt(user, crystals).then((response) => {
+    if (crystals !== 0) {
+      await smelterHandler.smelt(crystals).then((response) => {
         loading.setLoadingText("Sending your crystals...");
         loading.toggleLoading();
         provider.waitForTransaction(response.hash).then(() => {
           loading.toggleLoading();
-          toast.success("Crystals Sent");
+          toast.success("Smelting on Proccess");
           getCrystals();
+        });
+      });
+    } else {
+      toast.error("Can't send 0 crystals");
+    }
+  }
+
+  async function smeltApprove() {
+    if (crystals !== 0) {
+      await itemsHandler
+        .setApprovalAll(smelterHandler.address, user)
+        .then((response) => {
+          loading.setLoadingText("Approving..");
+          provider.waitForTransaction(response.hash).then(() => {
+            loading.toggleLoading();
+            smelt();
+          });
+        });
+    } else {
+      toast.error("Can't send 0 crystals");
+    }
+  }
+
+  async function smeltCheck() {
+    const isApproved = await itemsHandler.isApprovedForAll(
+      user,
+      smelterHandler.address
+    );
+    if (!isApproved) {
+      try {
+        smeltApprove();
+      } catch (error) {
+        toast.error(error.reason);
+      }
+    } else {
+      try {
+        smelt();
+      } catch (error) {
+        toast.error(error.reason);
+      }
+    }
+  }
+
+  async function finishSmelting() {
+    try {
+      await smelterHandler.finishSmelting().then((response) => {
+        loading.setLoadingText("Claiming your token...");
+        loading.toggleLoading();
+        provider.waitForTransaction(response.hash).then(() => {
+          loading.toggleLoading();
+          toast.success("Smelting Success");
         });
       });
     } catch (error) {
@@ -46,7 +96,7 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
 
   useEffect(() => {
     getCrystals();
-  }, [showSmelter]);
+  }, [showSmelter, inventory]);
 
   if (!showSmelter) return;
   return (
@@ -122,7 +172,7 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
               <button
                 id="text"
                 className="btn btn-primary w-75"
-                onClick={smelt}
+                onClick={smeltCheck}
               >
                 <h5 className="m-0 p-0">Smelt</h5>
               </button>
@@ -150,9 +200,11 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
                   x {smelter.toString()}
                 </h5>
               </div>
-              <button id="text" className="btn btn-success disabled w-75">
-                <h5 className="m-0 p-0">Finish Smelt</h5>
-              </button>
+              <TimeButton
+                path={"smelter"}
+                onClick={finishSmelting}
+                width={"w-75"}
+              />
             </div>
           </div>
         </div>
