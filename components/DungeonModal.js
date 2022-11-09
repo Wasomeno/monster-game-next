@@ -1,77 +1,29 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { setLoading } from "./LoadingScreen";
 import MonsterSelection from "./MonsterSelection";
-import { dungeonContract, itemsContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
 import useMonsterSelected from "../hooks/useMonsterSelected";
-import useProvider from "../hooks/useProvider";
-import { dungeonTime } from "../helpers/getTime";
-import { setRewardModal } from "./RewardsModal";
+import { useLoading, useToast } from "../stores/stores";
+import { getDungeonTime, getMonstersOnDungeon } from "../fetchers/fetchers";
+import { finishDungeon, sendToDungeon } from "../mutations/mutations";
 
 const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
+  const toggleLoading = useLoading();
+  const [toastSuccess, toastError] = useToast();
   const [showDungeonSelect, setShowDungeonSelect] = useState(false);
-  const [onDungeon, setOnDungeon] = useState([]);
+  const user = useContext(AppContext).account[0];
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
-  const [loadingOnDungeon, setLoadingOnDungeon] = useState(false);
-  const [timeElapsed, setTimeElapsed] = useState(0);
-  const [setRewards, toggleRewardsModal, RewardsModal] = setRewardModal();
-  const user = useContext(AppContext).account[0];
-  const toast = useContext(AppContext).toast;
-  const loading = useContext(AppContext).loading;
-  const dungeonHandler = dungeonContract();
-  const itemsHandler = itemsContract();
-  const provider = useProvider();
-
-  async function getMonstersOnDungeon() {
-    setLoadingOnDungeon(true);
-    await dungeonHandler.getMonstersOnDungeon(user).then((response) => {
-      setOnDungeon(response);
-    });
-    setLoadingOnDungeon(false);
-  }
-
-  async function getDungeonTime() {
-    const time = await dungeonTime(user);
-    setTimeElapsed(time);
-  }
-
-  async function sendToDungeon() {
-    try {
-      await dungeonHandler
-        .startDungeon(monsterSelected, user)
-        .then((response) => {
-          loading.setLoadingText("Sending Monsters to Dungeon...");
-          loading.toggleLoading();
-          provider.waitForTransaction(response.hash).then(() => {
-            loading.toggleLoading();
-            clearMonsters();
-            getMonstersOnDungeon();
-            toast.success("Transaction Success");
-          });
-        });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
-
-  async function finishDungeon() {
-    try {
-      await dungeonHandler.finishDungeon(user).then((response) => {
-        loading.setLoadingText("Bringing Your Monsters Back...");
-        loading.toggleLoading();
-        provider.waitForTransaction(response.hash).then(() => {
-          loading.toggleLoading();
-          getMonstersOnDungeon();
-          toast.success("Transaction Success");
-          setTimeout(() => showRewards(), 1500);
-        });
-      });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
+  const monstersOnDungeon = useQuery(
+    ["monstersOnDungeon", user],
+    getMonstersOnDungeon(user)
+  );
+  const dungeonTime = useQuery(["dungeonTime", user], getDungeonTime(user));
+  const startDungeonMutation = useMutation(() =>
+    sendToDungeon(monsterSelected)
+  );
+  const finishDungeonMutation = useMutation(() => finishDungeon());
 
   function showRewards() {
     let rewardsGot = [];
@@ -80,9 +32,7 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
       if (_items.length === 0 && _amount.length === 0) return;
       rewardsGot.push({ _monster, _items, _amount });
     });
-
     setRewards(rewardsGot);
-
     setTimeout(() => {
       toast.toggleToast();
       toast.toggleSpinner();
@@ -93,7 +43,6 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
   useEffect(() => {
     getMonstersOnDungeon();
     getDungeonTime();
-    console.log(timeElapsed);
   }, [showDungeon, onDungeon.length]);
 
   if (!showDungeon) return;
@@ -141,7 +90,7 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
               </h2>
             </div>
             <div className="row justify-content-center">
-              <div className="col-6 text-center border border-2 border-dark rounded">
+              <div className="col-6 text-center border border-2 border-light border-opacity-25 rounded">
                 <h5 className="py-2" id="modal-title">
                   Send your monsters to fight bosses in the dungeon.Dungeon will
                   give better rewards than the missions. There's a percentage of
@@ -152,8 +101,8 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
               </div>
             </div>
             <div className="row justify-content-center my-3">
-              <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-dark border-2 rounded">
-                {onDungeon < 1 ? (
+              <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-light border-2 rounded">
+                {monstersOnDungeon?.data.length < 1 ? (
                   monsterSelected.length !== 0 ? (
                     monsterSelected.map((monster, index) => (
                       <div
@@ -168,7 +117,7 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
                     <h5 id="modal-title">No Monsters Selected</h5>
                   )
                 ) : (
-                  onDungeon.map((monster, index) => (
+                  monstersOnDungeon.data?.map((monster, index) => (
                     <div
                       key={index}
                       id="selected-monster-box"
@@ -188,23 +137,23 @@ const DungeonModal = ({ showDungeon, toggleShowDungeon }) => {
               >
                 Select Monsters
               </button>
-              {onDungeon.length < 1 ? (
+              {monstersOnDungeon.data?.length < 1 ? (
                 <button
                   className="btn btn-success col-3 m-2"
                   style={{ fontSize: "20px", fontFamily: "Monogram" }}
-                  onClick={sendToDungeon}
+                  onClick={() => startDungeonMutation.mutate()}
                 >
                   Send Monsters
                 </button>
               ) : (
                 <button
-                  // disabled={timeElapsed >= 0 ? false : true}
+                  disabled={timeElapsed >= 0 ? false : true}
                   style={{ fontSize: "20px", fontFamily: "Monogram" }}
                   className="btn btn-danger col-3 m-2"
-                  onClick={finishDungeon}
+                  onClick={() => finishDungeonMutation.mutate()}
                 >
-                  {timeElapsed >= 0
-                    ? "Finish Mission"
+                  {dungeonTime.data >= 0
+                    ? "Finish Dungeon"
                     : Math.abs(timeElapsed) + " Minutes"}
                 </button>
               )}

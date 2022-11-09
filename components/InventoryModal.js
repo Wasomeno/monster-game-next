@@ -2,28 +2,18 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import MoonLoader from "react-spinners/MoonLoader";
 import { itemsContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
 import useToggle from "../hooks/useToggle";
+import { useQuery } from "@tanstack/react-query";
+import { getInventory } from "../fetchers/fetchers";
 
 function InventoryModal({ showInventory, setShowInventory }) {
   if (!showInventory) return;
-  const [inventory, setInventory] = useState([]);
   const [loading, toggleLoading] = useToggle(false);
   const [activeItem, setActiveItem] = useState(0);
   const user = useContext(AppContext).account[0];
-  const itemsHandler = itemsContract();
+  const inventory = useQuery(["inventory"], getInventory(user));
 
-  async function getInventory() {
-    toggleLoading();
-    await itemsHandler.getInventory(user).then((items) => {
-      setInventory(items);
-      toggleLoading();
-    });
-  }
-
-  useEffect(() => {
-    getInventory();
-  }, [inventory.length]);
   return (
     <>
       <motion.div
@@ -60,17 +50,17 @@ function InventoryModal({ showInventory, setShowInventory }) {
             <div className="col-4" />
           </div>
           <div className="d-flex justify-content-center align-items-center p-3 h-75">
-            {loading ? (
+            {inventory.isLoading ? (
               <MoonLoader size={50} loading={loading} color={"#eee"} />
             ) : (
               <>
                 <div className="col-8 d-flex flex-wrap justify-content-start align-items-start h-100">
-                  {inventory && inventory.length < 1 ? (
+                  {inventory.data && inventory.data?.length < 1 ? (
                     <h5 className="m-0" id="modal-title">
                       No items in inventory
                     </h5>
                   ) : (
-                    inventory.map((item, index) => (
+                    inventory.data?.map((item, index) => (
                       <div
                         key={index}
                         id="inventory-card"

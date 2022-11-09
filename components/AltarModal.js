@@ -1,16 +1,29 @@
 import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import { monsterContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
 import useProvider from "../hooks/useProvider";
 import { ethers } from "ethers";
+import { useMutation } from "@tanstack/react-query";
+import { summonMonster } from "../mutations/mutations";
 
 const AltarModal = ({ showAltar, toggleShowAltar }) => {
+  const toggleLoading = useLoading();
+  const [toastSuccess, toastError] = useToast();
   const [quantity, setQuantity] = useState(1);
-  const provider = useProvider();
-  const toast = useContext(AppContext).toast;
-  const loading = useContext(AppContext).loading;
-  const monsterHandler = monsterContract();
+  const summonMutation = useMutation(() => summonMonster(quantity), {
+    onMutate: () => {
+      toggleLoading("Summoning Monster");
+    },
+    onSettled: () => {
+      toggleLoading();
+    },
+    onSuccess: () => {
+      toastSuccess("Succesfully summoned monsters");
+    },
+    onError: (error) => {
+      toastError(error);
+    },
+  });
 
   const increment = () => {
     if (quantity >= 5) return;
@@ -22,28 +35,6 @@ const AltarModal = ({ showAltar, toggleShowAltar }) => {
     setQuantity(quantity - 1);
   };
 
-  async function summonMonster() {
-    const price = await monsterHandler.SUMMON_PRICE();
-    const formattedPrice = ethers.utils.formatEther(price);
-    const totalCost = formattedPrice * quantity;
-    try {
-      await monsterHandler
-        .summon(quantity, {
-          value: ethers.utils.parseEther(totalCost.toString()),
-        })
-        .then((response) => {
-          loading.setLoadingText("Summoning your Monsters...");
-          loading.toggleLoading();
-          provider.waitForTransaction(response.hash).then(() => {
-            loading.toggleLoading();
-            toast.success("Summon Success");
-          });
-          setQuantity(1);
-        });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
   if (!showAltar) return;
   return (
     <>
@@ -96,7 +87,10 @@ const AltarModal = ({ showAltar, toggleShowAltar }) => {
           </button>
         </div>
         <div className="row justify-content-center">
-          <button className="btn btn-primary m-2 w-25" onClick={summonMonster}>
+          <button
+            className="btn btn-primary m-2 w-25"
+            onClick={() => summonMutation.mutate()}
+          >
             <h5 id="text" className="text-white m-0">
               Summon
             </h5>

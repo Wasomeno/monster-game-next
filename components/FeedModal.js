@@ -2,30 +2,16 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { itemsContract, monsterGameContract } from "../hooks/useContract";
 import { ethers } from "ethers";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getPotion } from "../fetchers/fetchers";
+import { energyPotion, feed } from "../mutations/mutations";
 
-const FeedModal = ({ showFeed, setShowFeed, monster, level }) => {
-  const connection = useContext(AppContext);
+const FeedModal = ({ showFeed, setShowFeed, monster }) => {
   const [amount, setAmount] = useState(1);
-  const [potion, setPotion] = useState(0);
-  const user = connection.account[0];
-  const itemsHelper = itemsContract();
-  const monsterGameHelper = monsterGameContract();
-
-  async function getPotion() {
-    await itemsHelper.balanceOf(connection.account[0], 2).then((response) => {
-      setPotion(response);
-    });
-  }
-
-  async function feed() {
-    const fee = await monsterGameHelper.FEEDING_FEE();
-    const totalAmount = amount * 10;
-    const totalFee = totalAmount * fee * level;
-    await monsterGameHelper.feedMonster(user, monster, totalAmount, {
-      value: totalFee,
-    });
-  }
+  const getPotions = useQuery(["potions"], getPotion());
+  const feedMonster = useMutation(() => feed(monster, amount));
+  const useEnergyPotion = useMutation(() => energyPotion(monster));
 
   function decrement() {
     if (amount <= 1) return;
@@ -35,10 +21,6 @@ const FeedModal = ({ showFeed, setShowFeed, monster, level }) => {
     if (amount >= 10) return;
     setAmount(amount + 1);
   }
-
-  useEffect(() => {
-    getPotion();
-  }, []);
 
   if (!showFeed) return;
   return (
@@ -84,7 +66,11 @@ const FeedModal = ({ showFeed, setShowFeed, monster, level }) => {
                 +
               </button>
             </div>
-            <button className="btn btn-success my-2" id="text" onClick={feed}>
+            <button
+              className="btn btn-success my-2"
+              id="text"
+              onClick={() => feedMonster.mutate()}
+            >
               Feed
             </button>
           </div>
@@ -95,10 +81,14 @@ const FeedModal = ({ showFeed, setShowFeed, monster, level }) => {
             <div className="d-flex justify-content-center align-items-center">
               <img src="/2.png" width={"20%"} alt="potion-img" />
               <h5 className="m-0 p-1" id="modal-title">
-                x {potion.toString()}
+                x {getPotions.data?.toString()}
               </h5>
             </div>
-            <button className="btn btn-success" id="text">
+            <button
+              className="btn btn-success"
+              id="text"
+              onClick={() => useEnergyPotion.mutate()}
+            >
               Use Potion
             </button>
           </div>

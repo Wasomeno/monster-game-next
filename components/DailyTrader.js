@@ -1,82 +1,69 @@
 import { motion } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
-import { BigNumber, ethers } from "ethers";
 import { traderContract, itemsContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
-import useProvider from "../hooks/useProvider";
-import IncrementDecrementControl from "./buttons/IncrementDecrementControl";
+import AppContext from "../contexts/AppContext";
+import { CustomControl } from "./buttons/IncrementDecrementControl";
+import { useLoading, useToast } from "../stores/stores";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getTrades } from "../fetchers/fetchers";
+import {
+  tradeItem,
+  tradeItemApproved,
+  tradeItemNotApproved,
+} from "../mutations/mutations";
 
 const DailyTrader = ({ showTrader, toggleShowTrader }) => {
-  const [trades, setTrades] = useState([]);
+  const toggleLoading = useLoading();
+  const [toastSuccess, toastError] = useToast();
   const [quantity, setQuantity] = useState([]);
-  const toast = useContext(AppContext).toast;
-  const loading = useContext(AppContext).loading;
   const user = useContext(AppContext).account[0];
-  const traderHandler = traderContract();
-  const itemsHandler = itemsContract();
-  const provider = useProvider();
-
-  async function getTrades() {
-    let quantities = [];
-    await traderHandler.getDailyTrades().then((trades) => {
-      setTrades(trades);
-      trades.forEach(() => {
-        quantities.push(1);
-      });
-      setQuantity(quantities);
-    });
-  }
-
-  async function tradeItem(index) {
-    const isApproved = await itemsHandler.isApprovedForAll(
-      user,
-      traderHandler.address
-    );
-    if (isApproved) {
-      try {
-        await traderHandler
-          .tradeItem(index, quantity[index], user)
-          .then((response) => {
-            loading.setLoadingText("Trader preparing the trade...");
-            loading.toggleLoading();
-            provider.waitForTransaction(response.hash).then(() => {
-              loading.toggleLoading();
-              toast.success("Trade Success");
-            });
-          });
-      } catch (error) {
-        toast.error(error.reason);
-      }
-    } else {
-      try {
-        await itemsHandler
-          .setApprovalForAll(traderHandler.address, true)
-          .then((response) => {
-            provider.waitForTransaction(response.hash).then(() => {
-              traderHandler
-                .tradeItem(index, quantity[index], user)
-                .then((response) => {
-                  loading.setLoadingText("Trader preparing the trade...");
-                  loading.toggleLoading();
-                  provider.waitForTransaction(response.hash).then(() => {
-                    loading.toggleLoading();
-                    toast.success("Trade Success");
-                  });
-                });
-            });
-          });
-      } catch (error) {
-        toast.error(error.reason);
-      }
+  const trades = useQuery(["dailyTrades"], () => getTrades());
+  const tradeMutation = useMutation(
+    (index) =>
+      isApproved
+        ? tradeItemApproved(index, quantity[index], user)
+        : tradeItemNotApproved(index, quantity[index], user),
+    {
+      onMutate: () => toggleLoading("Trading your items"),
+      onSettled: () => toggleLoading(),
+      onError: (error) => toastError(error),
+      onSuccess: () => toastSuccess("Trade succesful"),
     }
-  }
+  );
 
-  useEffect(() => {
-    getTrades();
-  }, []);
+  const isApproved = async () => {
+    const itemsHandler = itemsContract();
+    const traderHandler = traderContract();
+    return await itemsHandler.isApprovedForAll(user, traderHandler.address);
+  };
+
+  const increment = (trade) => {
+    const tradeDetails = trades[trade];
+    if (quantity[trade] >= parseInt(tradeDetails.limit)) return;
+    const newValue = quantity.map((value, index) => {
+      if (index === trade) {
+        return value + 1;
+      } else {
+        return value;
+      }
+    });
+    setQuantity(newValue);
+  };
+
+  const decrement = (trade) => {
+    const tradeDetails = trades[trade];
+    if (quantity[trade] >= parseInt(tradeDetails.limit)) return;
+    const newValue = quantity.map((value, index) => {
+      if (index === trade) {
+        return value - 1;
+      } else {
+        return value;
+      }
+    });
+    setQuantity(newValue);
+  };
 
   if (!showTrader) return;
-
   return (
     <>
       <motion.div
@@ -107,20 +94,20 @@ const DailyTrader = ({ showTrader, toggleShowTrader }) => {
             Trader
           </h2>
         </div>
-        <div className="row justify-content-center align-items-center">
-          <table className="table text-center">
+        <div className="table-responsive">
+          <table className="table align-middle text-center">
             <thead>
               <tr>
-                <th scope="col" id="modal-title">
+                <th scope="col" id="text" className="fw-bold text-white">
                   Item (Received)
                 </th>
-                <th scope="col" id="modal-title">
+                <th scope="col" id="text" className="fw-bold text-white">
                   Trade for
                 </th>
-                <th scope="col" id="modal-title">
+                <th scope="col" id="text" className="fw-bold text-white">
                   Quantity
                 </th>
-                <th scopr="col" id="modal-title">
+                <th scope="col" id="text" className="fw-bold text-white">
                   Action
                 </th>
               </tr>
@@ -134,7 +121,7 @@ const DailyTrader = ({ showTrader, toggleShowTrader }) => {
                       alt="items-img"
                       width={"45px"}
                     />
-                    <h5 id="modal-title">
+                    <h5 id="text" className="m-0 text-white">
                       {trade.itemReceived.toString() === "0"
                         ? "Gold Coins"
                         : trade.itemReceived.toString() === "1"
@@ -155,7 +142,7 @@ const DailyTrader = ({ showTrader, toggleShowTrader }) => {
                       alt="items-img"
                       width={"45px"}
                     />
-                    <h5 id="modal-title">
+                    <h5 id="text" className="m-0 text-white">
                       {trade.itemTrade.toString() === "0"
                         ? "Gold Coins"
                         : trade.itemTrade.toString() === "1"
@@ -171,10 +158,10 @@ const DailyTrader = ({ showTrader, toggleShowTrader }) => {
                     </h5>
                   </td>
                   <td>
-                    <IncrementDecrementControl
-                      max={parseInt(trade.limit)}
+                    <CustomControl
                       value={quantity[index]}
-                      setValue={setQuantity}
+                      increment={() => increment(index)}
+                      decrement={() => decrement(index)}
                     />
                   </td>
                   <td>
@@ -182,7 +169,7 @@ const DailyTrader = ({ showTrader, toggleShowTrader }) => {
                       className="btn"
                       id="text"
                       style={{ backgroundColor: "#A64B2A", color: "#fff" }}
-                      onClick={() => tradeItem(index)}
+                      onClick={() => tradeMutation.mutate(index)}
                     >
                       Trade
                     </button>

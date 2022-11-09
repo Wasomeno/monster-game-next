@@ -2,36 +2,33 @@ import { motion } from "framer-motion";
 import React, { useContext, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { traderContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
 import useProvider from "../hooks/useProvider";
 import ShopItemDetails from "./cards/ShopItemDetails";
 import ShopItemCard from "./cards/ShopItemCard";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getShop } from "../fetchers/fetchers";
+import { buy } from "../mutations/mutations";
 
 const DailyShopModal = ({ showShop, toggleShowShop }) => {
   const [bag, setBag] = useState([]);
-  const [dailyShop, setDailyShop] = useState([]);
+  const [quantity, setQuantity] = useState([]);
   const [activeItem, setActiveItem] = useState(0);
   const [itemDetails, setItemDetails] = useState(null);
-  const toast = useContext(AppContext).toast;
-  const loading = useContext(AppContext).loading;
   const user = useContext(AppContext).account[0];
-  const traderHandler = traderContract();
-  const provider = useProvider();
+  const dailyShop = useQuery(["dailyShop"], getShop());
+  const buyMutation = useMutation(() =>
+    buy(activeItem, quantity[activeItem], user, getTotal())
+  );
 
-  async function getShop() {
-    await traderHandler.getDailyShop().then((shop) => {
-      setDailyShop(shop);
-    });
-  }
-
-  const addToBag = (item, price, quantity) => {
-    let bagTemp = [...bag];
-    if (bagTemp.length >= 3) return;
-    const itemBigNumb = BigNumber.from(item);
-    bagTemp.push({ itemBigNumb, price, quantity });
-    setBag(bagTemp);
-    toast.success("item #" + item + " added to bag");
-  };
+  // const addToBag = (item, price, quantity) => {
+  //   let bagTemp = [...bag];
+  //   if (bagTemp.length >= 3) return;
+  //   const itemBigNumb = BigNumber.from(item);
+  //   bagTemp.push({ itemBigNumb, price, quantity });
+  //   setBag(bagTemp);
+  //   toast.success("item #" + item + " added to bag");
+  // };
 
   function getTotal() {
     let totalTemp = 0;
@@ -42,38 +39,9 @@ const DailyShopModal = ({ showShop, toggleShowShop }) => {
     return totalTemp.toString();
   }
 
-  async function buy() {
-    let itemsSelected = [];
-    if (quantity.length < 1 || bag.length < 1) {
-      toast.error("You did not select any items");
-    } else {
-      for (let item of bag) {
-        itemsSelected.push(item.itemBigNumb);
-      }
-      try {
-        await traderHandler
-          .buyItems(itemsSelected, quantity, user, {
-            value: getTotal(),
-          })
-          .then((response) => {
-            loading.setLoadingText("Items is on the way...");
-            loading.toggleLoading();
-            provider.waitForTransaction(response.hash).then(() => {
-              loading.toggleLoading();
-              setBag([]);
-              getShop();
-              toast.success("Transaction Success");
-            });
-          });
-      } catch (error) {
-        toast.error(error.reason);
-      }
-    }
-  }
-
   useEffect(() => {
     getShop();
-  }, [showShop]);
+  }, [activeItem]);
 
   if (!showShop) return;
   return (
@@ -108,7 +76,7 @@ const DailyShopModal = ({ showShop, toggleShowShop }) => {
                 Shop
               </h2>
               <div className="d-flex justify-content-center align-items-center flex-wrap w-100">
-                {dailyShop.map((shop) => (
+                {dailyShop.data.map((shop) => (
                   <ShopItemCard
                     key={parseInt(shop.item)}
                     activeItem={activeItem}
@@ -121,7 +89,11 @@ const DailyShopModal = ({ showShop, toggleShowShop }) => {
             </div>
 
             <div className="col-4 p-3">
-              <ShopItemDetails itemDetails={itemDetails} />
+              <ShopItemDetails
+                itemDetails={itemDetails}
+                quantity={quantity}
+                setQuantity={setQuantity}
+              />
             </div>
           </div>
           <div
@@ -135,7 +107,7 @@ const DailyShopModal = ({ showShop, toggleShowShop }) => {
               <img
                 src="/bag_icon.png"
                 width={"60px"}
-                onClick={buy}
+                onClick={() => buyMutation.mutate()}
                 alt="basket-icon"
               />
             </div>
