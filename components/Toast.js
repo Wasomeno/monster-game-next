@@ -1,11 +1,9 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
-import useToggle from "../hooks/useToggle";
 import MoonLoader from "react-spinners/MoonLoader";
+import { useToastDetails } from "../stores/stores";
 
-export const Toast = ({ toastText, condition, show, loading }) => {
-  useEffect(() => {}, [show]);
-
+const Toast = () => {
+  const [show, text, condition, loading] = useToastDetails();
   if (!show) return;
   return (
     <motion.div
@@ -38,7 +36,7 @@ export const Toast = ({ toastText, condition, show, loading }) => {
         </div>
         <div className="col-8">
           <h5 id="text" className="text-white m-0 text-center">
-            {toastText}
+            {text}
           </h5>
         </div>
       </div>
@@ -46,33 +44,4 @@ export const Toast = ({ toastText, condition, show, loading }) => {
   );
 };
 
-export const setToast = () => {
-  const [toastText, setToastText] = useState("");
-  const [condition, setCondition] = useState("");
-  const [show, toggleShow] = useToggle(false);
-  const [loading, toggleSpinner] = useToggle(false);
-
-  const toast = () => Toast({ toastText, condition, show, loading });
-  const error = (text) => {
-    setToastText(text);
-    setCondition("error");
-    toggleShow();
-    setTimeout(() => toggleShow(), 2500);
-  };
-
-  const success = (text) => {
-    setToastText(text);
-    setCondition("success");
-    toggleShow();
-    setTimeout(() => toggleShow(), 2500);
-  };
-
-  const spinner = (text) => {
-    setToastText(text);
-    setCondition("loading");
-    toggleShow();
-    toggleSpinner();
-  };
-
-  return [error, success, spinner, toggleSpinner, toggleShow, toast];
-};
+export default Toast;

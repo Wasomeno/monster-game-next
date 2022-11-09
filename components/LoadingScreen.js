@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import MoonLoader from "react-spinners/MoonLoader";
-import useToggle from "../hooks/useToggle";
+import { useLoadingDetails } from "../stores/stores";
 
-export const LoadingScreen = ({ text, loading }) => {
-  useEffect(() => {
-    // console.log(text, loading);
-  }, [loading]);
-
+const LoadingScreen = () => {
+  const [loading, loadingText] = useLoadingDetails();
   if (!loading) return;
   return (
     <>
@@ -29,7 +26,7 @@ export const LoadingScreen = ({ text, loading }) => {
       >
         <div className="row justify-content-center align-items-center">
           <h3 id="modal-title" className="text-center m-3">
-            {text}
+            {loadingText}
           </h3>
         </div>
         <div className="d-flex justify-content-center">
@@ -40,15 +37,4 @@ export const LoadingScreen = ({ text, loading }) => {
   );
 };
 
-export const setLoading = () => {
-  const [loading, toggleLoading] = useToggle(false);
-  const [text, setText] = useState(false);
-
-  const setLoadingText = (string) => {
-    setText(string);
-  };
-
-  const loadingModal = () => [LoadingScreen({ text, loading })];
-
-  return [setLoadingText, toggleLoading, loadingModal];
-};
+export default LoadingScreen;
