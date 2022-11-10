@@ -1,102 +1,34 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { itemsContract, smelterContract } from "../hooks/useContract";
-import AppContext from "./AppContext";
-import useProvider from "../hooks/useProvider";
+import AppContext from "../contexts/AppContext";
 import TimeButton from "./TimeButton";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getApprovalStatus,
+  getCrystals,
+  getCrystalsInSmelter,
+} from "../fetchers/fetchers";
+import { finishSmelt, smelt, smeltNotApproved } from "../mutations/mutations";
 
 const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
-  const [inventory, setInventory] = useState(0);
-  const [smelter, setSmelter] = useState(0);
-  const [crystals, setCrystals] = useState(0);
-
-  const itemsHandler = itemsContract();
-  const smelterHandler = smelterContract();
-  const provider = useProvider();
   const user = useContext(AppContext).account[0];
-  const toast = useContext(AppContext).toast;
-  const loading = useContext(AppContext).loading;
-
-  async function getCrystals() {
-    await itemsHandler.balanceOf(user, 4).then((amount) => {
-      setInventory(amount);
-    });
-
-    await smelterHandler.smeltDetails(user).then((details) => {
-      setSmelter(details.quantity);
-    });
-  }
-
-  async function smelt() {
-    if (crystals !== 0) {
-      await smelterHandler.smelt(crystals).then((response) => {
-        loading.setLoadingText("Sending your crystals...");
-        loading.toggleLoading();
-        provider.waitForTransaction(response.hash).then(() => {
-          loading.toggleLoading();
-          toast.success("Smelting on Proccess");
-          getCrystals();
-        });
-      });
-    } else {
-      toast.error("Can't send 0 crystals");
-    }
-  }
-
-  async function smeltApprove() {
-    if (crystals !== 0) {
-      await itemsHandler
-        .setApprovalAll(smelterHandler.address, user)
-        .then((response) => {
-          loading.setLoadingText("Approving..");
-          provider.waitForTransaction(response.hash).then(() => {
-            loading.toggleLoading();
-            smelt();
-          });
-        });
-    } else {
-      toast.error("Can't send 0 crystals");
-    }
-  }
-
-  async function smeltCheck() {
-    const isApproved = await itemsHandler.isApprovedForAll(
-      user,
-      smelterHandler.address
-    );
-    if (!isApproved) {
-      try {
-        smeltApprove();
-      } catch (error) {
-        toast.error(error.reason);
-      }
-    } else {
-      try {
-        smelt();
-      } catch (error) {
-        toast.error(error.reason);
-      }
-    }
-  }
-
-  async function finishSmelting() {
-    try {
-      await smelterHandler.finishSmelting().then((response) => {
-        loading.setLoadingText("Claiming your token...");
-        loading.toggleLoading();
-        provider.waitForTransaction(response.hash).then(() => {
-          loading.toggleLoading();
-          toast.success("Smelting Success");
-        });
-      });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
-
-  useEffect(() => {
-    getCrystals();
-  }, [showSmelter, inventory]);
+  const approvalStatus = useQuery(
+    ["approvalStatus", process.env.SMELTER_CONTRACT_ADDRESS],
+    getApprovalStatus(user, process.env.SMELTER_CONTRACT_ADDRESS)
+  );
+  const crytalsInInventory = useQuery(
+    ["crystalsInInventory", user],
+    getCrystals(user)
+  );
+  const crystalsInSmelter = useQuery(
+    ["cyrstalsInSmelter", user],
+    getCrystalsInSmelter(user)
+  );
+  const startSmelt = useMutation(() =>
+    approvalStatus.data ? smelt(crystals) : smeltNotApproved(crystals)
+  );
+  const finishSmelting = useMutation(() => finishSmelt());
+  const [crystals, setCrystals] = useState(0);
 
   if (!showSmelter) return;
   return (
@@ -161,7 +93,7 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
                     }
                   />
                   <h5 id="text" className="m-0 p-2 text-white">
-                    / {inventory.toString()}
+                    / {crytalsInInventory.data?.toString()}
                   </h5>
                 </div>
 
@@ -172,7 +104,7 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
               <button
                 id="text"
                 className="btn btn-primary w-75"
-                onClick={smeltCheck}
+                onClick={startSmelt.mutate()}
               >
                 <h5 className="m-0 p-0">Smelt</h5>
               </button>
@@ -197,7 +129,7 @@ const SmelterModal = ({ showSmelter, toggleShowSmelter }) => {
                   className="my-2"
                 />
                 <h5 id="text" className="m-0 p-2 text-white">
-                  x {smelter.toString()}
+                  x {crystalsInSmelter.data?.toString()}
                 </h5>
               </div>
               <TimeButton

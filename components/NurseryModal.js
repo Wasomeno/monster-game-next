@@ -1,72 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
 import { nurseryContract } from "../hooks/useContract";
-import { nurseryTime } from "../helpers/getTime";
 import MonsterSelection from "./MonsterSelection";
 import useProvider from "../hooks/useProvider";
 import useMonsterSelected from "../hooks/useMonsterSelected";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
 import Modal from "./modals/Modal";
 import TimeButton from "./TimeButton";
 import { DefaultControl } from "./buttons/IncrementDecrementControl";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getMonstersOnNursery } from "../fetchers/fetchers";
+import { finishResting, startResting } from "../mutations/mutations";
 
 const NurseryModal = ({ showNursery, toggleShowNursery }) => {
   const user = useContext(AppContext).account[0];
-  const [onNursery, setOnNursery] = useState([]);
+  const [duration, setDuration] = useState(1);
+  const monstersOnNursery = useQuery(
+    ["monstersOnNursery", user],
+    getMonstersOnNursery(user)
+  );
   const [showSelectMonster, setShowSelectMonster] = useState(false);
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
-  const [duration, setDuration] = useState(1);
-  const nurseryHandler = nurseryContract();
-  const provider = useProvider();
-  const loading = useContext(AppContext).loading;
-  const toast = useContext(AppContext).toast;
-
-  async function sendToNursery() {
-    const fee = await nurseryHandler.RESTING_FEE();
-    const totalFee = fee * duration * monsterSelected.length;
-    try {
-      await nurseryHandler
-        .restMonsters(monsterSelected, duration, {
-          value: totalFee,
-        })
-        .then((response) => {
-          loading.setLoadingText("Sending Monsters to Nursery...");
-          loading.toggleLoading();
-          provider.waitForTransaction(response.hash).then(() => {
-            loading.toggleLoading();
-            getOnNursery();
-            toast.success("Transaction Success");
-          });
-        });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
-
-  async function finishResting() {
-    try {
-      await nurseryHandler.finishResting().then((response) => {
-        loading.setLoadingText("Bringing Your Monsters Back...");
-        loading.toggleLoading();
-        provider.waitForTransaction(response.hash).then(() => {
-          loading.toggleLoading();
-          getOnNursery();
-        });
-      });
-    } catch (error) {
-      toast.error(error.reason);
-    }
-  }
-
-  async function getOnNursery() {
-    await nurseryHandler.getRestingMonsters(user).then((monsters) => {
-      setOnNursery(monsters);
-    });
-  }
-
-  useEffect(() => {
-    getOnNursery();
-  }, [onNursery.length]);
+  const sendMonstersToNursery = useMutation(() =>
+    startResting(duration, monsterSelected.length)
+  );
+  const bringBackFromNursery = useMutation(() => finishResting());
 
   if (!showNursery) return;
   return (
@@ -99,7 +57,7 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
           </div>
           <div className="row justify-content-center my-3">
             <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-2 border-light rounded">
-              {onNursery < 1 ? (
+              {monstersOnNursery.data?.length < 1 ? (
                 monsterSelected.length !== 0 ? (
                   monsterSelected.map((monster, index) => (
                     <div
@@ -117,7 +75,7 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
                   <h5 id="modal-title">No Monsters Selected</h5>
                 )
               ) : (
-                onNursery.map((monster, index) => (
+                monstersOnNursery.data?.map((monster, index) => (
                   <div
                     key={index}
                     id="selected-monster-box"
@@ -132,7 +90,7 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
               )}
             </div>
             <div className="col-2 mx-2 border border-2 border-light rounded">
-              {onNursery.length < 0 ? (
+              {monstersOnNursery.data?.length < 0 ? (
                 <div className="row align-items-center">
                   <h5 id="text" className="text-white text-center m-0 p-2">
                     You're Resting
@@ -155,24 +113,24 @@ const NurseryModal = ({ showNursery, toggleShowNursery }) => {
           <div className="row justify-content-center p-2 my-3">
             <button
               id="text"
-              disabled={onNursery.length > 0}
+              disabled={monstersOnNursery.data?.length > 0}
               className="btn btn-primary p-2 col-3 m-2"
               onClick={() => setShowSelectMonster(true)}
             >
               Select Monsters
             </button>
-            {onNursery.length < 1 ? (
+            {monstersOnNursery.data?.length < 1 ? (
               <button
                 id="text"
                 className="btn btn-success p-2 col-3 m-2"
-                onClick={sendToNursery}
+                onClick={sendMonstersToNursery.mutate()}
               >
                 Send Monsters
               </button>
             ) : (
               <TimeButton
                 path={"nursery"}
-                onClick={finishResting}
+                onClick={bringBackFromNursery.mutate()}
                 width={"col-3"}
               />
             )}
