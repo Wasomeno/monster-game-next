@@ -1,81 +1,58 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect, useContext } from "react";
-import { toast } from "react-toastify";
 import MoonLoader from "react-spinners/MoonLoader";
-import AppContext from "./AppContext";
-import { useMonstersInactive } from "../hooks/useMonsters";
+import AppContext from "../contexts/AppContext";
+import { getInactiveMonsters } from "../fetchers/fetchers";
+import MonsterSelectCard from "./cards/MonsterSelectCard";
 
 const MonsterSelection = ({
   monsterSelected,
   selectMonster,
   deselectMonster,
 }) => {
-  const connection = useContext(AppContext);
-  const user = connection.account[0];
-  const { monsters, loading } = useMonstersInactive(user);
-
-  function intoString(nonString) {
-    return nonString.toString();
-  }
-
-  useEffect(() => {}, [monsters]);
+  const user = useContext(AppContext).account[0];
+  const inactiveMonsters = useQuery(["inactiveMonsters", user], () =>
+    getInactiveMonsters(user)
+  );
 
   return (
-    <div className="containe-flui p-2">
-      <div className="row justify-content-center">
+    <div className="container">
+      <div className="d-flex">
         <div className="col-8">
           <h3 id="modal-title" className="text-center">
             Select Your Monsters
           </h3>
           <div
             id="monsters-container"
-            className="d-flex flex-wrap justify-content-center"
+            className="d-flex justify-content-center align-items-start h-100 w-100"
           >
-            <div className="d-flex flex-wrap justify-content-center">
-              {loading ? (
-                <MoonLoader size={50} loading={loading} color="#EEEEEE" />
-              ) : monsters.length < 1 ? (
-                <h5 className="text-center" id="modal-title">
-                  No Monsters in Inventory
-                </h5>
-              ) : (
-                monsters.map((monster, index) => (
-                  <div
-                    key={index}
-                    id="monster-card"
-                    className="card col-3 d-flex m-2 justify-content-center align-items-center"
-                    onClick={() => selectMonster(intoString(monster.id))}
-                  >
-                    <img
-                      className="p-3"
-                      src={"/monsters/" + (parseInt(monster.id) + 1) + ".png"}
-                      width={"75%"}
-                      height={"75%"}
-                      alt="..."
-                    />
-                    <div
-                      className="card-body py-1 text-start"
-                      style={{ color: "#EEEEEE" }}
-                    >
-                      <h5 className="card-title" id="modal-title">
-                        Monster #{intoString(monster.id)}
-                      </h5>
-                      <div className="">
-                        <h5 id="text">
-                          Level : {intoString(monster.level)} / 10;
-                        </h5>
-                        <h5 id="text">
-                          Exp : {intoString(monster.exp)} /{" "}
-                          {intoString(monster.expCap)};
-                        </h5>
-                        <h5 id="text">
-                          Hunger : {intoString(monster.energy)} / 100;
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
-                ))
+            <div className="d-flex flex-wrap justify-content-center p-3 align-items-center w-100">
+              {inactiveMonsters.isLoading && (
+                <MoonLoader
+                  size={50}
+                  loading={inactiveMonsters.isLoading}
+                  color="#EEEEEE"
+                />
               )}
-              <div className="col-3 m-2" />
+              {!inactiveMonsters.isLoading &&
+                (inactiveMonsters.data?.length < 1 ? (
+                  <h5 className="text-center text-white" id="text">
+                    No Monsters in Inventory
+                  </h5>
+                ) : (
+                  inactiveMonsters.data?.map((monster) => (
+                    <MonsterSelectCard
+                      key={monster.id}
+                      monster={monster.id}
+                      level={monster.level}
+                      exp={monster.exp}
+                      expCap={monster.expCap}
+                      energy={monster.energy}
+                      energyCap={monster.energyCap}
+                      onClick={() => selectMonster(monster.id)}
+                    />
+                  ))
+                ))}
             </div>
           </div>
         </div>
@@ -95,16 +72,24 @@ const MonsterSelection = ({
                 <button
                   className="btn btn-danger rounded-circle"
                   onClick={() => deselectMonster(monster)}
-                  style={{ position: "absolute", left: "140px", top: "0" }}
+                  style={{
+                    position: "absolute",
+                    left: "140px",
+                    top: "-10px",
+                    fontSize: "12px",
+                  }}
                 >
                   X
                 </button>
                 <div
                   id="selected-monster-box"
-                  className="p-2 my-2 text-center d-flex justify-content-center align-items-center"
-                >
-                  {monster}
-                </div>
+                  className="p-2 text-center d-flex justify-content-center rounded align-items-center"
+                  style={{
+                    backgroundImage: `url("/monsters/${
+                      parseInt(monster) + 1
+                    }.png")`,
+                  }}
+                />
               </div>
             ))}
           </div>
