@@ -1,47 +1,21 @@
 import React, { useEffect, useState, useContext } from "react";
-import { itemsContract, usersDataContract } from "../hooks/useContract";
-import { BigNumber, ethers } from "ethers";
-import InventoryModal from "./InventoryModal";
-import MonstersModal from "./MonstersModal";
-import AppContext from "./AppContext";
-import { useUserStatus } from "../hooks/useAccount";
+import { ethers } from "ethers";
+import InventoryModal from "./modals/InventoryModal";
+import MonstersModal from "./modals/MonstersModal";
+import AppContext from "../contexts/AppContext";
+import { useQuery } from "@tanstack/react-query";
+import { getGold, getUserDetails } from "../fetchers/fetchers";
 
 const UserPanel = () => {
-  const connection = useContext(AppContext);
+  const user = useContext(AppContext).account[0];
   const [showInventory, setShowInventory] = useState(false);
   const [showMonsters, setShowMonsters] = useState(false);
-  const [gold, setGold] = useState(0);
-  const [details, setDetails] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const itemsHandler = itemsContract();
-  const userDataHandler = usersDataContract();
-
-  async function getUserStatus() {
-    const result = await useUserStatus(connection.account[0]);
-    setIsRegistered(result);
-  }
-  async function getGold() {
-    await itemsHandler.balanceOf(connection.account[0], 0).then((golds) => {
-      setGold(golds.toString());
-    });
-  }
-  async function getUserDetails() {
-    await userDataHandler
-      .userDataDetails(connection.account[0])
-      .then((details) => {
-        setDetails(details);
-        setLoading(false);
-      });
-  }
+  const gold = useQuery(["getGold", user], getGold(user));
+  const userDetails = useQuery(["userDetails", user], getUserDetails(user));
 
   function bytesToString(string) {
     return ethers.utils.parseBytes32String(string);
   }
-
-  useEffect(() => {
-    getUserDetails();
-    getGold();
-  }, [details.length]);
 
   return (
     <>
@@ -51,24 +25,27 @@ const UserPanel = () => {
         style={{ background: "rgba(66, 63, 62, 0.5)" }}
       >
         <h5 id="text" className="p-1 text-white">
-          {loading ? "loading....." : bytesToString(details.name)}
+          {userDetails.isLoading
+            ? "loading....."
+            : bytesToString(userDetails.data?.name)}
         </h5>
         <div
           id="user-image"
           style={
-            loading
+            userDetails.isLoading
               ? { backgroundColor: "#000" }
               : {
                   backgroundImage: `url(${
                     "/profile/profile_" +
-                    bytesToString(details.profile_image) +
+                    bytesToString(userDetails.data?.profile_image) +
                     ".png"
                   })`,
+                  backgroundPosition: "center",
                 }
           }
         />
         <h5 id="text" className="p-1 my-2 w-100 text-white text-center">
-          Gold: {gold}
+          Gold: {parseInt(gold.data)}
         </h5>
         <div id="user-menu" className="d-flex flex-column">
           <button
