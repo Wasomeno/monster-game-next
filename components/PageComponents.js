@@ -1,24 +1,30 @@
 import React, { useEffect } from "react";
-import { motion } from "framer-motion";
-import useToggle from "../hooks/useToggle";
-import DungeonModal from "./DungeonModal";
-import MissionsModal from "./MissionsModal";
-import NurseryModal from "./NurseryModal";
-import SmelterModal from "./SmelterModal";
-import CityHallModal from "./CityHallModal";
-import AltarModal from "./AltarModal";
+import DungeonModal from "./modals/DungeonModal";
+import MissionsModal from "./modals/MissionsModal";
+import NurseryModal from "./modals/NurseryModal";
+import SmelterModal from "./modals/SmelterModal";
+import AltarModal from "./modals/AltarModal";
 import ModalButton from "./buttons/ModalButton";
+import DailyShopModal from "./modals/DailyShopModal";
+import DailyTrader from "./modals/DailyTrader";
+import {
+  altarModalStores,
+  dailyShopModalStores,
+  dailyTradeModalStores,
+  dungeonModalStores,
+  missionsModalStores,
+  nurseryModalStores,
+  smelterModalStores,
+} from "../stores/modalStores";
 
 const PageComponents = ({ path }) => {
-  const [showDungeon, toggleShowDungeon] = useToggle(false);
-  const [showMission, toggleShowMission] = useToggle(false);
-
-  const [showSmelter, toggleShowSmelter] = useToggle(false);
-  const [showNursery, toggleShowNursery] = useToggle(false);
-
-  const [showShop, toggleShowShop] = useToggle(false);
-  const [showTrader, toggleShowTrader] = useToggle(false);
-  const [showAltar, toggleShowAltar] = useToggle(false);
+  const toggleShowDungeon = dungeonModalStores((state) => state.toggleShow);
+  const toggleShowMission = missionsModalStores((state) => state.toggleShow);
+  const toggleShowShop = dailyShopModalStores((state) => state.toggleShow);
+  const toggleShowTrader = dailyTradeModalStores((state) => state.toggleShow);
+  const toggleShowSmelter = smelterModalStores((state) => state.toggleShow);
+  const toggleShowNursery = nurseryModalStores((state) => state.toggleShow);
+  const toggleShowAltar = altarModalStores((state) => state.toggleShow);
 
   const Dungeon = (
     <>
@@ -36,14 +42,8 @@ const PageComponents = ({ path }) => {
         onClick={toggleShowMission}
       />
 
-      <DungeonModal
-        showDungeon={showDungeon}
-        toggleShowDungeon={toggleShowDungeon}
-      />
-      <MissionsModal
-        showMission={showMission}
-        toggleShowMission={toggleShowMission}
-      />
+      <DungeonModal />
+      <MissionsModal />
     </>
   );
 
@@ -61,14 +61,8 @@ const PageComponents = ({ path }) => {
         x={"720px"}
         onClick={toggleShowSmelter}
       />
-      <NurseryModal
-        showNursery={showNursery}
-        toggleShowNursery={toggleShowNursery}
-      />
-      <SmelterModal
-        showSmelter={showSmelter}
-        toggleShowSmelter={toggleShowSmelter}
-      />
+      <NurseryModal />
+      <SmelterModal />
     </>
   );
 
@@ -86,12 +80,8 @@ const PageComponents = ({ path }) => {
         x={"735px"}
         onClick={toggleShowShop}
       />
-      <CityHallModal
-        showShop={showShop}
-        showTrader={showTrader}
-        toggleShowShop={toggleShowShop}
-        toggleShowTrader={toggleShowTrader}
-      />
+      <DailyShopModal />
+      <DailyTrader />
     </>
   );
 
@@ -104,7 +94,7 @@ const PageComponents = ({ path }) => {
         onClick={toggleShowAltar}
       />
 
-      <AltarModal showAltar={showAltar} toggleShowAltar={toggleShowAltar} />
+      <AltarModal />
     </>
   );
 
