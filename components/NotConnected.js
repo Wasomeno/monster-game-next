@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import AppContext from "./AppContext";
+import AppContext from "../contexts/AppContext";
+import { useToast } from "../stores/stores";
 
 const NotConnected = () => {
+  const [toastSuccess, toastError] = useToast();
   const connection = useContext(AppContext);
-  const toast = useContext(AppContext).toast;
-
-  const [chainId, setChainId] = useState(0);
+  const [chainId, setChainId] = useState(5);
 
   async function connectAccount() {
     if (window.ethereum) {
@@ -23,14 +23,14 @@ const NotConnected = () => {
   async function getChainId() {
     await window.ethereum.request({ method: "eth_chainId" }).then((chainId) => {
       setChainId(hexConvert(chainId));
+      if (hexConvert(chainId) !== 5) {
+        toastError("Wrong Chain");
+      }
     });
   }
 
   useEffect(() => {
     getChainId();
-    if (chainId !== 5) {
-      toast.error("Wrong Chain");
-    }
   }, [chainId]);
 
   return (
@@ -42,7 +42,12 @@ const NotConnected = () => {
       </div>
       <div className="row justify-content-center align-items-center w-100">
         <button
-          className={"col-2 btn rounded-pill btn-primary"}
+          disabled={chainId !== 5 ? true : false}
+          className={
+            chainId !== 5
+              ? "col-2 btn rounded-pill btn-danger"
+              : "col-2 btn rounded-pill btn-primary"
+          }
           onClick={connectAccount}
         >
           <h3 id="text" className="m-0 text-white">
@@ -50,6 +55,13 @@ const NotConnected = () => {
           </h3>
         </button>
       </div>
+      {chainId !== 5 ? (
+        <div className="row justify-content-center align-items-center w-50 my-4">
+          <h5 id="text" className="text-white">
+            You're Connected to the Wrong Network
+          </h5>
+        </div>
+      ) : null}
     </div>
   );
 };
