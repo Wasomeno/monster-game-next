@@ -1,50 +1,39 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import AppContext from "../contexts/AppContext";
 import {
-  dungeonTime,
-  missionTime,
-  nurseryTime,
-  smeltingTime,
-} from "../helpers/getTime";
-import AppContext from "./AppContext";
+  getDungeonTime,
+  getMissionTime,
+  getNurseryTime,
+  getSmeltingTime,
+} from "../fetchers/fetchers";
 
 const TimeButton = ({ path, onClick, width }) => {
   const user = useContext(AppContext).account[0];
   const timeFunctions = new Map([
-    ["mission", missionTime(user)],
-    ["nursery", nurseryTime(user)],
-    ["dungeon", dungeonTime(user)],
-    ["smelter", smeltingTime(user)],
+    ["mission", getMissionTime(user)],
+    ["nursery", getNurseryTime(user)],
+    ["dungeon", getDungeonTime(user)],
+    ["smelter", getSmeltingTime(user)],
   ]);
-  const [time, setTime] = useState(null);
-
-  async function getTime() {
-    const timeFetched = Math.abs(await timeFunctions.get(path));
-    setTime(timeFetched);
-    console.log(timeFetched);
-  }
-
-  useEffect(() => {
-    getTime();
-    console.log(width);
-  }, []);
-
+  const time = useQuery(["time", path], () => timeFunctions.get(path));
   return (
     <button
-      disabled={time <= 0 ? false : true}
       id="text"
+      disabled={time.data >= 0 ? false : true}
       className={
-        time <= 0
+        time.data >= 0
           ? "btn btn-success p-2 m-2 " + width
           : "btn btn-danger p-2 m-2 " + width
       }
       onClick={onClick}
     >
       <h5 className="m-0 p-0">
-        {time <= 0
+        {time.data > 0
           ? "Finish"
-          : time > 60
-          ? Math.floor(time / 60) + " Hours"
-          : time + " Minutes"}
+          : time.data < -60
+          ? Math.floor(Math.abs(time.data / 60)) + " Hours"
+          : Math.abs(time.data) + " Minutes"}
       </h5>
     </button>
   );
