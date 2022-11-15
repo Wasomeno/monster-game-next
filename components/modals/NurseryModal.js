@@ -11,7 +11,11 @@ import { finishResting, startResting } from "../../mutations/mutations";
 import { nurseryModalStores } from "../../stores/modalStores";
 import { AnimatePresence } from "framer-motion";
 import { useLoading, useToast } from "../../stores/stores";
-import { finishRestingSides } from "../../mutations/sideffects";
+import {
+  finishRestingSides,
+  startRestingSides,
+} from "../../mutations/sideffects";
+import BackButton from "../buttons/BackButton";
 
 const NurseryModal = () => {
   const toggleLoading = useLoading();
@@ -29,22 +33,11 @@ const NurseryModal = () => {
   const [showSelectMonster, setShowSelectMonster] = useState(false);
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
-  const sendMonstersToNursery = useMutation(() =>
-    startResting(duration, monsterSelected, {
-      onMutate: () => {
-        toggleLoading("Resting monsters");
-      },
-      onSettled: () => {
-        toggleLoading();
-      },
-      onSuccess: () => {
-        toastSuccess("Your monsters are resting");
-      },
-      onError: (error) => {
-        toastError(error);
-      },
-    })
+  const sendMonstersToNursery = useMutation(
+    () => startResting(duration, monsterSelected),
+    startRestingSides()
   );
+
   const bringBackFromNursery = useMutation(
     () => finishResting(),
     finishRestingSides(user)
@@ -54,16 +47,12 @@ const NurseryModal = () => {
     <AnimatePresence>
       {show && (
         <Modal>
-          <img
-            className="m-2"
-            src="/back_icon.png"
+          <BackButton
             onClick={
               !showSelectMonster
                 ? () => toggleShow()
                 : () => setShowSelectMonster(false)
             }
-            width={"45px"}
-            alt="back-img"
           />
           {!showSelectMonster ? (
             <div className="d-flex w-100 h-75 flex-column justify-content-center">
@@ -114,8 +103,8 @@ const NurseryModal = () => {
                     ))
                   )}
                 </div>
-                <div className="col-2 mx-2 border border-2 border-light rounded">
-                  {monstersOnNursery.data?.length < 0 ? (
+                <div className="col-2 mx-2 border border-2 border-light rounded d-flex flex-column justify-content-center">
+                  {monstersOnNursery.data?.length > 0 ? (
                     <div className="row align-items-center">
                       <h5 id="text" className="text-white text-center m-0 p-2">
                         You're Resting
