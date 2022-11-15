@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { motion } from "framer-motion";
 import MonsterDetails from "../MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
 import AppContext from "../../contexts/AppContext";
 import { useQuery } from "@tanstack/react-query";
 import { getAllMonsters } from "../../fetchers/fetchers";
+import Image from "next/image";
+import BackButton from "../buttons/BackButton";
 
 const MonstersModal = ({ showMonsters, setShowMonsters }) => {
   const user = useContext(AppContext).account[0];
@@ -41,12 +43,7 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
           <>
             <div className="row justify-content-center align-items-center">
               <div className="col-4">
-                <img
-                  src="back_icon.png"
-                  alt="back-icon"
-                  width={"14%"}
-                  onClick={() => setShowMonsters(false)}
-                />
+                <BackButton onClick={() => setShowMonsters(false)} />
               </div>
               <div className="col-4">
                 <h2 className="text-center p-3" id="modal-title">
@@ -79,22 +76,23 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                     onClick={() => monsterDetails(monster.id.toString())}
                   >
                     {parseInt(monster.status) === 1 ? (
-                      <img
-                        src="mission_emote.gif"
+                      <Image
+                        src="/emotes/mission_emote.gif"
                         width={"25%"}
+                        height={"25%"}
                         alt="activity-icon"
                         className="align-self-end p-1 my-1 bg-primary bg-opacity-25 rounded-circle"
                       />
                     ) : parseInt(monster.status) === 2 ? (
                       <img
-                        src="resting_emote.gif"
+                        src="/emotes/resting_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end"
                       />
                     ) : parseInt(monster.status) === 3 ? (
                       <img
-                        src="mission_emote.gif"
+                        src="/emotes/mission_emote.gif"
                         width={"25%"}
                         alt="activity-icon"
                         className="align-self-end"
