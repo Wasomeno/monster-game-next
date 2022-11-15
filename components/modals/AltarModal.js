@@ -4,29 +4,21 @@ import { useMutation } from "@tanstack/react-query";
 import { summonMonster } from "../../mutations/mutations";
 import { useLoading, useToast } from "../../stores/stores";
 import { altarModalStores } from "../../stores/modalStores";
+import { summoningSides } from "../../mutations/sideffects";
+import BackButton from "../buttons/BackButton";
+import AppContext from "../../contexts/AppContext";
 
 const AltarModal = () => {
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
+  const user = useContext(AppContext).account[0];
   const [show, toggleShow] = altarModalStores((state) => [
     state.show,
     state.toggleShow,
   ]);
   const [quantity, setQuantity] = useState(1);
-  const summonMutation = useMutation(() => summonMonster(quantity), {
-    onMutate: () => {
-      toggleLoading("Summoning Monster");
-    },
-    onSettled: () => {
-      toggleLoading();
-    },
-    onSuccess: () => {
-      toastSuccess("Succesfully summoned monsters");
-    },
-    onError: (error) => {
-      toastError(error);
-    },
-  });
+  const summonMutation = useMutation(
+    () => summonMonster(quantity),
+    summoningSides(user)
+  );
 
   const increment = () => {
     if (quantity >= 5) return;
@@ -63,12 +55,7 @@ const AltarModal = () => {
               ease: "easeInOut",
             }}
           >
-            <img
-              src="/back_icon.png"
-              onClick={toggleShow}
-              width={"45px"}
-              alt="back-img"
-            />
+            <BackButton onClick={toggleShow} />
             <div className="row justify-content-center">
               <h2 id="modal-title" className="text-center m-0 p-0">
                 Summoning Altar
@@ -77,7 +64,7 @@ const AltarModal = () => {
             <div className="row justify-content-center align-items-center">
               <div className="col-6">
                 <img
-                  src="/summoning-altar.png"
+                  src="/ui/summoning-altar.png"
                   alt="altar-icon"
                   width={"100%"}
                 />
