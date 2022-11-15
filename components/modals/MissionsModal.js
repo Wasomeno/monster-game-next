@@ -3,21 +3,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import MonsterSelection from "../MonsterSelection";
 import AppContext from "../../contexts/AppContext";
 import useMonsterSelected from "../../hooks/useMonsterSelected";
-import { queryClient } from "../../contexts/reactQueryClient";
-import { setRewardModal } from "./RewardsModal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getMissionTime, getMonstersOnMissions } from "../../fetchers/fetchers";
 import { finishMission, sendToMission } from "../../mutations/mutations";
 import { missionsModalStores } from "../../stores/modalStores";
-import { useLoading, useToast } from "../../stores/stores";
 import {
   finishMissionSides,
   monstersToMissionSides,
 } from "../../mutations/sideffects";
+import BackButton from "../buttons/BackButton";
 
 const MissionsModal = () => {
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
   const user = useContext(AppContext).account[0];
   const [show, toggleShow] = missionsModalStores((state) => [
     state.show,
@@ -31,7 +27,6 @@ const MissionsModal = () => {
   );
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
-  const [setRewards, toggleRewardsModal, RewardsModal] = setRewardModal();
   const missionTimeRemaining = useQuery(["missionTime", user], () =>
     getMissionTime(user)
   );
@@ -54,14 +49,6 @@ const MissionsModal = () => {
     setMission((current) => current + 1);
   }
 
-  //   itemsHandler.on(
-  //     "IntermediateMissionReward",
-  //     (_monster, _items, _amount) => {
-  //       if (_items.length === 0 && _amount.length === 0) return;
-  //       rewardsGot.push({ _monster, _items, _amount });
-  //     }
-  //   );
-
   function intoString(nonString) {
     return nonString.toString();
   }
@@ -70,7 +57,6 @@ const MissionsModal = () => {
     <AnimatePresence>
       {show && (
         <>
-          <RewardsModal />
           <motion.div
             id="modal-screen"
             className="h-100 w-100 bg-dark bg-opacity-75"
@@ -88,15 +74,12 @@ const MissionsModal = () => {
             exit={{ opacity: 0 }}
             transition={{ type: "tween", duration: 0.25 }}
           >
-            <img
-              src="/back_icon.png"
+            <BackButton
               onClick={
                 showMissionSelect
                   ? () => setShowMissionSelect(false)
                   : toggleShow
               }
-              width={"45px"}
-              alt="back-img"
             />
             {!showMissionSelect ? (
               <>
@@ -152,26 +135,32 @@ const MissionsModal = () => {
                       Mission Types
                     </h5>
                     <div className="d-flex justify-content-around align-items-center">
-                      <div className="col-2" onClick={decrement}>
-                        <h5 id="text" className="text-white m-0">
-                          {"<"}
-                        </h5>
-                      </div>
-                      <div className="col-6">
-                        <h5
-                          id="text"
-                          className="text-white m-0 mx-1 text-center"
-                        >
-                          {mission === 1
-                            ? "Beginner Mission"
-                            : "Intermediate Mission"}
-                        </h5>
-                      </div>
-                      <div className="col-2" onClick={increment}>
-                        <h5 id="text" className="text-white m-0">
-                          {">"}
-                        </h5>
-                      </div>
+                      {monstersOnMission.data?.length > 0 ? (
+                        <p id="text" className="text-white">
+                          You're on a mission
+                        </p>
+                      ) : (
+                        <>
+                          <div className="col-2" onClick={decrement}>
+                            <h5 id="text" className="text-white m-0">
+                              {"<"}
+                            </h5>
+                          </div>
+                          <div className="col-6">
+                            <h5
+                              id="text"
+                              className="text-white m-0 mx-1 text-center"
+                            >
+                              {mission === 1 ? "Beginner" : "Intermediate"}
+                            </h5>
+                          </div>
+                          <div className="col-2" onClick={increment}>
+                            <h5 id="text" className="text-white m-0">
+                              {">"}
+                            </h5>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -196,7 +185,11 @@ const MissionsModal = () => {
                     <button
                       id="text"
                       disabled={missionTimeRemaining.data >= 0 ? false : true}
-                      className="btn btn-danger p-2 col-3 m-2"
+                      className={
+                        missionTimeRemaining.data >= 0
+                          ? "btn btn-success p-2 col-3 m-2"
+                          : "btn btn-danger p-2 col-3 m-2"
+                      }
                       onClick={() => finishMonstersMission.mutate()}
                     >
                       {missionTimeRemaining.data >= 0
