@@ -10,6 +10,8 @@ import {
   tradeItemNotApproved,
 } from "../../mutations/mutations";
 import { dailyTradeModalStores } from "../../stores/modalStores";
+import { tradeSides } from "../../mutations/sideffects";
+import BackButton from "../buttons/BackButton";
 
 const DailyTrader = () => {
   const toggleLoading = useLoading();
@@ -26,12 +28,7 @@ const DailyTrader = () => {
       isApproved
         ? tradeItemApproved(index, quantity[index], user)
         : tradeItemNotApproved(index, quantity[index], user),
-    {
-      onMutate: () => toggleLoading("Trading your items"),
-      onSettled: () => toggleLoading(),
-      onError: (error) => toastError(error),
-      onSuccess: () => toastSuccess("Trade succesful"),
-    }
+    tradeSides()
   );
 
   const isApproved = async () => {
@@ -87,12 +84,7 @@ const DailyTrader = () => {
             exit={{ opacity: 0 }}
             transition={{ type: "tween", duration: 0.25 }}
           >
-            <img
-              src="/back_icon.png"
-              onClick={toggleShow}
-              width={"45px"}
-              alt="back-img"
-            />
+            <BackButton onClick={toggleShow} />
             <div className="row justify-content-center">
               <h2 id="modal-title" className="text-center">
                 Trader
