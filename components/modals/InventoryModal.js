@@ -5,13 +5,22 @@ import AppContext from "../../contexts/AppContext";
 import useToggle from "../../hooks/useToggle";
 import { useQuery } from "@tanstack/react-query";
 import { getInventory } from "../../fetchers/fetchers";
+import BackButton from "../buttons/BackButton";
 
 function InventoryModal({ showInventory, setShowInventory }) {
   if (!showInventory) return;
   const [loading, toggleLoading] = useToggle(false);
+  const itemsData = useQuery(["itemsData"], async () => {
+    const data = await fetch("items/items.json");
+    return await data.json();
+  });
   const [activeItem, setActiveItem] = useState(0);
   const user = useContext(AppContext).account[0];
   const inventory = useQuery(["inventory"], getInventory(user));
+
+  const getItemData = (item) => {
+    return itemsData.data.find((_, index) => index === item);
+  };
 
   return (
     <>
@@ -34,12 +43,7 @@ function InventoryModal({ showInventory, setShowInventory }) {
         <>
           <div className="row justify-content-center align-items-center">
             <div className="col-4">
-              <img
-                src="back_icon.png"
-                alt="back-icon"
-                width={"14%"}
-                onClick={() => setShowInventory(false)}
-              />
+              <BackButton onClick={() => setShowInventory(false)} />
             </div>
             <div className="col-4">
               <h2 className="text-center p-3" id="modal-title">
@@ -76,24 +80,14 @@ function InventoryModal({ showInventory, setShowInventory }) {
                           </h5>
                         </div>
                         <img
-                          src={index + ".png"}
+                          src={"/items" + getItemData(index)?.image}
                           alt="items-img"
                           width={"40%"}
                           className="p-2"
                         />
                         <div>
                           <h5 className="card-title text-white" id="text">
-                            {index === 0
-                              ? "Gold Coins"
-                              : index === 1
-                              ? "Berry"
-                              : index === 2
-                              ? "Energy Potion"
-                              : index === 3
-                              ? "Exp Potion"
-                              : index === 4
-                              ? "Token Crystal"
-                              : ""}{" "}
+                            {getItemData(index)?.name}
                           </h5>
                         </div>
                       </div>
@@ -111,20 +105,10 @@ function InventoryModal({ showInventory, setShowInventory }) {
                   </div>
                   <div className="d-flex flex-column justify-content-center align-items-center">
                     <h3 id="text" className="text-white">
-                      {activeItem === 0
-                        ? "Gold Coins"
-                        : activeItem === 1
-                        ? "Berry"
-                        : activeItem === 2
-                        ? "Hunger Potion"
-                        : activeItem === 3
-                        ? "Exp Potion"
-                        : activeItem === 4
-                        ? "Token Crystal"
-                        : ""}{" "}
+                      {getItemData(activeItem)?.name}
                     </h3>
                     <img
-                      src={activeItem + ".png"}
+                      src={"/items" + getItemData(activeItem)?.image}
                       width={"80px"}
                       className="p-3 m-3 border border-dark border-1 rounded"
                       alt="shop-item-img"
