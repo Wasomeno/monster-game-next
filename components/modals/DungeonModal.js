@@ -4,22 +4,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import MonsterSelection from "../MonsterSelection";
 import AppContext from "../../contexts/AppContext";
 import useMonsterSelected from "../../hooks/useMonsterSelected";
-import { useLoading, useToast } from "../../stores/stores";
 import { getDungeonTime, getMonstersOnDungeon } from "../../fetchers/fetchers";
 import { finishDungeon, sendToDungeon } from "../../mutations/mutations";
 import { RewardsModal } from "./RewardsModal";
 import { dungeonModalStores } from "../../stores/modalStores";
+import {
+  finishDungeonSides,
+  monstersToDungeonsSides,
+} from "../../mutations/sideffects";
+import BackButton from "../buttons/BackButton";
 
 const DungeonModal = () => {
   const [show, toggleShow] = dungeonModalStores((state) => [
     state.show,
     state.toggleShow,
   ]);
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
   const [showDungeonSelect, setShowDungeonSelect] = useState(false);
   const user = useContext(AppContext).account[0];
-  const monstersOnDungeon = useQuery(["monstersOnDungeon", user], () =>
+  const monstersOnDungeon = useQuery(
+    ["monstersOnDungeon", user],
     getMonstersOnDungeon(user)
   );
   const dungeonTime = useQuery(["dungeonTime", user], () =>
@@ -27,10 +30,16 @@ const DungeonModal = () => {
   );
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
-  const startDungeonMutation = useMutation(() =>
-    sendToDungeon(monsterSelected)
+  const startDungeonMutation = useMutation(
+    () => sendToDungeon(monsterSelected),
+    monstersToDungeonsSides()
   );
-  const finishDungeonMutation = useMutation(() => finishDungeon());
+  const finishDungeonMutation = useMutation(
+    () => finishDungeon(),
+    finishDungeonSides()
+  );
+
+  console.log(monstersOnDungeon.data);
 
   function showRewards() {
     let rewardsGot = [];
@@ -69,15 +78,12 @@ const DungeonModal = () => {
             exit={{ opacity: 0 }}
             transition={{ type: "tween", duration: 0.25 }}
           >
-            <img
-              src="/back_icon.png"
+            <BackButton
               onClick={
                 showDungeonSelect
                   ? () => setShowDungeonSelect(false)
                   : toggleShow
               }
-              width={"45px"}
-              alt="back-img"
             />
             {showDungeonSelect ? (
               <MonsterSelection
@@ -106,7 +112,7 @@ const DungeonModal = () => {
                 </div>
                 <div className="row justify-content-center my-3">
                   <div className="p-3 col-6 d-flex justify-content-center align-items-center border border-light border-2 rounded">
-                    {monstersOnDungeon?.data.length < 1 ? (
+                    {monstersOnDungeon.data?.length < 1 ? (
                       monsterSelected.length !== 0 ? (
                         monsterSelected.map((monster, index) => (
                           <div
@@ -135,6 +141,7 @@ const DungeonModal = () => {
                 </div>
                 <div className="row justify-content-center p-2 my-3">
                   <button
+                    disabled={dungeonTime.data >= 0 ? false : true}
                     style={{ fontSize: "20px", fontFamily: "Monogram" }}
                     className="btn btn-primary p-2 col-3 m-2"
                     onClick={() => setShowDungeonSelect(true)}
@@ -151,14 +158,14 @@ const DungeonModal = () => {
                     </button>
                   ) : (
                     <button
-                      disabled={timeElapsed >= 0 ? false : true}
+                      disabled={dungeonTime.data >= 0 ? false : true}
                       style={{ fontSize: "20px", fontFamily: "Monogram" }}
                       className="btn btn-danger col-3 m-2"
                       onClick={() => finishDungeonMutation.mutate()}
                     >
                       {dungeonTime.data >= 0
                         ? "Finish Dungeon"
-                        : Math.abs(timeElapsed) + " Minutes"}
+                        : Math.abs(dungeonTime.data) + " Minutes"}
                     </button>
                   )}
                 </div>
