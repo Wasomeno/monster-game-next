@@ -1,25 +1,21 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import AppContext from "../../contexts/AppContext";
+import React, { useContext, useRef, useState } from "react";
 import useToggle from "../../hooks/useToggle";
 import Modal from "./Modal";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { registerUser } from "../../mutations/mutations";
-import { getUserStatus } from "../../fetchers/fetchers";
+import { registerSides } from "../../mutations/sideffects";
+import AppContext from "../../contexts/AppContext";
 
 const RegisterModal = () => {
   const nameInput = useRef();
   const [profile, setProfile] = useState();
-  const [showRegister, toggleShowRegister] = useToggle(true);
-  const pictures = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const user = useContext(AppContext).account[0];
-  const userStatus = useQuery(["isRegistered", user], getUserStatus(user), {
-    initialData: true,
-  });
-  const register = useMutation(() =>
-    registerUser(nameInput.current.value, profile)
+  const pictures = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const register = useMutation(
+    () => registerUser(nameInput.current.value, profile),
+    registerSides(user)
   );
 
-  if (userStatus.data || !showRegister) return;
   return (
     <Modal>
       <div className="row justify-content-center align-items-center">
@@ -59,7 +55,7 @@ const RegisterModal = () => {
             }
             key={index}
             className="m-1 border border-2 border-light d-flex justify-content-center align-items-end"
-            style={{ width: "10rem", height: "10rem" }}
+            style={{ width: "8rem", height: "8rem" }}
             onClick={() => setProfile(picture)}
           >
             <img
