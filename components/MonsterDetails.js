@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { BigNumber, ethers } from "ethers";
 import MoonLoader from "react-spinners/MoonLoader";
-import FeedModal from "./FeedModal";
+import FeedModal from "./modals/FeedModal";
 import { monsterContract } from "../hooks/useContract";
-import PotionModal from "./PotionModal";
+import PotionModal from "./modals/PotionModal";
+import BackButton from "./buttons/BackButton";
 
 const MonsterDetails = ({ tokenId, setShowDetails }) => {
   const [details, setDetails] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showFeed, setShowFeed] = useState(false);
   const [showPotions, setShowPotions] = useState(false);
   const monsterHandler = monsterContract();
@@ -17,7 +18,8 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
     await monsterHandler.monsterStats(tokenId).then((response) => {
       setDetails({
         level: response.level.toString(),
-        hunger: response.energy.toString(),
+        energy: response.energy.toString(),
+        energyCap: response.energyCap.toString(),
         exp: response.exp.toString(),
         expCap: response.expCap.toString(),
         status: response.status.toString(),
@@ -40,12 +42,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
         exit={{ opacity: 0 }}
         transition={{ type: "tween", duration: 0.25 }}
       >
-        <img
-          src="/back_icon.png"
-          onClick={() => setShowDetails(false)}
-          alt="back_button"
-          width={"40px"}
-        />
+        <BackButton onClick={() => setShowDetails(false)} />
         <div className="row justify-content-center">
           <h2 id="modal-title" className="text-center p-3">
             Monster #{tokenId}
@@ -69,6 +66,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
 
                   <div className="d-flex justify-content-center align-items-center my-2">
                     <button
+                      id="text"
                       className="btn btn-success mx-1 col-6"
                       onClick={() => setShowFeed(true)}
                     >
@@ -76,6 +74,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
                     </button>
 
                     <button
+                      id="text"
                       className="btn btn-success mx-1 col-6"
                       onClick={() => setShowPotions(true)}
                     >
@@ -121,7 +120,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
                     </div>
                     <div className="col-2">
                       <h5 className="m-0 text-center" id="modal-title">
-                        {details.hunger} /100
+                        {details.energy} /{details.energyCap}
                       </h5>
                     </div>
                     <div className="col-7">
