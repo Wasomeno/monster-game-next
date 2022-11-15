@@ -1,21 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 import { ethers } from "ethers";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
-import { getItemDetails } from "../../fetchers/fetchers";
+import AppContext from "../../contexts/AppContext";
+import { getDailyShopLimit, getItemDetails } from "../../fetchers/fetchers";
+import { buy } from "../../mutations/mutations";
+import { buySides } from "../../mutations/sideffects";
 import { CustomControl } from "../buttons/IncrementDecrementControl";
 
 const ShopItemDetails = ({ activeItem, item }) => {
+  const user = useContext(AppContext).account[0];
+  const userDailyLimit = useQuery(
+    ["dailyShopLimit", user],
+    getDailyShopLimit(user)
+  );
   const itemDetails = useQuery(["itemDetails", item], getItemDetails(item));
+  const itemsData = useQuery(["itemsData"], async () => {
+    const data = await fetch("items/items.json");
+    return await data.json();
+  });
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const itemNameMap = new Map([
-    [0, "Gold Coins"],
-    [1, "Berry"],
-    [2, "Energy Potion"],
-    [3, "Exp Potion"],
-    [4, "Crystals"],
-  ]);
+
+  const getLimit = (item) => {
+    if (userDailyLimit.isLoading) return;
+    return userDailyLimit.data[item];
+  };
 
   const increment = () => {
     if (quantity >= parseInt(itemDetails.data.limit)) return;
@@ -27,59 +37,54 @@ const ShopItemDetails = ({ activeItem, item }) => {
     setQuantity((currentQuantity) => currentQuantity - 1);
   };
 
+  const buyMutation = useMutation(() => {
+    const total = (quantity * itemDetails.data?.price).toString();
+    return buy([activeItem], [quantity], user, total);
+  }, buySides());
+
   if (activeItem !== item) return;
   return (
-    <div
-      id="item-details-frame"
-      className=" p-3 rounded"
-      style={{ backgroundColor: "#FEE0C0" }}
-    >
-      <div id="item-details-body">
-        {itemDetails.isLoading ? (
-          <MoonLoader loading={loading} size={50} color="#000" />
-        ) : (
-          <>
-            <div className="d-flex flex-column justify-content-center align-items-center">
-              <h3 id="text">{itemNameMap.get(itemDetails.data.item)}</h3>
-              <img
-                src={itemDetails.data.item + ".png"}
-                width={"80px"}
-                className="p-3 m-3 border border-dark border-1 rounded"
-                alt="shop-item-img"
-                style={{ backgroundColor: "#fee0c0" }}
-              />
-              <div className="d-flex justify-content-between align-items-center w-75">
-                <CustomControl
-                  value={quantity}
-                  increment={increment}
-                  decrement={decrement}
-                  width={"col-6"}
-                />
-                <div className="col-6">
-                  <h4 id="text" className="text-center m-0">
-                    {quantity *
-                      ethers.utils.formatEther(itemDetails.data.price)}{" "}
-                    ETH
-                  </h4>
-                </div>
-              </div>
-              <button
-                id="text"
-                className="btn btn-primary m-3"
-                onClick={() =>
-                  addToBag(
-                    itemDetails.data.item.toString(),
-                    itemDetails.data.price,
-                    quantity
-                  )
-                }
-              >
-                Add to Bag
-              </button>
+    <div className="p-3 rounded text-white border border-2 border-white h-100 d-flex flex-column justify-content-center">
+      {itemDetails.isLoading ? (
+        <MoonLoader loading={itemDetails.isFetching} size={50} color="#000" />
+      ) : (
+        <div className="d-flex flex-column justify-content-center align-items-center">
+          <h3 id="text">{itemsData.data[item].name}</h3>
+          <div className="m-3">
+            <Image
+              src={"/items" + itemsData.data[item].image}
+              width={"80px"}
+              height={"80px"}
+              className="p-3 border border-dark border-1 rounded"
+              alt="shop-item-img"
+              style={{ backgroundColor: "#fee0c0" }}
+            />
+          </div>
+
+          <div className="d-flex justify-content-between align-items-center w-75">
+            <CustomControl
+              value={quantity}
+              increment={increment}
+              decrement={decrement}
+              width={"col-6"}
+            />
+            <div className="col-6">
+              <h4 id="text" className="text-center m-0">
+                {quantity * ethers.utils.formatEther(itemDetails.data?.price)}{" "}
+                ETH
+              </h4>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+          <button
+            disabled={parseInt(getLimit(item)) === itemDetails.data.limit}
+            id="text"
+            className="btn btn-light m-3 w-75 p-2"
+            onClick={() => buyMutation.mutate()}
+          >
+            Buy
+          </button>
+        </div>
+      )}
     </div>
   );
 };
