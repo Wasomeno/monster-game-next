@@ -4,10 +4,14 @@ import InventoryModal from "./modals/InventoryModal";
 import MonstersModal from "./modals/MonstersModal";
 import AppContext from "../contexts/AppContext";
 import { useQuery } from "@tanstack/react-query";
-import { getGold, getUserDetails } from "../fetchers/fetchers";
+import { getGold, getUserDetails, getUserStatus } from "../fetchers/fetchers";
+import RegisterModal from "./modals/RegisterModal";
 
 const UserPanel = () => {
   const user = useContext(AppContext).account[0];
+  const userStatus = useQuery(["registerStatus", user], getUserStatus(user), {
+    initialData: true,
+  });
   const [showInventory, setShowInventory] = useState(false);
   const [showMonsters, setShowMonsters] = useState(false);
   const gold = useQuery(["getGold", user], getGold(user));
@@ -17,7 +21,7 @@ const UserPanel = () => {
     return ethers.utils.parseBytes32String(string);
   }
 
-  return (
+  return userStatus.data ? (
     <>
       <div
         id="user-frame"
@@ -54,7 +58,7 @@ const UserPanel = () => {
             onClick={() => setShowInventory(true)}
           >
             <img
-              src="bag_icon.png"
+              src="/icons/bag_icon.png"
               className="m-1"
               alt="inventory-icon"
               width={"18px"}
@@ -67,7 +71,7 @@ const UserPanel = () => {
             onClick={() => setShowMonsters(true)}
           >
             <img
-              src="bag_icon.png"
+              src="/icons/bag_icon.png"
               className="m-1"
               alt="inventory-icon"
               width={"18px"}
@@ -86,6 +90,8 @@ const UserPanel = () => {
         setShowMonsters={setShowMonsters}
       />
     </>
+  ) : (
+    <RegisterModal />
   );
 };
 
