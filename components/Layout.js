@@ -1,5 +1,8 @@
-import { useContext, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useContext, useEffect, useState } from "react";
 import AppContext from "../contexts/AppContext";
+import { getUserStatus } from "../fetchers/fetchers";
+import RegisterModal from "./modals/RegisterModal";
 import Navigation from "./Navigations";
 import NotConnected from "./NotConnected";
 
