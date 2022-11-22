@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Gold Coins",
+    "image": "/0.png"
+  },
+  {
+    "name": "Berry",
+    "image": "/1.png"
+  },
+  {
+    "name": "Potion",
+    "image": "/2.png"
+  },
+  {
+    "name": "Potion",
+    "image": "/3.png"
+  },
+  {
+    "name": "Crystals",
+    "image": "/4.png"
+  }
+]
