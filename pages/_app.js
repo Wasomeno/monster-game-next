@@ -1,7 +1,6 @@
+import "../styles/globals.css";
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/globals.css";
 import LoadingScreen from "../components/LoadingScreen";
 import Toast from "../components/Toast";
 import Layout from "../components/Layout";
@@ -17,20 +16,18 @@ function MyApp({ Component, pageProps }) {
         <title>Monsters Game</title>
         <meta property="og:title" content="My page title" key="title" />
       </Head>
-      <div className="bg-dark">
-        <AppContext.Provider
-          value={{
-            account: account,
-            setAccount: setAccount,
-          }}
-        >
-          <Layout>
-            <LoadingScreen />
-            <Component {...pageProps} />
-            <Toast />
-          </Layout>
-        </AppContext.Provider>
-      </div>
+      <AppContext.Provider
+        value={{
+          account: account,
+          setAccount: setAccount,
+        }}
+      >
+        <Layout>
+          <LoadingScreen />
+          <Component {...pageProps} />
+          <Toast />
+        </Layout>
+      </AppContext.Provider>
     </QueryClientProvider>
   );
 }
