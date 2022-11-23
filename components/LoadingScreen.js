@@ -9,28 +9,26 @@ const LoadingScreen = () => {
   return (
     <>
       <motion.div
-        id="loading-modal-screen"
-        className="h-100 w-100 bg-dark bg-opacity-75"
+        className="h-screen w-screen bg-slate-800 bg-opacity-75 absolute z-30 top-0"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ type: "tween", duration: 0.25 }}
       />
       <motion.div
-        id="loading-modal"
-        className="container w-25 h-25"
+        className="h-60 w-60 flex flex-col justify-center rounded-md bg-slate-600 p-2 absolute z-40 -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ type: "tween", duration: 0.25 }}
       >
-        <div className="row justify-content-center align-items-center">
-          <h3 id="modal-title" className="text-center m-3">
+        <div className="flex justify-center items-center">
+          <h5 className="text-center text-white m-3 font-monogram text-3xl tracking-wide">
             {loadingText}
-          </h3>
+          </h5>
         </div>
-        <div className="d-flex justify-content-center">
-          <MoonLoader size={50} loading={loading} color={"#EEEEEE"} />
+        <div className="flex justify-center">
+          <MoonLoader size={50} loading={loading} color={"#fff"} />
         </div>
       </motion.div>
     </>
