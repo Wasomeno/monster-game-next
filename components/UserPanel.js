@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useContext } from "react";
 import { ethers } from "ethers";
-import InventoryModal from "./modals/InventoryModal";
-import MonstersModal from "./modals/MonstersModal";
+import InventoryModal from "./Inventory/InventoryModal";
+import MonstersModal from "./Monsters/MonstersModal";
 import AppContext from "../contexts/AppContext";
 import { useQuery } from "@tanstack/react-query";
 import { getGold, getUserDetails, getUserStatus } from "../fetchers/fetchers";
-import RegisterModal from "./modals/RegisterModal";
+import RegisterModal from "./Register/RegisterModal";
 
 const UserPanel = () => {
   const user = useContext(AppContext).account[0];
@@ -24,11 +24,10 @@ const UserPanel = () => {
   return userStatus.data ? (
     <>
       <div
-        id="user-frame"
-        className="h-50 d-flex flex-column justify-content-top align-items-center rounded border border-2 border-light"
+        className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm"
         style={{ background: "rgba(66, 63, 62, 0.5)" }}
       >
-        <h5 id="text" className="p-1 text-white">
+        <h5 className="p-1 text-white font-monogram text-2xl tracking-wide m-1">
           {userDetails.isLoading
             ? "loading....."
             : bytesToString(userDetails.data?.name)}
@@ -48,13 +47,12 @@ const UserPanel = () => {
                 }
           }
         />
-        <h5 id="text" className="p-1 my-2 w-100 text-white text-center">
+        <h5 className="p-1 m-1 text-white text-center font-monogram tracking-wide text-xl ">
           Gold: {parseInt(gold.data)}
         </h5>
-        <div id="user-menu" className="d-flex flex-column">
+        <div id="user-menu" className="flex flex-col">
           <button
-            id="user-menu-button"
-            className="border border-dark p-2 px-3 rounded-pill d-flex my-1"
+            className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
             onClick={() => setShowInventory(true)}
           >
             <img
@@ -63,11 +61,12 @@ const UserPanel = () => {
               alt="inventory-icon"
               width={"18px"}
             />
-            <h5 className="m-0 p-0">Inventory</h5>
+            <p className="p-1 text-white font-monogram tracking-wide text-lg">
+              Inventory
+            </p>
           </button>
           <button
-            id="user-menu-button"
-            className="border border-dark p-2 px-3 rounded-pill d-flex my-1"
+            className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
             onClick={() => setShowMonsters(true)}
           >
             <img
@@ -76,7 +75,9 @@ const UserPanel = () => {
               alt="inventory-icon"
               width={"18px"}
             />
-            <h5 className="m-0 p-0">Monsters</h5>
+            <h5 className="p-1 text-white font-monogram tracking-wide text-lg">
+              Monsters
+            </h5>
           </button>
         </div>
       </div>
