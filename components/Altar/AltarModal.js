@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { summonMonster } from "../../mutations/mutations";
 import { altarModalStores } from "../../stores/modalStores";
 import { summoningSides } from "../../mutations/sideffects";
-import BackButton from "../BackButton";
+import { BackButton } from "../Buttons";
 import AppContext from "../../contexts/AppContext";
 import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
