@@ -3,7 +3,7 @@ import MoonLoader from "react-spinners/MoonLoader";
 import AppContext from "../../contexts/AppContext";
 import { useQuery } from "@tanstack/react-query";
 import { getInventory } from "../../fetchers/fetchers";
-import BackButton from "../BackButton";
+import { BackButton } from "../Buttons";
 import Modal from "../Modal";
 import InventoryItemDetails from "./InventoryItemDetails";
 import InventoryItems from "./InventoryItems";

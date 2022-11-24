@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import React from "react";
+import { Paragraph } from "../Texts";
 
 const InventoryItemCard = ({ isActive, details, setActive }) => {
   const itemsData = useQuery(["itemsData"], async () => {
@@ -31,9 +32,7 @@ const InventoryItemCard = ({ isActive, details, setActive }) => {
         className="p-2"
       />
       <div>
-        <h5 className="m-0 font-monogram text-xl tracking-wide text-white">
-          {getItemData(details.item)?.name}
-        </h5>
+        <Paragraph>{getItemData(details.item)?.name}</Paragraph>
       </div>
     </div>
   );
