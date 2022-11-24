@@ -4,7 +4,7 @@ import ShopItemCard from "./ShopItemCard";
 import { useQuery } from "@tanstack/react-query";
 import { getShop } from "../../fetchers/fetchers";
 import { dailyShopModalStores } from "../../stores/modalStores";
-import BackButton from "../BackButton";
+import { BackButton } from "../Buttons";
 import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
 
