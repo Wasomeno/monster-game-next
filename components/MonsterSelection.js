@@ -3,7 +3,9 @@ import React, { useState, useEffect, useContext } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
 import AppContext from "../contexts/AppContext";
 import { getInactiveMonsters } from "../fetchers/fetchers";
-import MonsterSelectCard from "./cards/MonsterSelectCard";
+import MonsterSelectCard from "./MonsterSelectCard";
+import MonsterSelectedCard from "./MonsterSelectedCard";
+import { ModalTitle } from "./Texts";
 
 const MonsterSelection = ({
   monsterSelected,
@@ -16,83 +18,74 @@ const MonsterSelection = ({
   );
 
   return (
-    <div className="container">
-      <div className="d-flex">
-        <div className="col-8">
-          <h3 id="modal-title" className="text-center">
-            Select Your Monsters
-          </h3>
-          <div
-            id="monsters-container"
-            className="d-flex justify-content-center align-items-start h-100 w-100"
-          >
-            <div className="d-flex flex-wrap justify-content-center p-3 align-items-center w-100">
-              {inactiveMonsters.isLoading && (
-                <MoonLoader
-                  size={50}
-                  loading={inactiveMonsters.isLoading}
-                  color="#EEEEEE"
-                />
-              )}
-              {!inactiveMonsters.isLoading &&
-                (inactiveMonsters.data?.length < 1 ? (
-                  <h5 className="text-center text-white" id="text">
-                    No Monsters in Inventory
-                  </h5>
-                ) : (
-                  inactiveMonsters.data?.map((monster) => (
-                    <MonsterSelectCard
-                      key={monster.id}
-                      monster={monster.id}
-                      level={monster.level}
-                      exp={monster.exp}
-                      expCap={monster.expCap}
-                      energy={monster.energy}
-                      energyCap={monster.energyCap}
-                      onClick={() => selectMonster(monster.id)}
-                    />
-                  ))
-                ))}
-            </div>
+    <div className="flex justify-around">
+      <div className="w-8/12">
+        <ModalTitle>Select Your Monsters</ModalTitle>
+        <div className="flex justify-center items-start h-full w-full">
+          <div className="flex flex-wrap gap-2 justify-center p-3 items-center w-10/12 overflow-scroll max-h-96">
+            {inactiveMonsters.isLoading && (
+              <MoonLoader
+                size={50}
+                loading={inactiveMonsters.isLoading}
+                color="#EEEEEE"
+              />
+            )}
+            {!inactiveMonsters.isLoading &&
+              (inactiveMonsters.data?.length < 1 ? (
+                <h5 className="text-center text-white font-monogram text-xl">
+                  No Monsters in Inventory
+                </h5>
+              ) : (
+                inactiveMonsters.data?.map((monster) => (
+                  <MonsterSelectCard
+                    key={monster.id}
+                    monster={monster.id}
+                    level={monster.level}
+                    exp={monster.exp}
+                    expCap={monster.expCap}
+                    energy={monster.energy}
+                    energyCap={monster.energyCap}
+                    onClick={() => selectMonster(monster.id)}
+                  />
+                ))
+              ))}
           </div>
         </div>
-        <div className="col">
-          <div className="row justify-content-center align-items-start">
-            <h4 className="text-center" id="modal-title">
-              {monsterSelected.length} Monster Selected
-            </h4>
-          </div>
-          <div className="row flex-column justify-content-start align-items-center">
-            {monsterSelected.map((monster, index) => (
-              <div
-                key={index}
-                className="p-2 my-2 text-cnter d-flex justify-content-center align-items-start"
-                style={{ position: "relative" }}
+      </div>
+      <div className="w-auto">
+        <div className="flex justify-center items-center m-2 my-4">
+          <p className="text-center text-white font-monogram text-2xl tracking-wide">
+            {monsterSelected.length} Monster Selected
+          </p>
+        </div>
+        <div className="flex flex-col justify-start items-center overflow-y-scroll p-2">
+          {monsterSelected.map((monster, index) => (
+            <div
+              key={index}
+              className="p-2 gap-2 text-center flex justify-center items-start relative"
+            >
+              <button
+                className="flex justify-center items-center w-8 h-8 p-2 rounded-full bg-red-700 absolute -top-1 -left-1 transitio duration-300 ease-in-out hover:bg-black "
+                onClick={() => deselectMonster(monster)}
               >
-                <button
-                  className="btn btn-danger rounded-circle"
-                  onClick={() => deselectMonster(monster)}
-                  style={{
-                    position: "absolute",
-                    left: "140px",
-                    top: "-10px",
-                    fontSize: "12px",
-                  }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="white"
+                  className="w-6 h-6 "
                 >
-                  X
-                </button>
-                <div
-                  id="selected-monster-box"
-                  className="p-2 text-center d-flex justify-content-center rounded align-items-center"
-                  style={{
-                    backgroundImage: `url("/monsters/${
-                      parseInt(monster) + 1
-                    }.png")`,
-                  }}
-                />
-              </div>
-            ))}
-          </div>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+              <MonsterSelectedCard monster={monster} />
+            </div>
+          ))}
         </div>
       </div>
     </div>
