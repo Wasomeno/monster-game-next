@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import AppContext from "../contexts/AppContext";
 import { useToast } from "../stores/stores";
+import { DangerButton, StartActivityButton } from "./Buttons";
 
 const NotConnected = () => {
   const [toastSuccess, toastError] = useToast();
@@ -22,10 +23,18 @@ const NotConnected = () => {
 
   async function getChainId() {
     await window.ethereum.request({ method: "eth_chainId" }).then((chainId) => {
+      console.log(chainId);
       setChainId(hexConvert(chainId));
       if (hexConvert(chainId) !== 5) {
         toastError("Wrong Chain");
       }
+    });
+  }
+
+  async function switchChainId() {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x5" }],
     });
   }
 
@@ -34,26 +43,18 @@ const NotConnected = () => {
   }, [chainId]);
 
   return (
-    <div className="vh-100 bg-dark d-flex flex-column justify-content-center align-items-center h-100 w-100 text-center">
+    <div className="h-screen bg-slate-800 flex flex-col justify-center items-center">
       <div className="row justify-content-center align-items-center">
-        <h2 id="text" className="p-2 text-white">
+        <h1 className="p-2 text-white font-monogram text-2xl tracking-wide">
           Connect Your Wallet
-        </h2>
+        </h1>
       </div>
-      <div className="row justify-content-center align-items-center w-100">
-        <button
-          disabled={chainId !== 5 ? true : false}
-          className={
-            chainId !== 5
-              ? "col-2 btn rounded-pill btn-danger"
-              : "col-2 btn rounded-pill btn-primary"
-          }
-          onClick={connectAccount}
-        >
-          <h3 id="text" className="m-0 text-white">
-            Connect
-          </h3>
-        </button>
+      <div className="flex justify-center items-center w-full">
+        {chainId !== 5 ? (
+          <StartActivityButton text="Connect" onClick={connectAccount} />
+        ) : (
+          <DangerButton text="Switch Chain" onClick={switchChainId} />
+        )}
       </div>
       {chainId !== 5 ? (
         <div className="row justify-content-center align-items-center w-50 my-4">
