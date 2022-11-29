@@ -1,11 +1,11 @@
 import { useContext, useEffect } from "react";
+import { useAccount } from "wagmi";
 import AppContext from "../contexts/AppContext";
 import Navigation from "./Navigations";
 import NotConnected from "./NotConnected";
 
 const Layout = ({ children }) => {
-  const user = useContext(AppContext).account[0];
-  const isConnected = Boolean(user);
+  const { isConnected } = useAccount();
 
   useEffect(() => {
     if (!window.ethereum) return;
