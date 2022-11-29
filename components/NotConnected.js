@@ -1,21 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useConnect } from "wagmi";
 import AppContext from "../contexts/AppContext";
 import { useToast } from "../stores/stores";
-import { DangerButton, StartActivityButton } from "./Buttons";
+import { DangerButton, StartActivityButton } from "./Buttons/Buttons";
 
 const NotConnected = () => {
-  const [toastSuccess, toastError] = useToast();
-  const connection = useContext(AppContext);
+  const [, toastError] = useToast();
   const [chainId, setChainId] = useState(5);
-
-  async function connectAccount() {
-    if (window.ethereum) {
-      const account = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      connection.setAccount(account);
-    }
-  }
+  const { connect, connectors } = useConnect();
 
   function hexConvert(hex) {
     return parseInt(hex, 16);
@@ -23,7 +15,6 @@ const NotConnected = () => {
 
   async function getChainId() {
     await window.ethereum.request({ method: "eth_chainId" }).then((chainId) => {
-      console.log(chainId);
       setChainId(hexConvert(chainId));
       if (hexConvert(chainId) !== 5) {
         toastError("Wrong Chain");
@@ -50,8 +41,13 @@ const NotConnected = () => {
         </h1>
       </div>
       <div className="flex justify-center items-center w-full">
-        {chainId !== 5 ? (
-          <StartActivityButton text="Connect" onClick={connectAccount} />
+        {chainId === 5 ? (
+          connectors.map((connector) => (
+            <StartActivityButton
+              text="Connect"
+              onClick={() => connect({ connector: connector })}
+            />
+          ))
         ) : (
           <DangerButton text="Switch Chain" onClick={switchChainId} />
         )}
