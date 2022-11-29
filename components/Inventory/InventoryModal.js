@@ -1,17 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
-import AppContext from "../../contexts/AppContext";
-import { useQuery } from "@tanstack/react-query";
-import { getInventory } from "../../fetchers/fetchers";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import InventoryItemDetails from "./InventoryItemDetails";
 import InventoryItems from "./InventoryItems";
+import useInventory from "../../fetchers/useInventory";
 
 function InventoryModal({ showInventory, setShowInventory }) {
   const [activeItem, setActiveItem] = useState(0);
-  const user = useContext(AppContext).account[0];
-  const inventory = useQuery(["inventory"], getInventory(user));
+  const { data: inventory, isLoading, isError } = useInventory();
 
   return (
     <Modal show={showInventory}>
@@ -24,12 +21,12 @@ function InventoryModal({ showInventory, setShowInventory }) {
         </div>
       </div>
       <div className="flex justify-center items-start p-3 h-2/3">
-        {inventory.isLoading ? (
-          <MoonLoader size={50} loading={inventory.isLoading} color={"#eee"} />
+        {isLoading ? (
+          <MoonLoader size={50} loading={isLoading} color={"#eee"} />
         ) : (
           <>
             <InventoryItems
-              items={inventory.data}
+              items={inventory}
               activeItem={activeItem}
               setActiveItem={setActiveItem}
             />
