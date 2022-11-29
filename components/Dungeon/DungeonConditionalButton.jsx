@@ -1,33 +1,15 @@
-import { useMutation } from "@tanstack/react-query";
-import React from "react";
-import { finishDungeon, sendToDungeon } from "../../mutations/mutations";
-import {
-  finishDungeonSides,
-  monstersToDungeonsSides,
-} from "../../mutations/sideffects";
-import { StartActivityButton } from "../Buttons";
-import TimeButton from "../TimeButton";
+import { finishDungeon, sendToDungeon } from "../../mutations/dungeonMutations";
+import { StartActivityButton } from "../Buttons/Buttons";
+import TimeButton from "../Buttons/TimeButton";
 
 const DungeonConditionalButton = ({ monstersAmount, monsterSelected }) => {
-  const startDungeonMutation = useMutation(
-    () => sendToDungeon(monsterSelected),
-    monstersToDungeonsSides()
-  );
-  const finishDungeonMutation = useMutation(
-    () => finishDungeon(),
-    finishDungeonSides()
-  );
+  const start = sendToDungeon(monsterSelected);
+  const finish = finishDungeon();
 
   return monstersAmount < 1 ? (
-    <StartActivityButton
-      text="Send Monsters"
-      onClick={() => startDungeonMutation.mutate()}
-    />
+    <StartActivityButton text="Send Monsters" onClick={() => start()} />
   ) : (
-    <TimeButton
-      path={"dungeon"}
-      onClick={() => finishDungeonMutation.mutate()}
-    />
+    <TimeButton activity="dungeon" onClick={() => finish()} />
   );
 };
 
