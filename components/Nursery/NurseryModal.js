@@ -1,29 +1,27 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import MonsterSelection from "../MonsterSelection";
 import useMonsterSelected from "../../hooks/useMonsterSelected";
-import AppContext from "../../contexts/AppContext";
 import Modal from "../Modal";
-import { useQuery } from "@tanstack/react-query";
-import { getMonstersOnNursery } from "../../fetchers/fetchers";
 import { nurseryModalStores } from "../../stores/modalStores";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import { ModalTitle, Paragraph } from "../Texts";
 import DurationControl from "./DurationControl";
-import { StartActivityButton } from "../Buttons";
+import { StartActivityButton } from "../Buttons/Buttons";
 import NurseryConditionalButton from "./NurseryConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
+import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
 
 const NurseryModal = () => {
-  const user = useContext(AppContext).account[0];
   const [show, toggleShow] = nurseryModalStores((state) => [
     state.show,
     state.toggleShow,
   ]);
   const [duration, setDuration] = useState(1);
-  const monstersOnNursery = useQuery(
-    ["monstersOnNursery", user],
-    getMonstersOnNursery(user)
-  );
+  const {
+    data: monstersOnNursery,
+    isLoading,
+    isError,
+  } = useMonstersOnActivity("nursery");
   const [showSelectMonster, setShowSelectMonster] = useState(false);
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
@@ -38,7 +36,7 @@ const NurseryModal = () => {
         }
       />
       {!showSelectMonster ? (
-        <div className="flex w-full h-2/3 flex-col justify-center">
+        <div className="flex w-full h-full flex-col justify-center">
           <ModalTitle>Nursery</ModalTitle>
           <div className="flex justify-center">
             <div className="w-6/12 text-center border border-light border-opacity-25 rounded-md p-3">
@@ -53,10 +51,10 @@ const NurseryModal = () => {
           <div className="flex justify-center my-3">
             <ActivityMonstersSection
               monsterSelected={monsterSelected}
-              monstersOnActivity={monstersOnNursery.data}
+              monstersOnActivity={monstersOnNursery}
             />
             <DurationControl
-              monstersOnNursery={monstersOnNursery.data?.length}
+              monstersOnNursery={monstersOnNursery?.length}
               duration={duration}
               setDuration={setDuration}
             />
@@ -64,13 +62,13 @@ const NurseryModal = () => {
           <div className="flex justify-center p-2 my-3">
             <StartActivityButton
               text="Select Monsters"
-              condition={monstersOnNursery.data?.length > 0}
+              condition={monstersOnNursery?.length > 0}
               onClick={() => setShowSelectMonster(true)}
             />
             <NurseryConditionalButton
               duration={duration}
               monsterSelected={monsterSelected}
-              condition={monstersOnNursery.data?.length < 1}
+              condition={monstersOnNursery?.length < 1}
             />
           </div>
         </div>
