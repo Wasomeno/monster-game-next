@@ -1,35 +1,25 @@
-import { useMutation } from "@tanstack/react-query";
-import React, { useContext } from "react";
-import AppContext from "../../contexts/AppContext";
-import { finishMission, sendToMission } from "../../mutations/mutations";
+import React from "react";
 import {
-  finishMissionSides,
-  monstersToMissionSides,
-} from "../../mutations/sideffects";
-import { StartActivityButton } from "../Buttons";
-import TimeButton from "../TimeButton";
+  finishMission as finish,
+  sendToMission as start,
+} from "../../mutations/missionMutations";
+import { StartActivityButton } from "../Buttons/Buttons";
+import TimeButton from "../Buttons/TimeButton";
 
 const MissionsConditionalButton = ({ condition, mission, monsterSelected }) => {
-  const user = useContext(AppContext).account[0];
-  const sendMonstersToMission = useMutation(
-    () => sendToMission(mission, monsterSelected),
-    monstersToMissionSides(user)
-  );
-  const finishMonstersMission = useMutation(
-    () => finishMission(),
-    finishMissionSides(user)
-  );
+  const startMission = start({
+    mission: mission,
+    monstersSelected: monsterSelected,
+  });
+  const finishMission = finish();
 
   return condition ? (
-    <StartActivityButton
-      text="Send Monsters"
-      onClick={() => sendMonstersToMission.mutate()}
-    />
+    <StartActivityButton text="Send Monsters" onClick={() => startMission()} />
   ) : (
     <TimeButton
-      path={"mission"}
+      activity="mission"
       width={"w-3/12"}
-      onClick={() => finishMonstersMission.mutate()}
+      onClick={() => finishMission()}
     />
   );
 };
