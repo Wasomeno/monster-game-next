@@ -5,26 +5,27 @@ import useMonsterSelected from "../../hooks/useMonsterSelected";
 import { useQuery } from "@tanstack/react-query";
 import { getMonstersOnMissions } from "../../fetchers/fetchers";
 import { missionsModalStores } from "../../stores/modalStores";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import { ModalTitle, Paragraph } from "../Texts";
 import MissionSelectionControl from "./MissionSelectionControl";
-import { StartActivityButton } from "../Buttons";
+import { StartActivityButton } from "../Buttons/Buttons";
 import MissionsConditionalButton from "./MissionsConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
+import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
 
 const MissionsModal = () => {
-  const user = useContext(AppContext).account[0];
   const [show, toggleShow] = missionsModalStores((state) => [
     state.show,
     state.toggleShow,
   ]);
   const [showMissionSelect, setShowMissionSelect] = useState(false);
   const [mission, setMission] = useState(1);
-  const monstersOnMission = useQuery(
-    ["monstersOnMission", user],
-    getMonstersOnMissions(user)
-  );
+  const {
+    data: monstersOnMission,
+    isLoading,
+    isError,
+  } = useMonstersOnActivity("mission");
   const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
     useMonsterSelected();
 
@@ -56,10 +57,10 @@ const MissionsModal = () => {
           <div className="flex justify-center my-3">
             <ActivityMonstersSection
               monsterSelected={monsterSelected}
-              monstersOnActivity={monstersOnMission.data}
+              monstersOnActivity={monstersOnMission}
             />
             <MissionSelectionControl
-              monstersAmount={monstersOnMission.data?.length}
+              monstersAmount={monstersOnMission?.length}
               mission={mission}
               setMission={setMission}
             />
@@ -67,11 +68,11 @@ const MissionsModal = () => {
           <div className="flex justify-center p-2 my-3">
             <StartActivityButton
               text="Select Monsters"
-              condition={monstersOnMission.data?.length > 0}
+              condition={monstersOnMission?.length > 0}
               onClick={() => setShowMissionSelect(true)}
             />
             <MissionsConditionalButton
-              condition={monstersOnMission.data?.length < 1}
+              condition={monstersOnMission?.length < 1}
               mission={mission}
               monsterSelected={monsterSelected}
             />
