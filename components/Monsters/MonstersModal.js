@@ -1,19 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import MonsterDetails from "./MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
-import AppContext from "../../contexts/AppContext";
-import { useQuery } from "@tanstack/react-query";
-import { getAllMonsters } from "../../fetchers/fetchers";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
 import MonsterCard from "./MonsterCard";
+import useAllMonsters from "../../fetchers/useAllMonsters";
+import { useAccount } from "wagmi";
+import useToggle from "../../hooks/useToggle";
 
 const MonstersModal = ({ showMonsters, setShowMonsters }) => {
-  const user = useContext(AppContext).account[0];
-  const monsters = useQuery(["allMonsters", user], () => getAllMonsters(user));
-  const [showDetails, setShowDetails] = useState(false);
-  const [tokenId, setTokenId] = useState("");
+  const { address: user } = useAccount();
+  const { data: monsters, isError, isLoading } = useAllMonsters(user);
+  const [showDetails, toggleDetails] = useToggle(false);
 
   return (
     <Modal show={showMonsters}>
@@ -27,22 +26,18 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
             <div className="col-4" />
           </div>
           <div className="flex justify-center items-end flex-wrap p-3 overflow-y-scroll">
-            {monsters.isLoading ? (
-              <MoonLoader
-                size={50}
-                loading={monsters.isLoading}
-                color={"#eee"}
-              />
+            {isLoading ? (
+              <MoonLoader size={50} loading={isLoading} color={"#eee"} />
             ) : monsters < 1 ? (
               <h5 className="m-0" id="modal-title">
                 You don't have a monster
               </h5>
             ) : (
-              monsters.data?.map((monster, index) => (
+              monsters?.map((monster, index) => (
                 <MonsterCard
                   key={index}
                   monster={monster.id}
-                  setShowDetails={setShowDetails}
+                  toggleDetails={toggleDetails}
                   setTokenId={setTokenId}
                 />
               ))
@@ -52,7 +47,7 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
       ) : (
         <MonsterDetails
           tokenId={tokenId}
-          setShowDetails={setShowDetails}
+          toggleDetails={toggleDetails}
           setTokenId={setTokenId}
           showDetails={showDetails}
         />
