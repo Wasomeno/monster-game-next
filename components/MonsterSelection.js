@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import React, { useState, useEffect, useContext } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
-import AppContext from "../contexts/AppContext";
-import { getInactiveMonsters } from "../fetchers/fetchers";
+import { useAccount } from "wagmi";
+import useInactiveMonsters from "../fetchers/useInactiveMonsters";
 import MonsterSelectCard from "./MonsterSelectCard";
 import MonsterSelectedCard from "./MonsterSelectedCard";
 import { ModalTitle } from "./Texts";
@@ -12,10 +10,8 @@ const MonsterSelection = ({
   selectMonster,
   deselectMonster,
 }) => {
-  const user = useContext(AppContext).account[0];
-  const inactiveMonsters = useQuery(["inactiveMonsters", user], () =>
-    getInactiveMonsters(user)
-  );
+  const { address: user } = useAccount();
+  const { data: monsters, isLoading, isError } = useInactiveMonsters(user);
 
   return (
     <div className="flex justify-around">
@@ -23,20 +19,16 @@ const MonsterSelection = ({
         <ModalTitle>Select Your Monsters</ModalTitle>
         <div className="flex justify-center items-start h-full w-full">
           <div className="flex flex-wrap gap-2 justify-center p-3 items-center w-10/12 overflow-scroll max-h-96">
-            {inactiveMonsters.isLoading && (
-              <MoonLoader
-                size={50}
-                loading={inactiveMonsters.isLoading}
-                color="#EEEEEE"
-              />
+            {isLoading && (
+              <MoonLoader size={50} loading={isLoading} color="#EEEEEE" />
             )}
-            {!inactiveMonsters.isLoading &&
-              (inactiveMonsters.data?.length < 1 ? (
+            {!isLoading &&
+              (monsters.length < 1 ? (
                 <h5 className="text-center text-white font-monogram text-xl">
                   No Monsters in Inventory
                 </h5>
               ) : (
-                inactiveMonsters.data?.map((monster) => (
+                monsters.map((monster) => (
                   <MonsterSelectCard
                     key={monster.id}
                     monster={monster.id}
