@@ -1,43 +1,28 @@
-import React, { useContext } from "react";
-import { useQuery } from "@tanstack/react-query";
-import AppContext from "../contexts/AppContext";
-import {
-  getDungeonTime,
-  getMissionTime,
-  getNurseryTime,
-  getSmeltingTime,
-} from "../fetchers/fetchers";
-import { DangerButton, StartActivityButton } from "../Buttons/Buttons";
+import { DangerButton, StartActivityButton } from "./Buttons";
+import useActivityTime from "../../fetchers/useActivityTime";
 
-const TimeButton = ({ path, onClick }) => {
-  const user = useContext(AppContext).account[0];
-  const timeFunctions = new Map([
-    ["mission", getMissionTime(user)],
-    ["nursery", getNurseryTime(user)],
-    ["dungeon", getDungeonTime(user)],
-    ["smelter", getSmeltingTime(user)],
-  ]);
-  const time = useQuery(["time", path], () => timeFunctions.get(path));
-  return time.data >= 0 ? (
+const TimeButton = ({ activity, onClick }) => {
+  const { data: time, isLoading, isError } = useActivityTime(activity);
+  return time >= 0 ? (
     <StartActivityButton
       onClick={onClick}
       text={
-        time.data > 0
+        time > 0
           ? "Finish"
-          : time.data < -60
-          ? Math.floor(Math.abs(time.data / 60)) + " Hours"
-          : Math.abs(time.data) + " Minutes"
+          : time < -60
+          ? Math.floor(Math.abs(time / 60)) + " Hours"
+          : Math.abs(time) + " Minutes"
       }
     />
   ) : (
     <DangerButton
-      condition={time.data >= 0}
+      condition={time >= 0}
       text={
-        time.data > 0
+        time > 0
           ? "Finish"
-          : time.data < -60
-          ? Math.floor(Math.abs(time.data / 60)) + " Hours"
-          : Math.abs(time.data) + " Minutes"
+          : time < -60
+          ? Math.floor(Math.abs(time / 60)) + " Hours"
+          : Math.abs(time) + " Minutes"
       }
     />
   );
