@@ -1,35 +1,21 @@
-import { useMutation } from "@tanstack/react-query";
-import React, { useContext } from "react";
-import AppContext from "../../contexts/AppContext";
-import { finishResting, startResting } from "../../mutations/mutations";
 import {
-  finishRestingSides,
-  startRestingSides,
-} from "../../mutations/sideffects";
-import { StartActivityButton } from "../Buttons";
-import TimeButton from "../TimeButton";
+  finishResting as finish,
+  startResting as start,
+} from "../../mutations/nurseryMutations";
+
+import { StartActivityButton } from "../Buttons/Buttons";
+import TimeButton from "../Buttons/TimeButton";
 
 const NurseryConditionalButton = ({ condition, duration, monsterSelected }) => {
-  const user = useContext(AppContext).account[0];
-  const sendMonstersToNursery = useMutation(
-    () => startResting(duration, monsterSelected),
-    startRestingSides()
-  );
-
-  const bringBackFromNursery = useMutation(
-    () => finishResting(),
-    finishRestingSides(user)
-  );
+  const startResting = start({ duration: duration, monsters: monsterSelected });
+  const finishResting = finish();
 
   return condition ? (
-    <StartActivityButton
-      text="Send Monsters"
-      onClick={() => sendMonstersToNursery.mutate()}
-    />
+    <StartActivityButton text="Send Monsters" onClick={() => startResting()} />
   ) : (
     <TimeButton
-      path={"nursery"}
-      onClick={() => bringBackFromNursery.mutate()}
+      activity="nursery"
+      onClick={() => finishResting()}
       width={"w-3/12"}
     />
   );
