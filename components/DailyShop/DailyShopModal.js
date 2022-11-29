@@ -1,12 +1,11 @@
 import { useState } from "react";
 import ShopItemDetails from "./ShopItemDetails";
 import ShopItemCard from "./ShopItemCard";
-import { useQuery } from "@tanstack/react-query";
-import { getShop } from "../../fetchers/fetchers";
 import { dailyShopModalStores } from "../../stores/modalStores";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
+import useDailyShop from "../../fetchers/useDailyShop";
 
 const DailyShopModal = () => {
   const [activeItem, setActiveItem] = useState(0);
@@ -14,26 +13,22 @@ const DailyShopModal = () => {
     state.show,
     state.toggleShow,
   ]);
-  const dailyShop = useQuery(["dailyShop"], getShop());
-  const itemsData = useQuery(["itemsData"], async () => {
-    const data = await fetch("items/items.json");
-    return await data.json();
-  });
-
+  const { data: dailyShop, isLoading, isError } = useDailyShop();
   return (
     <Modal show={show}>
       <div className="h-full mx-3">
         <BackButton onClick={toggleShow} />
         <div className="flex justify-around items-start h-full">
           <div className="w-8/12 flex flex-col justify-center items-center">
-            <ModalTitle>Daily Shop</ModalTitle>
-            <div className="flex justify-start items-center flex-wrap w-full">
-              {dailyShop.data?.map((shop) => (
+            <div className="mb-2">
+              <ModalTitle>Daily Shop</ModalTitle>
+            </div>
+            <div className="flex justify-start gap-4 items-center flex-wrap w-4/6">
+              {dailyShop?.map((item) => (
                 <ShopItemCard
-                  key={parseInt(shop.item)}
+                  key={parseInt(item.id)}
                   activeItem={activeItem}
-                  item={shop.item}
-                  data={itemsData.data[shop.item]}
+                  item={item}
                   setActiveItem={setActiveItem}
                 />
               ))}
@@ -41,9 +36,13 @@ const DailyShopModal = () => {
           </div>
 
           <div className="w-3/12 h-2/3 p-3">
-            {dailyShop.data?.map((shop) =>
-              activeItem !== shop.item ? null : (
-                <ShopItemDetails activeItem={activeItem} item={shop.item} />
+            {dailyShop?.map((item) =>
+              activeItem !== item.id ? null : (
+                <ShopItemDetails
+                  key={item.id}
+                  activeItem={activeItem}
+                  item={item}
+                />
               )
             )}
           </div>
