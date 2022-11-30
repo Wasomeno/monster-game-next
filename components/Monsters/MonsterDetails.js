@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import FeedModal from "./FeedModal";
 import PotionModal from "./PotionModal";
-import { BackButton } from "../Buttons";
+import { BackButton } from "../Buttons/Buttons";
 import Image from "next/image";
 import { ModalTitle } from "../Texts";
 import MonsterStats from "./MonsterStats";
 
-const MonsterDetails = ({ tokenId, setShowDetails }) => {
+const MonsterDetails = ({ monster, toggleDetails }) => {
   const [showFeed, setShowFeed] = useState(false);
   const [showPotions, setShowPotions] = useState(false);
 
@@ -20,9 +20,9 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
         exit={{ opacity: 0 }}
         transition={{ type: "tween", duration: 0.25 }}
       >
-        <BackButton onClick={() => setShowDetails(false)} />
+        <BackButton onClick={() => toggleDetails()} />
         <div className="flex justify-center">
-          <ModalTitle>Monster #{tokenId}</ModalTitle>
+          <ModalTitle>Monster #{monster}</ModalTitle>
         </div>
         <div className="flex justify-evenly">
           <>
@@ -31,7 +31,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
                 <div className="w-6/12 m-3 h-2/3">
                   <Image
                     alt="monster-img"
-                    src={"/monsters/" + (parseInt(tokenId) + 1) + ".png"}
+                    src={"/monsters/" + (parseInt(monster) + 1) + ".png"}
                     width="200"
                     height="300"
                   />
@@ -54,7 +54,7 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
                 </div>
               </div>
             </div>
-            <MonsterStats monster={tokenId} />
+            <MonsterStats monster={monster} />
           </>
           )
         </div>
@@ -63,14 +63,14 @@ const MonsterDetails = ({ tokenId, setShowDetails }) => {
         <FeedModal
           setShowFeed={setShowFeed}
           showFeed={showFeed}
-          monster={tokenId}
+          monster={monster}
         />
       )}
       {showPotions && (
         <PotionModal
           setShowPotions={setShowPotions}
           showPotions={showPotions}
-          monster={tokenId}
+          monster={monster}
         />
       )}
     </>
