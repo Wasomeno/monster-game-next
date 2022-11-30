@@ -1,15 +1,15 @@
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-const ShopItemCard = ({ activeItem, data, item, setActiveItem }) => {
+const ShopItemCard = ({ activeItem, item, setActiveItem }) => {
   return (
     <div
-      id={activeItem === item ? "item-card-active" : "item-card"}
-      className="w-2/12 p-2 m-2 flex flex-col justify-center items-center text-center rounded bg-slate-50 bg-opacity-25"
-      onClick={() => setActiveItem(parseInt(item))}
+      id={activeItem === item.id ? "item-card-active" : "item-card"}
+      className="w-3/12 p-2 flex flex-col justify-center items-center text-center rounded bg-slate-50 bg-opacity-25 cursor-pointer"
+      onClick={() => setActiveItem(parseInt(item.id))}
     >
       <Image
-        src={"/items" + data.image}
+        src={"/items" + item.image}
         width={"50px"}
         height={"50px"}
         className="p-1"
@@ -17,7 +17,7 @@ const ShopItemCard = ({ activeItem, data, item, setActiveItem }) => {
       />
       <div className="p-1">
         <h5 className="font-monogram text-xl tracking-wide text-white m-1">
-          {data.name}
+          {item.name}
         </h5>
       </div>
     </div>
