@@ -1,108 +1,130 @@
-import React, { useEffect } from "react";
-import DungeonModal from "./modals/DungeonModal";
-import MissionsModal from "./modals/MissionsModal";
-import NurseryModal from "./modals/NurseryModal";
-import SmelterModal from "./modals/SmelterModal";
-import AltarModal from "./modals/AltarModal";
-import ModalButton from "./buttons/ModalButton";
-import DailyShopModal from "./modals/DailyShopModal";
-import DailyTrader from "./modals/DailyTrader";
-import {
-  altarModalStores,
-  dailyShopModalStores,
-  dailyTradeModalStores,
-  dungeonModalStores,
-  missionsModalStores,
-  nurseryModalStores,
-  smelterModalStores,
-} from "../stores/modalStores";
+import ModalButton from "./Buttons/ModalButton";
+import DungeonModal from "./Dungeon/DungeonModal";
+import MissionsModal from "./Mission/MissionsModal";
+import NurseryModal from "./Nursery/NurseryModal";
+import SmelterModal from "./Smelter/SmelterModal";
+import AltarModal from "./Altar/AltarModal";
+import DailyShopModal from "./DailyShop/DailyShopModal";
+import DailyTrader from "./DailyTrader/DailyTrader";
+import MonstersActivityModal from "./MonstersActivityModal";
+import useToggle from "../hooks/useToggle";
+import Modal from "./Modal";
 
 const PageComponents = ({ path }) => {
-  const toggleShowDungeon = dungeonModalStores((state) => state.toggleShow);
-  const toggleShowMission = missionsModalStores((state) => state.toggleShow);
-  const toggleShowShop = dailyShopModalStores((state) => state.toggleShow);
-  const toggleShowTrader = dailyTradeModalStores((state) => state.toggleShow);
-  const toggleShowSmelter = smelterModalStores((state) => state.toggleShow);
-  const toggleShowNursery = nurseryModalStores((state) => state.toggleShow);
-  const toggleShowAltar = altarModalStores((state) => state.toggleShow);
+  const Dungeon = () => {
+    const [showMission, toggleShowMission] = useToggle(false);
+    const [showDungeon, toggleShowDungeon] = useToggle(false);
+    return (
+      <>
+        <ModalButton
+          text={"Dungeon"}
+          y={"400px"}
+          x={"450px"}
+          onClick={() => toggleShowDungeon()}
+        />
 
-  const Dungeon = (
-    <>
-      <ModalButton
-        text={"Dungeon"}
-        y={"400px"}
-        x={"450px"}
-        onClick={toggleShowDungeon}
-      />
+        <ModalButton
+          text={"Mission"}
+          y={"320px"}
+          x={"580px"}
+          onClick={() => toggleShowMission()}
+        />
 
-      <ModalButton
-        text={"Mission"}
-        y={"320px"}
-        x={"580px"}
-        onClick={toggleShowMission}
-      />
+        <MonstersActivityModal
+          Child={DungeonModal}
+          show={showDungeon}
+          toggleShow={toggleShowDungeon}
+        />
 
-      <DungeonModal />
-      <MissionsModal />
-    </>
-  );
+        <MonstersActivityModal
+          Child={MissionsModal}
+          show={showMission}
+          toggleShow={toggleShowMission}
+        />
+      </>
+    );
+  };
 
-  const Nursery = (
-    <>
-      <ModalButton
-        text={"Nursery"}
-        y={"370px"}
-        x={"125px"}
-        onClick={toggleShowNursery}
-      />
-      <ModalButton
-        text={"Smelter"}
-        y={"380px"}
-        x={"720px"}
-        onClick={toggleShowSmelter}
-      />
-      <NurseryModal />
-      <SmelterModal />
-    </>
-  );
+  const Nursery = () => {
+    const [showNursery, toggleShowNursery] = useToggle(false);
+    const [showSmelter, toggleShowSmelter] = useToggle(false);
+    return (
+      <>
+        <ModalButton
+          text={"Nursery"}
+          y={"370px"}
+          x={"125px"}
+          onClick={() => toggleShowNursery()}
+        />
+        <ModalButton
+          text={"Smelter"}
+          y={"380px"}
+          x={"720px"}
+          onClick={toggleShowSmelter}
+        />
+        <MonstersActivityModal
+          Child={NurseryModal}
+          show={showNursery}
+          toggleShow={toggleShowNursery}
+        />
+        <Modal show={showSmelter} toggleShow={toggleShowSmelter}>
+          <SmelterModal />
+        </Modal>
+      </>
+    );
+  };
 
-  const CityHall = (
-    <>
-      <ModalButton
-        text={"Trader"}
-        y={"380px"}
-        x={"130px"}
-        onClick={toggleShowTrader}
-      />
-      <ModalButton
-        text={"Shop"}
-        y={"380px"}
-        x={"735px"}
-        onClick={toggleShowShop}
-      />
-      <DailyShopModal />
-      <DailyTrader />
-    </>
-  );
+  const CityHall = () => {
+    const [showTrader, toggleShowTrader] = useToggle(false);
+    const [showShop, toggleShowShop] = useToggle(false);
+    return (
+      <>
+        <ModalButton
+          text={"Trader"}
+          y={"380px"}
+          x={"130px"}
+          onClick={toggleShowTrader}
+        />
+        <ModalButton
+          text={"Shop"}
+          y={"380px"}
+          x={"735px"}
+          onClick={toggleShowShop}
+        />
+        <Modal show={showShop} toggleShow={toggleShowShop}>
+          <DailyShopModal />
+        </Modal>
 
-  const Altar = (
-    <>
-      <ModalButton
-        text={"Altar"}
-        y={"490px"}
-        x={"540px"}
-        onClick={toggleShowAltar}
-      />
+        <Modal show={showTrader} toggleShow={toggleShowTrader}>
+          <DailyTrader />
+        </Modal>
+      </>
+    );
+  };
 
-      <AltarModal />
-    </>
-  );
+  const Altar = () => {
+    const [showAltar, toggleShowAltar] = useToggle(false);
+    return (
+      <>
+        <ModalButton
+          text={"Altar"}
+          y={"490px"}
+          x={"540px"}
+          onClick={toggleShowAltar}
+        />
+
+        <Modal show={showAltar} toggleShow={toggleShowAltar}>
+          <AltarModal />
+        </Modal>
+      </>
+    );
+  };
 
   const components = new Map([
-    ["/nursery", Nursery],
-    ["/dungeon", Dungeon],
-    ["/cityhall", CityHall],
-    ["/altar", Altar],
+    ["/nursery", <Nursery />],
+    ["/dungeon", <Dungeon />],
+    ["/cityhall", <CityHall />],
+    ["/altar", <Altar />],
   ]);
 
   return components.get(path);
