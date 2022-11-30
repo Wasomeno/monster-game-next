@@ -1,22 +1,18 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Modal from "../Modal";
-import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "../../mutations/mutations";
-import { registerSides } from "../../mutations/sideffects";
-import AppContext from "../../contexts/AppContext";
 import { ModalTitle, Paragraph } from "../Texts";
 import { StartActivityButton } from "../Buttons/Buttons";
 import ProfilePictureCard from "./ProfilePictureCard";
+import registerUser from "../../mutations/registerUser";
 
 const RegisterModal = ({ status }) => {
   const nameInput = useRef();
   const [selectedPicture, setSelectedPicture] = useState();
-  const user = useContext(AppContext).account[0];
   const pictures = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const register = useMutation(
-    () => registerUser(nameInput.current.value, selectedPicture),
-    registerSides(user)
-  );
+  const register = registerUser({
+    name: nameInput.current.value,
+    profileImage: selectedPicture,
+  });
 
   return (
     <Modal show={!status}>
@@ -47,10 +43,7 @@ const RegisterModal = ({ status }) => {
         ))}
       </div>
       <div className="flex justify-center m-4">
-        <StartActivityButton
-          text="Register"
-          onClick={() => register.mutate()}
-        />
+        <StartActivityButton text="Register" onClick={() => register()} />
       </div>
     </Modal>
   );
