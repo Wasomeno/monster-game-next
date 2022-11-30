@@ -1,30 +1,18 @@
 import React, { useContext, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { summonMonster } from "../../mutations/mutations";
-import { altarModalStores } from "../../stores/modalStores";
 import { summoningSides } from "../../mutations/sideffects";
-import { BackButton } from "../Buttons";
 import AppContext from "../../contexts/AppContext";
-import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
 import Image from "next/image";
 import SummonAmountControl from "./SummonAmountControl";
+import useSummonMonster from "../../mutations/summonMonster";
 
 const AltarModal = () => {
-  const user = useContext(AppContext).account[0];
-  const [show, toggleShow] = altarModalStores((state) => [
-    state.show,
-    state.toggleShow,
-  ]);
   const [quantity, setQuantity] = useState(1);
-  const summonMutation = useMutation(
-    () => summonMonster(quantity),
-    summoningSides(user)
-  );
-
+  const summon = useSummonMonster({ quantity: quantity });
   return (
-    <Modal show={show}>
-      <BackButton onClick={toggleShow} />
+    <>
       <ModalTitle>Monster Altar</ModalTitle>
       <div className="flex justify-center items-center">
         <Image
@@ -39,12 +27,12 @@ const AltarModal = () => {
       <div className="flex justify-center">
         <button
           className="bg-slate-50 rounded-md m-2 w-3/12 font-monogram p-2 text-xl"
-          onClick={() => summonMutation.mutate()}
+          onClick={() => summon()}
         >
           Summon
         </button>
       </div>
-    </Modal>
+    </>
   );
 };
 
