@@ -2,17 +2,10 @@ import { useContext } from "react";
 import AppContext from "../../contexts/AppContext";
 import { useQuery } from "@tanstack/react-query";
 import { getApprovalStatus, getTrades } from "../../fetchers/fetchers";
-import { dailyTradeModalStores } from "../../stores/modalStores";
-import { BackButton } from "../Buttons";
-import Modal from "../Modal";
 import { ModalTitle } from "../Texts";
 import TradeDetails from "./TradeDetails";
 
 const DailyTrader = () => {
-  const [show, toggleShow] = dailyTradeModalStores((state) => [
-    state.show,
-    state.toggleShow,
-  ]);
   const user = useContext(AppContext).account[0];
   const trades = useQuery(["dailyTrades"], getTrades());
   const approvalStatus = useQuery(
@@ -21,8 +14,7 @@ const DailyTrader = () => {
   );
 
   return (
-    <Modal show={show}>
-      <BackButton onClick={toggleShow} />
+    <>
       <div className="flex justify-center">
         <ModalTitle>Daily Trader</ModalTitle>
       </div>
@@ -36,7 +28,7 @@ const DailyTrader = () => {
           />
         ))}
       </div>
-    </Modal>
+    </>
   );
 };
 
