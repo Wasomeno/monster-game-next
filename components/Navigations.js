@@ -1,12 +1,11 @@
 import React, { useContext } from "react";
-import AppContext from "../contexts/AppContext";
-import MapButton from "./MapButton";
+import BackToMapButton from "./Buttons/BackToMapButton";
 import UserPanel from "./UserPanel";
 
 const Navigation = () => {
   return (
     <>
-      <UserPanel /> <MapButton />
+      <UserPanel /> <BackToMapButton />
     </>
   );
 };
