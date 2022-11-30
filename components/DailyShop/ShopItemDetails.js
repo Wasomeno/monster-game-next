@@ -1,76 +1,66 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { ethers } from "ethers";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
-import AppContext from "../../contexts/AppContext";
-import { getDailyShopLimit, getItemDetails } from "../../fetchers/fetchers";
-import { buy } from "../../mutations/mutations";
-import { buySides } from "../../mutations/sideffects";
 import BuyAmountControl from "./BuyAmountControl";
+import { StartActivityButton } from "../Buttons/Buttons";
+import buyItem from "../../mutations/buyItem";
+import { useUserDailyShopLimit } from "../../fetchers/useDailyShop";
 
 const ShopItemDetails = ({ activeItem, item }) => {
-  const user = useContext(AppContext).account[0];
-  const userDailyLimit = useQuery(
-    ["dailyShopLimit", user],
-    getDailyShopLimit(user)
-  );
-  const itemDetails = useQuery(["itemDetails", item], getItemDetails(item));
-  const itemsData = useQuery(["itemsData"], async () => {
-    const data = await fetch("items/items.json");
-    return await data.json();
-  });
   const [quantity, setQuantity] = useState(1);
+  const { data: dailyLimit, isLoading, isError } = useUserDailyShopLimit();
 
-  const getLimit = (item) => {
-    if (userDailyLimit.isLoading) return;
-    return userDailyLimit.data[item];
+  const buy = buyItem({
+    itemSelected: activeItem,
+    quantity: quantity,
+    total: (quantity * item.price).toString(),
+  });
+
+  const getLimit = (itemId) => {
+    if (isLoading) return;
+    return dailyLimit[itemId];
   };
 
-  const buyMutation = useMutation(() => {
-    const total = (quantity * itemDetails.data?.price).toString();
-    return buy([activeItem], [quantity], user, total);
-  }, buySides());
+  const formatEther = (value) => {
+    return parseInt(value) / 10 ** 18;
+  };
 
-  if (activeItem !== item) return;
+  if (activeItem !== item.id) return;
   return (
     <div className="h-full p-3 rounded flex flex-col justify-center items-center bg-slate-600">
-      {itemDetails.isLoading ? (
-        <MoonLoader loading={itemDetails.isFetching} size={50} color="#fff" />
+      {isLoading ? (
+        <MoonLoader loading={isLoading} size={50} color="#fff" />
       ) : (
         <div className="w-full flex flex-col justify-center items-center">
           <h3 className="font-monogram text-white text-2xl tracking-wide">
-            {itemsData.data[item].name}
+            {item.name}
           </h3>
           <div className="m-3 bg-slate-100 p-2 rounded">
             <Image
-              src={"/items" + itemsData.data[item].image}
+              src={"/items" + item.image}
               width={"50"}
               height={"50"}
               alt="shop-item-img"
               quality={100}
             />
           </div>
-          <div className="flex justify-between items-center w-2/3">
+          <div className="flex justify-between items-center w-full my-2">
             <BuyAmountControl
               amount={quantity}
               setAmount={setQuantity}
-              limit={itemDetails.data?.limit}
+              limit={item.limit}
             />
             <div className="w-6/12">
               <h4 className="text-center text-white font-monogram tracking-wide text-xl m-0">
-                {quantity * ethers.utils.formatEther(itemDetails.data?.price)}{" "}
-                ETH
+                {quantity * formatEther(item.price)} ETH
               </h4>
             </div>
           </div>
-          <button
-            disabled={parseInt(getLimit(item)) === itemDetails.data.limit}
-            className="bg-slate-50 text-lg font-monogram m-3 w-2/3 p-2 rounded"
-            onClick={() => buyMutation.mutate()}
-          >
-            Buy
-          </button>
+          <StartActivityButton
+            text="Buy"
+            condition={parseInt(getLimit(item.id)) === item.limit}
+            onClick={() => buy()}
+          />
         </div>
       )}
     </div>
