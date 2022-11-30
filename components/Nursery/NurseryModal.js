@@ -1,9 +1,4 @@
 import { useState } from "react";
-import MonsterSelection from "../MonsterSelection";
-import useMonsterSelected from "../../hooks/useMonsterSelected";
-import Modal from "../Modal";
-import { nurseryModalStores } from "../../stores/modalStores";
-import { BackButton } from "../Buttons/Buttons";
 import { ModalTitle, Paragraph } from "../Texts";
 import DurationControl from "./DurationControl";
 import { StartActivityButton } from "../Buttons/Buttons";
@@ -11,75 +6,51 @@ import NurseryConditionalButton from "./NurseryConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
 import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
 
-const NurseryModal = () => {
-  const [show, toggleShow] = nurseryModalStores((state) => [
-    state.show,
-    state.toggleShow,
-  ]);
+const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const [duration, setDuration] = useState(1);
   const {
     data: monstersOnNursery,
     isLoading,
     isError,
   } = useMonstersOnActivity("nursery");
-  const [showSelectMonster, setShowSelectMonster] = useState(false);
-  const [monsterSelected, selectMonster, deselectMonster, clearMonsters] =
-    useMonsterSelected();
 
   return (
-    <Modal show={show}>
-      <BackButton
-        onClick={
-          !showSelectMonster
-            ? () => toggleShow()
-            : () => setShowSelectMonster(false)
-        }
-      />
-      {!showSelectMonster ? (
-        <div className="flex w-full h-full flex-col justify-center">
-          <ModalTitle>Nursery</ModalTitle>
-          <div className="flex justify-center">
-            <div className="w-6/12 text-center border border-light border-opacity-25 rounded-md p-3">
-              <Paragraph>
-                You can put your monsters to rest at the nursery. Choose for how
-                long your monsters will rest (hourly) and for each hour there's
-                a fee that you need to pay. Max amount of monsters that you can
-                send is 6.
-              </Paragraph>
-            </div>
-          </div>
-          <div className="flex justify-center my-3">
-            <ActivityMonstersSection
-              monsterSelected={monsterSelected}
-              monstersOnActivity={monstersOnNursery}
-            />
-            <DurationControl
-              monstersOnNursery={monstersOnNursery?.length}
-              duration={duration}
-              setDuration={setDuration}
-            />
-          </div>
-          <div className="flex justify-center p-2 my-3">
-            <StartActivityButton
-              text="Select Monsters"
-              condition={monstersOnNursery?.length > 0}
-              onClick={() => setShowSelectMonster(true)}
-            />
-            <NurseryConditionalButton
-              duration={duration}
-              monsterSelected={monsterSelected}
-              condition={monstersOnNursery?.length < 1}
-            />
-          </div>
+    <div className="flex w-full h-full flex-col justify-center">
+      <ModalTitle>Nursery</ModalTitle>
+      <div className="flex justify-center">
+        <div className="w-6/12 text-center border border-light border-opacity-25 rounded-md p-3">
+          <Paragraph>
+            You can put your monsters to rest at the nursery. Choose for how
+            long your monsters will rest (hourly) and for each hour there's a
+            fee that you need to pay. Max amount of monsters that you can send
+            is 6.
+          </Paragraph>
         </div>
-      ) : (
-        <MonsterSelection
+      </div>
+      <div className="flex justify-center my-3">
+        <ActivityMonstersSection
           monsterSelected={monsterSelected}
-          selectMonster={selectMonster}
-          deselectMonster={deselectMonster}
+          monstersOnActivity={monstersOnNursery}
         />
-      )}
-    </Modal>
+        <DurationControl
+          monstersOnNursery={monstersOnNursery?.length}
+          duration={duration}
+          setDuration={setDuration}
+        />
+      </div>
+      <div className="flex justify-center p-2 my-3">
+        <StartActivityButton
+          text="Select Monsters"
+          condition={monstersOnNursery?.length > 0}
+          onClick={() => toggleShowSelectMonster()}
+        />
+        <NurseryConditionalButton
+          duration={duration}
+          monsterSelected={monsterSelected}
+          condition={monstersOnNursery?.length < 1}
+        />
+      </div>
+    </div>
   );
 };
 
