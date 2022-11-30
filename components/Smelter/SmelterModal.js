@@ -1,23 +1,12 @@
-import React, { useContext } from "react";
-import AppContext from "../../contexts/AppContext";
-import { smelterModalStores } from "../../stores/modalStores";
-import Modal from "../Modal";
+import React from "react";
 import { ModalTitle, Paragraph } from "../Texts";
 import Image from "next/image";
-import { BackButton } from "../Buttons/Buttons";
 import UserCrystalsSection from "./UserCrystalsSection";
 import SmeltingCrystals from "./SmeltingCrystals";
 
 const SmelterModal = () => {
-  const user = useContext(AppContext).account[0];
-  const [show, toggleShow] = smelterModalStores((state) => [
-    state.show,
-    state.toggleShow,
-  ]);
-
   return (
-    <Modal show={show}>
-      <BackButton onClick={toggleShow} />
+    <>
       <div className="flex justify-center items-center text-center">
         <ModalTitle>Smelter</ModalTitle>
       </div>
@@ -43,7 +32,7 @@ const SmelterModal = () => {
         </div>
         <SmeltingCrystals user={user} />
       </div>
-    </Modal>
+    </>
   );
 };
 
