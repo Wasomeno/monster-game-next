@@ -2,10 +2,10 @@ import Image from "next/image";
 import React from "react";
 import { Paragraph } from "../Texts";
 
-const MonsterCard = ({ monster, setShowDetails, setTokenId }) => {
+const MonsterCard = ({ monster, toggleDetails, setMonster }) => {
   function monsterDetails(monster) {
-    setShowDetails(true);
-    setTokenId(monster);
+    toggleDetails();
+    setMonster(monster);
   }
   return (
     <div
