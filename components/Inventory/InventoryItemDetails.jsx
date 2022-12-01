@@ -29,8 +29,9 @@ const InventoryItemDetails = ({ activeItem }) => {
           height={"50px"}
           className="p-3 m-3 border border-dark border-1 rounded"
           alt="shop-item-img"
+          priority={true}
         />
-        <div className="flex justify-center items-center text-center my-2 p-2">
+        <div className="flex justify-center items-center text-center my-2 p-2 px-4">
           <Paragraph>{getItemData(activeItem)?.description}</Paragraph>
         </div>
       </div>
