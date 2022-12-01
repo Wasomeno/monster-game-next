@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import useToggle from "../../hooks/useToggle";
 import { motion } from "framer-motion";
 import FeedModal from "./FeedModal";
-import PotionModal from "./PotionModal";
-import { BackButton } from "../Buttons/Buttons";
+import { BackButton, StartActivityButton } from "../Buttons/Buttons";
 import Image from "next/image";
 import { ModalTitle } from "../Texts";
 import MonsterStats from "./MonsterStats";
 
 const MonsterDetails = ({ monster, toggleDetails }) => {
-  const [showFeed, setShowFeed] = useState(false);
-  const [showPotions, setShowPotions] = useState(false);
-
+  const [showFeed, toggleShowFeed] = useToggle(false);
   return (
     <>
       <motion.div
@@ -38,19 +35,11 @@ const MonsterDetails = ({ monster, toggleDetails }) => {
                 </div>
 
                 <div className="flex justify-evenly w-full items-center my-2">
-                  <button
-                    className="bg-slate-200 p-2 rounded-md w-5/12 font-monogram text-lg tracking-wide"
-                    onClick={() => setShowFeed(true)}
-                  >
-                    Feed
-                  </button>
-
-                  <button
-                    className="bg-slate-200 p-2 rounded-md w-5/12 font-monogram text-lg tracking-wide"
-                    onClick={() => setShowPotions(true)}
-                  >
-                    Potion
-                  </button>
+                  <StartActivityButton
+                    text="Feed"
+                    onClick={() => toggleShowFeed()}
+                    size="medium"
+                  />
                 </div>
               </div>
             </div>
@@ -61,15 +50,8 @@ const MonsterDetails = ({ monster, toggleDetails }) => {
       </motion.div>
       {showFeed && (
         <FeedModal
-          setShowFeed={setShowFeed}
+          toggleShowFeed={toggleShowFeed}
           showFeed={showFeed}
-          monster={monster}
-        />
-      )}
-      {showPotions && (
-        <PotionModal
-          setShowPotions={setShowPotions}
-          showPotions={showPotions}
           monster={monster}
         />
       )}
