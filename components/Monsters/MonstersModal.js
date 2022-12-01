@@ -9,17 +9,18 @@ import useAllMonsters from "../../fetchers/useAllMonsters";
 import { useAccount } from "wagmi";
 import useToggle from "../../hooks/useToggle";
 
-const MonstersModal = ({ showMonsters, setShowMonsters }) => {
+const MonstersModal = ({ showMonsters, toggleShowMonsters }) => {
   const { address: user } = useAccount();
   const { data: monsters, isError, isLoading } = useAllMonsters(user);
   const [showDetails, toggleDetails] = useToggle(false);
+  const [monster, setMonster] = useState();
 
   return (
     <Modal show={showMonsters}>
       {!showDetails ? (
         <>
           <div className="flex justify-center items-center">
-            <BackButton onClick={() => setShowMonsters(false)} />
+            <BackButton onClick={() => toggleShowMonsters()} />
             <div className="w-4/12">
               <ModalTitle>Your Monsters</ModalTitle>
             </div>
@@ -38,7 +39,7 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
                   key={index}
                   monster={monster.id}
                   toggleDetails={toggleDetails}
-                  setTokenId={setTokenId}
+                  setMonster={setMonster}
                 />
               ))
             )}
@@ -46,9 +47,8 @@ const MonstersModal = ({ showMonsters, setShowMonsters }) => {
         </>
       ) : (
         <MonsterDetails
-          tokenId={tokenId}
+          monster={monster}
           toggleDetails={toggleDetails}
-          setTokenId={setTokenId}
           showDetails={showDetails}
         />
       )}
