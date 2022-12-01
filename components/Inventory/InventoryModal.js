@@ -6,14 +6,14 @@ import InventoryItemDetails from "./InventoryItemDetails";
 import InventoryItems from "./InventoryItems";
 import useInventory from "../../fetchers/useInventory";
 
-function InventoryModal({ showInventory, setShowInventory }) {
+function InventoryModal({ showInventory, toggleShowInventory }) {
   const [activeItem, setActiveItem] = useState(0);
   const { data: inventory, isLoading, isError } = useInventory();
 
   return (
     <Modal show={showInventory}>
       <div className="flex justify-center items-center">
-        <BackButton onClick={() => setShowInventory(false)} />
+        <BackButton onClick={() => toggleShowInventory()} />
         <div className="w-10/12">
           <h2 className="text-center p-3 text-white font-monogram text-3xl tracking-wide">
             Inventory
