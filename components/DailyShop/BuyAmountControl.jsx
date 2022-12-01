@@ -1,4 +1,5 @@
 import React from "react";
+import { Paragraph } from "../Texts";
 
 const BuyAmountControl = ({ amount, setAmount, limit }) => {
   const increment = () => {
@@ -11,16 +12,20 @@ const BuyAmountControl = ({ amount, setAmount, limit }) => {
     setAmount((currentQuantity) => currentQuantity - 1);
   };
   return (
-    <div className={"flex justify-around items-center w-6/12"}>
-      <h5 id="text" className="m-0" onClick={decrement}>
+    <div className={"flex justify-around items-center w-8/12"}>
+      <button
+        className="p-2 text-lg bg-slate-50 rounded-md w-6 h-6 flex items-center justify-center"
+        onClick={decrement}
+      >
         -
-      </h5>
-      <h4 id="text" className="text-white m-0">
-        {amount}
-      </h4>
-      <h5 id="text" className="m-0" onClick={increment}>
+      </button>
+      <Paragraph>{amount}</Paragraph>
+      <button
+        className="p-2 text-lg bg-slate-50 rounded-md w-6 h-6 flex items-center justify-center"
+        onClick={increment}
+      >
         +
-      </h5>
+      </button>
     </div>
   );
 };
