@@ -1,18 +1,9 @@
-import { useContext } from "react";
-import AppContext from "../../contexts/AppContext";
-import { useQuery } from "@tanstack/react-query";
-import { getApprovalStatus, getTrades } from "../../fetchers/fetchers";
+import useTrades from "../../fetchers/useTrades";
 import { ModalTitle } from "../Texts";
 import TradeDetails from "./TradeDetails";
 
 const DailyTrader = () => {
-  const user = useContext(AppContext).account[0];
-  const trades = useQuery(["dailyTrades"], getTrades());
-  const approvalStatus = useQuery(
-    ["approvalStatus", process.env.TRADER_CONTRACT_ADDRESS],
-    getApprovalStatus(user, process.env.TRADER_CONTRACT_ADDRESS)
-  );
-
+  const trades = useTrades();
   return (
     <>
       <div className="flex justify-center">
@@ -22,9 +13,7 @@ const DailyTrader = () => {
         {trades.data?.map((trade, index) => (
           <TradeDetails
             key={index}
-            user={user}
-            details={{ id: index, trade: trade }}
-            approval={approvalStatus.data}
+            details={{ id: index, tradeDetails: trade }}
           />
         ))}
       </div>
