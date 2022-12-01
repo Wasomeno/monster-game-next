@@ -1,16 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import MoonLoader from "react-spinners/MoonLoader";
-import { getMonsterDetails } from "../../fetchers/fetchers";
+import useMonsterDetails from "../../fetchers/useMonsterDetails";
 import { Paragraph } from "../Texts";
 import statuses from "./statusMap";
 
 const MonsterStats = ({ monster }) => {
-  const monsterDetails = useQuery(
-    ["monsterDetails", monster],
-    getMonsterDetails(monster)
-  );
-
+  const monsterDetails = useMonsterDetails({ monster: monster });
   return (
     <div className="w-7/12">
       <div className="flex items-center justify-evenly">
