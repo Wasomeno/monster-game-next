@@ -1,59 +1,54 @@
-import React, { useEffect, useState, useContext } from "react";
-import { ethers } from "ethers";
+import { parseBytes32String } from "ethers/lib/utils";
 import InventoryModal from "./Inventory/InventoryModal";
 import MonstersModal from "./Monsters/MonstersModal";
-import AppContext from "../contexts/AppContext";
-import { useQuery } from "@tanstack/react-query";
-import { getGold, getUserDetails, getUserStatus } from "../fetchers/fetchers";
 import RegisterModal from "./Register/RegisterModal";
+import Image from "next/image";
+import useItemAmount from "../fetchers/useItemAmount";
+import useUserDetails from "../fetchers/useUserDetails";
+import useToggle from "../hooks/useToggle";
 
 const UserPanel = () => {
-  const user = useContext(AppContext).account[0];
-  const userStatus = useQuery(["registerStatus", user], getUserStatus(user), {
-    initialData: true,
-  });
-  const [showInventory, setShowInventory] = useState(false);
-  const [showMonsters, setShowMonsters] = useState(false);
-  const gold = useQuery(["getGold", user], getGold(user));
-  const userDetails = useQuery(["userDetails", user], getUserDetails(user));
+  const { data: userDetails, isLoading, isError } = useUserDetails();
+  const [showInventory, toggleShowInventory] = useToggle(false);
+  const [showMonsters, toggleShowMonsters] = useToggle(false);
+  const gold = useItemAmount({ item: 0 });
 
   function bytesToString(string) {
-    return ethers.utils.parseBytes32String(string);
+    return parseBytes32String(string);
   }
 
-  return userStatus.data ? (
+  if (isLoading) return;
+  return userDetails?.status ? (
     <>
-      <div
-        className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm"
-        style={{ background: "rgba(66, 63, 62, 0.5)" }}
-      >
+      <div className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm bg-slate-600 bg-opacity-40">
         <h5 className="p-1 text-white font-monogram text-2xl tracking-wide m-1">
-          {userDetails.isLoading
-            ? "loading....."
-            : bytesToString(userDetails.data?.name)}
+          {isLoading ? "loading....." : bytesToString(userDetails.name)}
         </h5>
-        <div
-          id="user-image"
-          style={
-            userDetails.isLoading
-              ? { backgroundColor: "#000" }
-              : {
-                  backgroundImage: `url(${
-                    "/profile/profile_" +
-                    bytesToString(userDetails.data?.profile_image) +
-                    ".png"
-                  })`,
-                  backgroundPosition: "center",
-                }
-          }
-        />
+        <div className="border rounded-md border-slate-400 bg-opacity-25 p-2">
+          {isLoading ? (
+            <h5>Loading</h5>
+          ) : (
+            <Image
+              src={
+                "/profile/profile_" +
+                bytesToString(userDetails.profile_image) +
+                ".png"
+              }
+              width="100"
+              height="120"
+              priority={true}
+              quality={100}
+              className="m-0"
+            />
+          )}
+        </div>
         <h5 className="p-1 m-1 text-white text-center font-monogram tracking-wide text-xl ">
           Gold: {parseInt(gold.data)}
         </h5>
         <div id="user-menu" className="flex flex-col">
           <button
             className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
-            onClick={() => setShowInventory(true)}
+            onClick={() => toggleShowInventory()}
           >
             <img
               src="/icons/bag_icon.png"
@@ -67,7 +62,7 @@ const UserPanel = () => {
           </button>
           <button
             className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
-            onClick={() => setShowMonsters(true)}
+            onClick={() => toggleShowMonsters()}
           >
             <img
               src="/icons/bag_icon.png"
@@ -84,15 +79,15 @@ const UserPanel = () => {
 
       <InventoryModal
         showInventory={showInventory}
-        setShowInventory={setShowInventory}
+        toggleShowInventory={toggleShowInventory}
       />
       <MonstersModal
         showMonsters={showMonsters}
-        setShowMonsters={setShowMonsters}
+        toggleShowMonsters={toggleShowMonsters}
       />
     </>
   ) : (
-    <RegisterModal />
+    <RegisterModal status={userDetails.status} />
   );
 };
 
