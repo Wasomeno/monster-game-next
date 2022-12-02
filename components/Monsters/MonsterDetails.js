@@ -5,9 +5,11 @@ import { BackButton, StartActivityButton } from "../Buttons/Buttons";
 import Image from "next/image";
 import { ModalTitle } from "../Texts";
 import MonsterStats from "./MonsterStats";
+import useMonsterDetails from "../../fetchers/useMonsterDetails";
 
 const MonsterDetails = ({ monster, toggleDetails }) => {
   const [showFeed, toggleShowFeed] = useToggle(false);
+  const monsterDetails = useMonsterDetails({ monster: monster });
   return (
     <>
       <motion.div
@@ -21,31 +23,27 @@ const MonsterDetails = ({ monster, toggleDetails }) => {
         <div className="flex justify-center">
           <ModalTitle>Monster #{monster}</ModalTitle>
         </div>
-        <div className="flex justify-evenly">
-          <>
-            <div className="w-3/12 h-full">
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-6/12 m-3 h-2/3">
-                  <Image
-                    alt="monster-img"
-                    src={"/monsters/" + (parseInt(monster) + 1) + ".png"}
-                    width="200"
-                    height="300"
-                  />
-                </div>
-
-                <div className="flex justify-evenly w-full items-center my-2">
-                  <StartActivityButton
-                    text="Feed"
-                    onClick={() => toggleShowFeed()}
-                    size="medium"
-                  />
-                </div>
+        <div className="flex justify-center">
+          <div className="w-5/12 h-full">
+            <div className="mx-auto w-8/12 h-80 border-4 border-slate-500 flex flex-col justify-center items-center bg-slate-700 bg-opacity-40 rounded-md">
+              <div className="m-3">
+                <Image
+                  alt="monster-img"
+                  src={"/monsters/" + (parseInt(monster) + 1) + ".png"}
+                  width="200"
+                  height="200"
+                />
               </div>
             </div>
-            <MonsterStats monster={monster} />
-          </>
-          )
+            <div className="flex justify-evenly w-full items-center my-2">
+              <StartActivityButton
+                text="Feed"
+                onClick={() => toggleShowFeed()}
+                size="medium"
+              />
+            </div>
+          </div>
+          <MonsterStats monster={monster} monsterDetails={monsterDetails} />)
         </div>
       </motion.div>
       {showFeed && (
@@ -53,6 +51,7 @@ const MonsterDetails = ({ monster, toggleDetails }) => {
           toggleShowFeed={toggleShowFeed}
           showFeed={showFeed}
           monster={monster}
+          level={monsterDetails.data?.level}
         />
       )}
     </>
