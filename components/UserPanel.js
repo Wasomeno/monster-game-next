@@ -77,14 +77,19 @@ const UserPanel = () => {
         </div>
       </div>
 
-      <InventoryModal
-        showInventory={showInventory}
-        toggleShowInventory={toggleShowInventory}
-      />
-      <MonstersModal
-        showMonsters={showMonsters}
-        toggleShowMonsters={toggleShowMonsters}
-      />
+      {showInventory && (
+        <InventoryModal
+          showInventory={showInventory}
+          toggleShowInventory={toggleShowInventory}
+        />
+      )}
+
+      {showMonsters && (
+        <MonstersModal
+          showMonsters={showMonsters}
+          toggleShowMonsters={toggleShowMonsters}
+        />
+      )}
     </>
   ) : (
     <RegisterModal status={userDetails.status} />
