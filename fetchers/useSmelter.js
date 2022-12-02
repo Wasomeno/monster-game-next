@@ -14,9 +14,8 @@ export const useCrystals = ({ key }) => {
   });
 
   const crystal = functions.get(key);
-  const { data, isLoading, isError } = useQuery(
-    [crystal.key],
-    () => crystal.function
+  const { data, isLoading, isError } = useQuery([crystal.key], () =>
+    crystal.function()
   );
 
   return { data: data, isLoading: isLoading, isError: isError };
