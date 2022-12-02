@@ -20,7 +20,7 @@ const SmelterModal = () => {
         </div>
       </div>
       <div className="flex justify-center items-center my-3">
-        <UserCrystalsSection user={user} />
+        <UserCrystalsSection />
         <div className="w-2/12 text-center">
           <Image
             src="/icons/back_icon.png"
@@ -30,7 +30,7 @@ const SmelterModal = () => {
             className="rotate-180"
           />
         </div>
-        <SmeltingCrystals user={user} />
+        <SmeltingCrystals />
       </div>
     </>
   );
