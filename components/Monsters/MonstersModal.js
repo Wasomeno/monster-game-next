@@ -3,7 +3,7 @@ import MonsterDetails from "./MonsterDetails";
 import MoonLoader from "react-spinners/MoonLoader";
 import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
-import { ModalTitle } from "../Texts";
+import { ModalTitle, Paragraph } from "../Texts";
 import MonsterCard from "./MonsterCard";
 import useAllMonsters from "../../fetchers/useAllMonsters";
 import { useAccount } from "wagmi";
@@ -26,22 +26,22 @@ const MonstersModal = ({ showMonsters, toggleShowMonsters }) => {
             </div>
             <div className="col-4" />
           </div>
-          <div className="flex justify-center items-end flex-wrap p-3 overflow-y-scroll">
+          <div className="flex justify-center items-center h-5/6">
             {isLoading ? (
               <MoonLoader size={50} loading={isLoading} color={"#eee"} />
-            ) : monsters < 1 ? (
-              <h5 className="m-0" id="modal-title">
-                You don't have a monster
-              </h5>
+            ) : monsters.length < 1 ? (
+              <Paragraph>You Don't Have Any Monsters</Paragraph>
             ) : (
-              monsters?.map((monster, index) => (
-                <MonsterCard
-                  key={index}
-                  monster={monster.id}
-                  toggleDetails={toggleDetails}
-                  setMonster={setMonster}
-                />
-              ))
+              <div className="grid grid-cols-10 gap-3 p-3 w-5/6 overflow-y-scroll max-h-full">
+                {monsters?.map((monster, index) => (
+                  <MonsterCard
+                    key={index}
+                    monster={monster.id}
+                    toggleDetails={toggleDetails}
+                    setMonster={setMonster}
+                  />
+                ))}
+              </div>
             )}
           </div>
         </>
