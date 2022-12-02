@@ -1,38 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useConnect } from "wagmi";
-import AppContext from "../contexts/AppContext";
+import { useEffect } from "react";
+import MoonLoader from "react-spinners/MoonLoader";
+import { useAccount, useConnect, useNetwork, useSwitchNetwork } from "wagmi";
 import { useToast } from "../stores/stores";
 import { DangerButton, StartActivityButton } from "./Buttons/Buttons";
+import { Paragraph } from "./Texts";
 
 const NotConnected = () => {
-  const [, toastError] = useToast();
-  const [chainId, setChainId] = useState(5);
-  const { connect, connectors } = useConnect();
+  const [toastSuccess] = useToast();
+  const { isConnected } = useAccount();
+  const { chain } = useNetwork();
+  const {
+    connect,
+    connectors,
+    isLoading: connectorLoading,
+    isSuccess: walletConnected,
+  } = useConnect();
+  const { switchNetwork } = useSwitchNetwork({ chainId: 5 });
 
-  function hexConvert(hex) {
-    return parseInt(hex, 16);
-  }
-
-  async function getChainId() {
-    await window.ethereum.request({ method: "eth_chainId" }).then((chainId) => {
-      setChainId(hexConvert(chainId));
-      if (hexConvert(chainId) !== 5) {
-        toastError("Wrong Chain");
-      }
-    });
-  }
-
-  async function switchChainId() {
-    await window.ethereum.request({
-      method: "wallet_switchEthereumChain",
-      params: [{ chainId: "0x5" }],
-    });
-  }
-
-  useEffect(() => {
-    getChainId();
-  }, [chainId]);
-
+  toastSuccess("Yes");
   return (
     <div className="h-screen bg-slate-800 flex flex-col justify-center items-center">
       <div className="row justify-content-center align-items-center">
@@ -41,24 +26,31 @@ const NotConnected = () => {
         </h1>
       </div>
       <div className="flex justify-center items-center w-full">
-        {chainId === 5 ? (
-          connectors.map((connector) => (
-            <StartActivityButton
-              text="Connect"
-              onClick={() => connect({ connector: connector })}
-            />
-          ))
-        ) : (
-          <DangerButton text="Switch Chain" onClick={switchChainId} />
-        )}
+        {!isConnected
+          ? connectors.map((connector) => (
+              <StartActivityButton
+                text="Connect"
+                onClick={() => connect({ connector: connector })}
+              />
+            ))
+          : chain?.id === 5 && (
+              <DangerButton
+                text="Switch Network"
+                onClick={() => switchNetwork?.()}
+              />
+            )}
       </div>
-      {chainId !== 5 ? (
-        <div className="row justify-content-center align-items-center w-50 my-4">
-          <h5 id="text" className="text-white">
-            You're Connected to the Wrong Network
-          </h5>
+      {isConnected && chain?.id !== 5 && (
+        <div className="flex justify-center items-center w-50 my-4">
+          <Paragraph>You're Connected to the Wrong Network</Paragraph>
         </div>
-      ) : null}
+      )}
+      {connectorLoading && (
+        <div className="m-2 w-4/6 flex justify-center items-center gap-4">
+          <MoonLoader loading={connectorLoading} size="25" color="white" />
+          <Paragraph>Connecting Wallet</Paragraph>
+        </div>
+      )}
     </div>
   );
 };
