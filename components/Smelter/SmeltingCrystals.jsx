@@ -22,7 +22,7 @@ const SmeltingCrystals = () => {
           x {crystalsInSmelter.data?.toString()}
         </h5>
       </div>
-      <TimeButton activity="smelter" onClick={() => finishSmelting.mutate()} />
+      <TimeButton activity="smelting" onClick={() => finishSmelting.mutate()} />
     </div>
   );
 };
