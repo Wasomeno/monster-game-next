@@ -23,7 +23,9 @@ const useMonstersOnActivity = (activity) => {
   });
 
   const { key, getMonsters } = monstersMap.get(activity);
-  const { data, isLoading, isError } = useQuery([key], () => getMonsters);
+  const { data, isLoading, isError } = useQuery([key, user], () =>
+    getMonsters()
+  );
   return { data: data, isLoading: isLoading, isError };
 };
 
