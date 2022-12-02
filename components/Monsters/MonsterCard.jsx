@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React from "react";
-import { Paragraph } from "../Texts";
 
 const MonsterCard = ({ monster, toggleDetails, setMonster }) => {
   function monsterDetails(monster) {
@@ -9,18 +8,22 @@ const MonsterCard = ({ monster, toggleDetails, setMonster }) => {
   }
   return (
     <div
-      className="w-2/12 m-1 bg-slate-600 bg-opacity-40 rounded-md p-3 shadow-sm flex flex-col justify-center items-center transition duration-300 ease-in-out cursor-pointer hover:bg-slate-600 "
-      onClick={() => monsterDetails(monster.toString())}
+      className="relative col-span-2 h-52 border-4 border-slate-500 flex flex-col justify-start items-center bg-slate-700 bg-opacity-40 rounded-md cursor-pointer transition duration-300 ease-in-out hover:bg-gray-600"
+      onClick={() => monsterDetails(monster?.toString())}
     >
-      <Image
-        src={"/monsters/" + (parseInt(monster) + 1) + ".png"}
-        alt="monster-img"
-        width={"120px"}
-        height={"120px"}
-        quality={100}
-      />
-      <div className="text-center m-2">
-        <Paragraph>Monster #{monster.toString()}</Paragraph>
+      <div className="w-full absolute bottom-0 p-2 bg-slate-700 rounded-br rounded-bl">
+        <h5 className="font-monogram text-white text-lg text-center">
+          Monster #{monster?.toString()}
+        </h5>
+      </div>
+      <div className="m-1 p-3">
+        <Image
+          src={"/monsters/" + (parseInt(monster) + 1) + ".png"}
+          alt="monster-img"
+          width="120"
+          height="120"
+          quality={75}
+        />
       </div>
     </div>
   );
