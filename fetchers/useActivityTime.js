@@ -10,7 +10,6 @@ import {
 const useActivityTime = (activity) => {
   const timeMap = new Map();
   const { address: user } = useAccount();
-
   timeMap.set("mission", {
     key: "missionTime",
     getTime: getMissionTime(user),
@@ -29,7 +28,7 @@ const useActivityTime = (activity) => {
   });
 
   const { key, getTime } = timeMap.get(activity);
-  const { data, isLoading, isError } = useQuery([key], () => getTime);
+  const { data, isLoading, isError } = useQuery([key, user], () => getTime);
   return { data: data, isLoading: isLoading, isError: isError };
 };
 
