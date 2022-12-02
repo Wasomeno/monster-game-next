@@ -1,22 +1,16 @@
-import { useContext, useEffect } from "react";
-import { useAccount } from "wagmi";
-import AppContext from "../contexts/AppContext";
+import { watchNetwork } from "@wagmi/core";
+import { useEffect } from "react";
+import { useAccount, useNetwork } from "wagmi";
 import Navigation from "./Navigations";
 import NotConnected from "./NotConnected";
 
 const Layout = ({ children }) => {
+  const { chain } = useNetwork();
   const { isConnected } = useAccount();
-
-  useEffect(() => {
-    if (!window.ethereum) return;
-    window.ethereum.on("chainChanged", () => {
-      window.location.reload();
-    });
-  }, []);
 
   return (
     <main className="bg-slate-900">
-      {!isConnected ? (
+      {!isConnected || chain.id !== 5 ? (
         <NotConnected />
       ) : (
         <>
