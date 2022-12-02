@@ -30,13 +30,7 @@ const MonsterSelection = ({
               ) : (
                 monsters.map((monster) => (
                   <MonsterSelectCard
-                    key={monster.id}
-                    monster={monster.id}
-                    level={monster.level}
-                    exp={monster.exp}
-                    expCap={monster.expCap}
-                    energy={monster.energy}
-                    energyCap={monster.energyCap}
+                    stats={monster}
                     onClick={() => selectMonster(monster.id)}
                   />
                 ))
@@ -57,7 +51,7 @@ const MonsterSelection = ({
               className="p-2 gap-2 text-center flex justify-center items-start relative"
             >
               <button
-                className="flex justify-center items-center w-8 h-8 p-2 rounded-full bg-red-700 absolute -top-1 -left-1 transitio duration-300 ease-in-out hover:bg-black "
+                className="flex justify-center items-center w-8 h-8 p-2 rounded-full bg-red-700 absolute -top-1 -left-1 transitio duration-300 ease-in-out hover:bg-black z-40"
                 onClick={() => deselectMonster(monster)}
               >
                 <svg
