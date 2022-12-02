@@ -1,60 +1,44 @@
 import React from "react";
-import useMonsterDetails from "../../fetchers/useMonsterDetails";
 import { Paragraph } from "../Texts";
+import Stat from "./Stat";
+import StatsBar from "./StatsBar";
 import statuses from "./statusMap";
 
-const MonsterStats = ({ monster }) => {
-  const monsterDetails = useMonsterDetails({ monster: monster });
+const MonsterStats = ({ monsterDetails }) => {
   return (
-    <div className="w-7/12">
-      <div className="flex items-center justify-evenly">
-        <div className="w-5/12">
-          <Paragraph>Level :</Paragraph>
-        </div>
-        <div className="w-5/12 text-center">
-          <Paragraph>{monsterDetails.data?.level} / 10</Paragraph>
-        </div>
+    <div className="w-5/12 flex flex-col gap-3 bg-slate-700 bg-opacity-40 p-2 rounded-md border-4 border-slate-500">
+      <div>
+        <h2 className="font-monogram text-2xl text-white text-center">
+          Monster Stats
+        </h2>
       </div>
-      <div className="flex items-center justify-evenly">
-        <div className="w-5/12">
-          <Paragraph>Energy :</Paragraph>
-        </div>
-        <div className="w-5/12 text-center">
-          <Paragraph>
-            {monsterDetails.data?.energy} /{monsterDetails.data?.energyCap}
-          </Paragraph>
-        </div>
-      </div>
-      <div className="flex items-center justify-evenly">
-        <div className="w-5/12">
-          <Paragraph>Exp :</Paragraph>
-        </div>
-        <div className="w-5/12 text-center">
-          <Paragraph>
-            {monsterDetails.data?.exp} / {monsterDetails.data?.expCap}
-          </Paragraph>
-        </div>
-      </div>
-      <div className="flex items-center justify-evenly">
-        <div className="w-5/12">
-          <Paragraph>Status :</Paragraph>
-        </div>
-        <div className="w-5/12 text-center">
-          <Paragraph>{statuses.get(monsterDetails.data?.status)}</Paragraph>
-        </div>
-      </div>
-      <div className="flex items-center justify-evenly">
-        <div className="w-5/12">
-          <Paragraph>Cooldown : </Paragraph>
-        </div>
-        <div className="w-5/12 text-center">
-          <Paragraph>
-            {monsterDetails.data?.cooldown > Date.now() / 1000
-              ? "On Cooldown"
-              : "Cooldown finished"}
-          </Paragraph>
-        </div>
-      </div>
+      <Stat
+        stat={"Level"}
+        value={monsterDetails.data?.level}
+        maxValue={10}
+        bar
+      />
+      <Stat
+        stat={"Energy"}
+        value={monsterDetails.data?.energy}
+        maxValue={monsterDetails.data?.energyCap}
+        bar
+      />
+      <Stat
+        stat={"Exp"}
+        maxValue={monsterDetails.data?.expCap}
+        value={monsterDetails.data?.exp}
+        bar
+      />
+      <Stat stat={"Status"} value={statuses.get(monsterDetails.data?.status)} />
+      <Stat
+        stat={"Cooldown"}
+        value={
+          monsterDetails.data?.cooldown > Date.now() / 1000
+            ? "On Cooldown"
+            : "No Cooldown"
+        }
+      />
     </div>
   );
 };
