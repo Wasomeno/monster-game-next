@@ -28,8 +28,11 @@ const useActivityTime = (activity) => {
   });
 
   const { key, getTime } = timeMap.get(activity);
-  const { data, isLoading, isError } = useQuery([key, user], () => getTime);
-  return { data: data, isLoading: isLoading, isError: isError };
+  const { data, isFetching, isError } = useQuery([key, user], () => getTime, {
+    refetchInterval: 5000,
+    initialData: 1,
+  });
+  return { data: data, isLoading: isFetching, isError: isError };
 };
 
 const getMissionTime = async (user) => {
