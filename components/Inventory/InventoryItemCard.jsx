@@ -13,7 +13,7 @@ const InventoryItemCard = ({ isActive, details, setActive }) => {
   };
   return (
     <div
-      className="w-2/12 h-2/6 m-1 p-2 flex flex-col justify-around items-center rounded-md cursor-pointer"
+      className="col-span-2 h-40 p-2 flex flex-col justify-around items-center rounded-md cursor-pointer"
       onClick={() => setActive(details.item)}
       style={{
         backgroundColor: isActive ? "#423f3e" : "#2b2b2b",
