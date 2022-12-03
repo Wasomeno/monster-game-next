@@ -3,7 +3,7 @@ import { useAccount } from "wagmi";
 import useInactiveMonsters from "../fetchers/useInactiveMonsters";
 import MonsterSelectCard from "./MonsterSelectCard";
 import MonsterSelectedCard from "./MonsterSelectedCard";
-import { ModalTitle } from "./Texts";
+import { ModalTitle, Paragraph } from "./Texts";
 
 const MonsterSelection = ({
   monsterSelected,
@@ -14,28 +14,24 @@ const MonsterSelection = ({
   const { data: monsters, isLoading, isError } = useInactiveMonsters(user);
 
   return (
-    <div className="flex justify-around">
+    <div className="flex justify-around h-full">
       <div className="w-8/12">
         <ModalTitle>Select Your Monsters</ModalTitle>
-        <div className="flex justify-center items-start h-full w-full">
-          <div className="flex flex-wrap gap-2 justify-center p-3 items-center w-10/12 overflow-scroll max-h-96">
-            {isLoading && (
-              <MoonLoader size={50} loading={isLoading} color="#EEEEEE" />
-            )}
-            {!isLoading &&
-              (monsters.length < 1 ? (
-                <h5 className="text-center text-white font-monogram text-xl">
-                  No Monsters in Inventory
-                </h5>
-              ) : (
-                monsters.map((monster) => (
-                  <MonsterSelectCard
-                    stats={monster}
-                    onClick={() => selectMonster(monster.id)}
-                  />
-                ))
+        <div className="flex justify-center items-center h-5/6 w-full">
+          {isLoading ? (
+            <MoonLoader size={50} loading={isLoading} color="#EEEEEE" />
+          ) : monsters.length < 1 ? (
+            <Paragraph>No Monsters in Inventory</Paragraph>
+          ) : (
+            <div className="grid grid-cols-3 gap-3 w-10/12 max-h-full overflow-y-scroll">
+              {monsters.map((monster) => (
+                <MonsterSelectCard
+                  stats={monster}
+                  onClick={() => selectMonster(monster.id)}
+                />
               ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="w-auto">
