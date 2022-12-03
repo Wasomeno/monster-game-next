@@ -9,15 +9,13 @@ const NotConnected = () => {
   const [toastSuccess] = useToast();
   const { isConnected } = useAccount();
   const { chain } = useNetwork();
+  const { switchNetwork } = useSwitchNetwork({ chainId: 5 });
   const {
     connect,
     connectors,
     isLoading: connectorLoading,
     isSuccess: walletConnected,
   } = useConnect();
-  const { switchNetwork } = useSwitchNetwork({ chainId: 5 });
-
-  toastSuccess("Yes");
   return (
     <div className="h-screen bg-slate-800 flex flex-col justify-center items-center">
       <div className="row justify-content-center align-items-center">
@@ -33,7 +31,7 @@ const NotConnected = () => {
                 onClick={() => connect({ connector: connector })}
               />
             ))
-          : chain?.id === 5 && (
+          : chain?.id !== 5 && (
               <DangerButton
                 text="Switch Network"
                 onClick={() => switchNetwork?.()}
