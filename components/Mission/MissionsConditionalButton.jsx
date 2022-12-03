@@ -14,7 +14,11 @@ const MissionsConditionalButton = ({ condition, mission, monsterSelected }) => {
   const finishMission = finish();
 
   return condition ? (
-    <StartActivityButton text="Send Monsters" onClick={() => startMission()} />
+    <StartActivityButton
+      condition={monsterSelected < 1}
+      text="Send Monsters"
+      onClick={() => startMission()}
+    />
   ) : (
     <TimeButton
       activity="mission"
