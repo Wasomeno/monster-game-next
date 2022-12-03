@@ -6,8 +6,9 @@ import Toast from "../components/Toast";
 import Layout from "../components/Layout";
 import Head from "next/head";
 import { queryClient } from "../contexts/reactQueryClient";
-import AppContext from "../contexts/AppContext";
 import SorryPage from "../components/SorryPage";
+import { WagmiConfig } from "wagmi";
+import wagmiClient from "../contexts/wagmiClient";
 
 function MyApp({ Component, pageProps }) {
   const [account, setAccount] = useState([]);
@@ -19,26 +20,21 @@ function MyApp({ Component, pageProps }) {
   }, [width]);
 
   return width > 1000 ? (
-    <QueryClientProvider client={queryClient}>
-      <Head>
-        <title>Monsters Game</title>
-        <meta property="og:title" content="My minigame project" key="title" />
-        <link rel="icon" href="/icons/map_icon.png" />
-        <link rel="shortcut icon" href="/icons/map_icon.png" />
-      </Head>
-      <AppContext.Provider
-        value={{
-          account: account,
-          setAccount: setAccount,
-        }}
-      >
+    <WagmiConfig client={wagmiClient}>
+      <QueryClientProvider client={queryClient}>
+        <Head>
+          <title>Monsters Game</title>
+          <meta property="og:title" content="My minigame project" key="title" />
+          <link rel="icon" href="/icons/map_icon.png" />
+          <link rel="shortcut icon" href="/icons/map_icon.png" />
+        </Head>
         <Layout>
           <LoadingScreen />
           <Component {...pageProps} />
           <Toast />
         </Layout>
-      </AppContext.Provider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </WagmiConfig>
   ) : (
     <SorryPage />
   );
