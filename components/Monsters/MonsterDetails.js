@@ -43,7 +43,7 @@ const MonsterDetails = ({ monster, toggleDetails }) => {
               />
             </div>
           </div>
-          <MonsterStats monster={monster} monsterDetails={monsterDetails} />)
+          <MonsterStats monsterDetails={monsterDetails} />)
         </div>
       </motion.div>
       {showFeed && (
