@@ -3,7 +3,7 @@ import Image from "next/image";
 const MonsterSelectCard = ({ stats, onClick }) => {
   return (
     <div
-      className="w-44 h-80 p-2 border-4 border-slate-500 flex flex-col justify-center items-center bg-slate-700 bg-opacity-40 rounded-md cursor-pointer transition duration-300 ease-in-out hover:bg-slate-600"
+      className=" h-80 p-2 border-4 border-slate-500 flex flex-col justify-center items-center bg-slate-700 bg-opacity-40 rounded-md cursor-pointer transition duration-300 ease-in-out hover:bg-slate-600"
       onClick={onClick}
     >
       <div>
