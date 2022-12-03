@@ -3,7 +3,6 @@ import React from "react";
 const StatsBar = ({ value, maxValue }) => {
   const barLength = Math.floor(maxValue / value);
   const length = Math.floor(12 / barLength);
-  console.log(length);
   const lengthClass =
     length !== 0 && length !== 12
       ? "w-" + length + "/12"
