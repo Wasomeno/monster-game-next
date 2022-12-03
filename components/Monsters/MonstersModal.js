@@ -36,7 +36,7 @@ const MonstersModal = ({ showMonsters, toggleShowMonsters }) => {
                 {monsters?.map((monster, index) => (
                   <MonsterCard
                     key={index}
-                    monster={monster.id}
+                    monster={monster}
                     toggleDetails={toggleDetails}
                     setMonster={setMonster}
                   />
