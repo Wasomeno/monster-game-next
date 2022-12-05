@@ -3,14 +3,18 @@ import React, { useState } from "react";
 import TradeAmountControl from "./TradeAmountControl";
 import { items } from "./itemsMap";
 import { Paragraph } from "../Texts";
-import { useTrade } from "../../mutations/traderMutations";
+import { useTrader } from "../../mutations/traderMutations";
+import { StartActivityButton } from "../Buttons/Buttons";
+import { useUserDailyTradeLimit } from "../../fetchers/useTrades";
 
 const TradeDetails = ({ details }) => {
   const { id, tradeDetails } = details;
   const [quantity, setQuantity] = useState(1);
-  const trade = useTrade({ id: id, quantity: quantity });
+  const { data: dailyLimit, isLoading } = useUserDailyTradeLimit();
+  const trade = useTrader({ id: id, quantity: quantity });
+
   return (
-    <div className="flex justify-evenly items-center w-full h-18">
+    <div className="flex justify-evenly items-center w-10/12 h-18">
       <div className="flex flex-col justify-evenly items-center">
         <div>
           <Image
@@ -46,12 +50,12 @@ const TradeDetails = ({ details }) => {
         setAmount={setQuantity}
         limit={tradeDetails.limit}
       />
-      <button
-        className="font-monogram p-1 w-1/12 rounded-md bg-slate-50 text-lg"
+      <StartActivityButton
+        text="Trade"
         onClick={() => trade()}
-      >
-        Trade
-      </button>
+        condition={parseInt(dailyLimit) === tradeDetails.limit}
+        loading={isLoading}
+      />
     </div>
   );
 };
