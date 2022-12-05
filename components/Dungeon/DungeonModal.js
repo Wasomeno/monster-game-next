@@ -5,11 +5,7 @@ import ActivityMonstersSection from "../ActivityMonstersSection";
 import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
 
 const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
-  const {
-    data: monsters,
-    isLoading,
-    isError,
-  } = useMonstersOnActivity("dungeon");
+  const monstersOnDungeon = useMonstersOnActivity("dungeon");
   return (
     <>
       <div className="flex justify-center">
@@ -29,18 +25,18 @@ const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
       <div className="flex justify-center my-3">
         <ActivityMonstersSection
           monsterSelected={monsterSelected}
-          monstersOnActivity={monsters}
+          monstersOnActivity={monstersOnDungeon}
         />
       </div>
       <div className="flex justify-center p-2 my-3">
         <StartActivityButton
           text={"Select Monsters"}
-          condition={monsters?.length > 0}
+          condition={monstersOnDungeon.data?.length > 0}
           onClick={() => toggleShowSelectMonster()}
         />
         <DungeonConditionalButton
           monsterSelected={monsterSelected}
-          monstersAmount={monsters?.length}
+          monstersAmount={monstersOnDungeon.data?.length}
         />
       </div>
     </>
