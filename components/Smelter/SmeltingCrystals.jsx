@@ -2,14 +2,16 @@ import Image from "next/image";
 import React from "react";
 import { useCrystals } from "../../fetchers/useSmelter";
 import { finishSmelt } from "../../mutations/smelterMutations";
+import { StartActivityButton } from "../Buttons/Buttons";
 import TimeButton from "../Buttons/TimeButton";
+import { Paragraph } from "../Texts";
 
 const SmeltingCrystals = () => {
   const crystalsInSmelter = useCrystals({ key: "smelter" });
   const finishSmelting = finishSmelt();
   return (
-    <div className="w-4/12 text-center">
-      <h5 className="m-0 text-white p-2">Crystals in Smelter</h5>
+    <div className="w-4/12 text-center flex flex-col items-center justify-center gap-2">
+      <Paragraph>Crystals in Smelter</Paragraph>
       <div className="flex justify-center items-center">
         <Image
           src="/items/4.png"
@@ -18,11 +20,22 @@ const SmeltingCrystals = () => {
           alt="crystal-img"
           className="my-2"
         />
-        <h5 className="m-0 p-2 text-white">
-          x {crystalsInSmelter.data?.toString()}
-        </h5>
+        <Paragraph>x {crystalsInSmelter.data?.toString()}</Paragraph>
       </div>
-      <TimeButton activity="smelting" onClick={() => finishSmelting.mutate()} />
+      <div className="flex justify-center w-full">
+        {crystalsInSmelter.data < 1 ? (
+          <StartActivityButton
+            condition={crystalsInSmelter.data < 1}
+            text="No crystals"
+            size="medium"
+          />
+        ) : (
+          <TimeButton
+            activity="smelting"
+            onClick={() => finishSmelting.mutate()}
+          />
+        )}
+      </div>
     </div>
   );
 };
