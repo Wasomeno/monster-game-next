@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
 export default function () {
   const [monsterSelected, setMonsterSelected] = useState([]);
   const selectMonster = (monster) => {
@@ -17,9 +16,6 @@ export default function () {
       for (let monster of monsterSelected) {
         if (_monster === monster) {
           result = false;
-          toast.error("Monster #" + _monster + " already selected", {
-            autoClose: 2000,
-          });
         }
       }
       return result;
@@ -32,11 +28,5 @@ export default function () {
     );
   }
 
-  function clearMonsters() {
-    setMonsterSelected([]);
-  }
-
-  useEffect(() => {}, [monsterSelected]);
-
-  return [monsterSelected, selectMonster, deselectMonster, clearMonsters];
+  return [monsterSelected, selectMonster, deselectMonster];
 }
