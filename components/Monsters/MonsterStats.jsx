@@ -1,10 +1,17 @@
-import React from "react";
-import { Paragraph } from "../Texts";
+import React, { useEffect, useState } from "react";
 import Stat from "./Stat";
-import StatsBar from "./StatsBar";
 import statuses from "./statusMap";
 
 const MonsterStats = ({ monsterDetails }) => {
+  const [statusText, setStatusText] = useState();
+
+  useEffect(() => {
+    if (!monsterDetails.isLoading) {
+      const { text } = statuses.get(monsterDetails.data?.status);
+      setStatusText(text);
+    }
+  }, [monsterDetails.isLoading]);
+
   return (
     <div className="w-5/12 flex flex-col gap-3 bg-slate-700 bg-opacity-40 p-2 rounded-md border-4 border-slate-500">
       <div>
@@ -30,7 +37,7 @@ const MonsterStats = ({ monsterDetails }) => {
         value={monsterDetails.data?.exp}
         bar
       />
-      <Stat stat={"Status"} value={statuses.get(monsterDetails.data?.status)} />
+      <Stat stat={"Status"} value={statusText} />
       <Stat
         stat={"Cooldown"}
         value={
