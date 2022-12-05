@@ -7,7 +7,11 @@ const DungeonConditionalButton = ({ monstersAmount, monsterSelected }) => {
   const finish = finishDungeon();
 
   return monstersAmount < 1 ? (
-    <StartActivityButton text="Send Monsters" onClick={() => start()} />
+    <StartActivityButton
+      text="Send Monsters"
+      onClick={() => start()}
+      condition={monsterSelected < 1}
+    />
   ) : (
     <TimeButton activity="dungeon" onClick={() => finish()} />
   );

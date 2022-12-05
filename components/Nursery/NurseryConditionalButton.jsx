@@ -11,7 +11,11 @@ const NurseryConditionalButton = ({ condition, duration, monsterSelected }) => {
   const finishResting = finish();
 
   return condition ? (
-    <StartActivityButton text="Send Monsters" onClick={() => startResting()} />
+    <StartActivityButton
+      text="Send Monsters"
+      onClick={() => startResting()}
+      condition={monsterSelected < 1}
+    />
   ) : (
     <TimeButton
       activity="nursery"
