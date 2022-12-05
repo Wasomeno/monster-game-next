@@ -5,7 +5,7 @@ const ShopItemCard = ({ activeItem, item, setActiveItem }) => {
   return (
     <div
       id={activeItem === item.id ? "item-card-active" : "item-card"}
-      className="w-3/12 p-2 flex flex-col justify-center items-center text-center rounded bg-slate-50 bg-opacity-25 cursor-pointer"
+      className="col-span-2 p-2 flex flex-col justify-center items-center text-center rounded bg-slate-50 bg-opacity-25 cursor-pointer"
       onClick={() => setActiveItem(parseInt(item.id))}
     >
       <Image
