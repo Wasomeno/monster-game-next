@@ -27,8 +27,8 @@ const InventoryItemCard = ({ isActive, details, setActive }) => {
       <Image
         src={"/items" + getItemData(details.item)?.image}
         alt="items-img"
-        width={"40"}
-        height={"40"}
+        width={"60"}
+        height={"60"}
         className="p-2"
         priority={true}
       />

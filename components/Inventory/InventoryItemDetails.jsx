@@ -25,8 +25,8 @@ const InventoryItemDetails = ({ activeItem }) => {
 
         <Image
           src={"/items" + getItemData(activeItem)?.image}
-          width={"50px"}
-          height={"50px"}
+          width={"80"}
+          height={"80"}
           className="p-3 m-3 border border-dark border-1 rounded"
           alt="shop-item-img"
           priority={true}
