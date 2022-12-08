@@ -1,6 +1,6 @@
 import MoonLoader from "react-spinners/MoonLoader";
 import { useAccount } from "wagmi";
-import useInactiveMonsters from "../fetchers/useInactiveMonsters";
+import useInactiveMonsters from "../lib/queries/Monsters/useInactiveMonsters";
 import MonsterSelectCard from "./MonsterSelectCard";
 import MonsterSelectedCard from "./MonsterSelectedCard";
 import { ModalTitle, Paragraph } from "./Texts";
@@ -17,7 +17,7 @@ const MonsterSelection = ({
     <div className="flex justify-around h-full">
       <div className="w-8/12">
         <ModalTitle>Select Your Monsters</ModalTitle>
-        <div className="flex justify-center items-center h-5/6 w-full">
+        <div className="flex justify-center items-start h-5/6 w-full">
           {isLoading ? (
             <MoonLoader size={50} loading={isLoading} color="#EEEEEE" />
           ) : monsters.length < 1 ? (

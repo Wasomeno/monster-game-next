@@ -5,13 +5,11 @@ import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import { ModalTitle, Paragraph } from "../Texts";
 import MonsterCard from "./MonsterCard";
-import useAllMonsters from "../../fetchers/useAllMonsters";
-import { useAccount } from "wagmi";
+import useAllMonsters from "../../lib/queries/Monsters/useAllMonsters";
 import useToggle from "../../hooks/useToggle";
 
 const MonstersModal = ({ showMonsters, toggleShowMonsters }) => {
-  const { address: user } = useAccount();
-  const { data: monsters, isError, isLoading } = useAllMonsters(user);
+  const { data: monsters, isError, isLoading } = useAllMonsters();
   const [showDetails, toggleDetails] = useToggle(false);
   const [monster, setMonster] = useState();
 
@@ -26,7 +24,7 @@ const MonstersModal = ({ showMonsters, toggleShowMonsters }) => {
             </div>
             <div className="col-4" />
           </div>
-          <div className="flex justify-center items-center h-5/6">
+          <div className="flex justify-center items-start h-5/6">
             {isLoading ? (
               <MoonLoader size={50} loading={isLoading} color={"#eee"} />
             ) : monsters.length < 1 ? (

@@ -13,7 +13,7 @@ const SummonAmountControl = ({ amount, setAmount }) => {
   return (
     <div className="flex justify-center m-2">
       <button
-        className="bg-red-700 w-12 text-white font-monogram text-lg p-1 rounded-md"
+        className="bg-slate-50 w-12 font-monogram text-lg p-1 rounded-md"
         onClick={() => decrement()}
       >
         -
@@ -25,7 +25,7 @@ const SummonAmountControl = ({ amount, setAmount }) => {
         value={amount}
       />
       <button
-        className="bg-green-700 w-12 text-white font-monogram text-lg p-1 rounded-md"
+        className="bg-slate-50 w-12 font-monogram text-lg p-1 rounded-md"
         onClick={() => increment()}
       >
         +

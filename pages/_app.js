@@ -1,5 +1,4 @@
 import "../styles/globals.css";
-import { useEffect, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import LoadingScreen from "../components/LoadingScreen";
 import Toast from "../components/Toast";
@@ -11,15 +10,7 @@ import { WagmiConfig } from "wagmi";
 import wagmiClient from "../contexts/wagmiClient";
 
 function MyApp({ Component, pageProps }) {
-  const [account, setAccount] = useState([]);
-  const [width, setWidth] = useState(1000);
-
-  useEffect(() => {
-    setWidth(window.innerWidth);
-    window.addEventListener("resize", () => setWidth(window.innerWidth));
-  }, [width]);
-
-  return width > 1000 ? (
+  return (
     <WagmiConfig client={wagmiClient}>
       <QueryClientProvider client={queryClient}>
         <Head>
@@ -31,12 +22,11 @@ function MyApp({ Component, pageProps }) {
         <Layout>
           <LoadingScreen />
           <Component {...pageProps} />
+          <SorryPage />
           <Toast />
         </Layout>
       </QueryClientProvider>
     </WagmiConfig>
-  ) : (
-    <SorryPage />
   );
 }
 

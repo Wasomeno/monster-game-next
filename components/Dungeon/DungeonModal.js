@@ -2,10 +2,10 @@ import { ModalTitle, Paragraph } from "../Texts";
 import { StartActivityButton } from "../Buttons/Buttons";
 import DungeonConditionalButton from "./DungeonConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
-import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
+import useMonstersOnDungeon from "../../lib/queries/Dungeon/useMonstersOnDungeon";
 
 const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
-  const monstersOnDungeon = useMonstersOnActivity("dungeon");
+  const monstersOnDungeon = useMonstersOnDungeon();
   return (
     <>
       <div className="flex justify-center">
@@ -33,6 +33,7 @@ const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           text={"Select Monsters"}
           condition={monstersOnDungeon.data?.length > 0}
           onClick={() => toggleShowSelectMonster()}
+          loading={monstersOnDungeon.isLoading}
         />
         <DungeonConditionalButton
           monsterSelected={monsterSelected}

@@ -1,14 +1,29 @@
 import { parseBytes32String } from "ethers/lib/utils";
 import InventoryModal from "./Inventory/InventoryModal";
 import MonstersModal from "./Monsters/MonstersModal";
-import RegisterModal from "./Register/RegisterModal";
 import Image from "next/image";
-import useItemAmount from "../fetchers/useItemAmount";
-import useUserDetails from "../fetchers/useUserDetails";
+import useItemAmount from "../lib/queries/useItemAmount";
+import useUserDetails from "../lib/queries/useUserDetails";
 import useToggle from "../hooks/useToggle";
 
+const defaultUserData = {
+  name: "Unknown",
+};
+
+const UserPanelLoading = () => {
+  return (
+    <div className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm bg-slate-600 animate-pulse">
+      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+      <div className="h-44 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+
+      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+    </div>
+  );
+};
+
 const UserPanel = () => {
-  const { data: userDetails, isLoading, isError } = useUserDetails();
+  const { data: userDetails, isFetching, isError } = useUserDetails();
   const [showInventory, toggleShowInventory] = useToggle(false);
   const [showMonsters, toggleShowMonsters] = useToggle(false);
   const gold = useItemAmount({ item: 0 });
@@ -17,30 +32,29 @@ const UserPanel = () => {
     return parseBytes32String(string);
   }
 
-  if (isLoading) return;
-  return userDetails?.status ? (
+  return isFetching ? (
+    <UserPanelLoading />
+  ) : (
     <>
       <div className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm bg-slate-600 bg-opacity-40">
         <h5 className="p-1 text-white font-monogram text-2xl tracking-wide m-1">
-          {isLoading ? "loading....." : bytesToString(userDetails.name)}
+          {!bytesToString(userDetails.name)
+            ? defaultUserData.name
+            : bytesToString(userDetails.name)}
         </h5>
         <div className="border rounded-md border-slate-400 bg-opacity-25 p-2">
-          {isLoading ? (
-            <h5>Loading</h5>
-          ) : (
-            <Image
-              src={
-                "/profile/profile_" +
-                bytesToString(userDetails.profile_image) +
-                ".png"
-              }
-              width="100"
-              height="120"
-              priority={true}
-              quality={100}
-              className="m-0"
-            />
-          )}
+          <Image
+            src={
+              "/profile/profile_" +
+              bytesToString(userDetails.profile_image) +
+              ".png"
+            }
+            width="100"
+            height="120"
+            priority={true}
+            quality={100}
+            className="m-0"
+          />
         </div>
         <h5 className="p-1 m-1 text-white text-center font-monogram tracking-wide text-xl ">
           Gold: {parseInt(gold.data)}
@@ -91,8 +105,6 @@ const UserPanel = () => {
         />
       )}
     </>
-  ) : (
-    <RegisterModal status={userDetails.status} />
   );
 };
 

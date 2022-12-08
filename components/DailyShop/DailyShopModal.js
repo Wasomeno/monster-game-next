@@ -2,7 +2,7 @@ import { useState } from "react";
 import ShopItemDetails from "./ShopItemDetails";
 import ShopItemCard from "./ShopItemCard";
 import { ModalTitle } from "../Texts";
-import useDailyShop from "../../fetchers/useDailyShop";
+import useDailyShop from "../../lib/queries/DailyShop/useDailyShop";
 import MoonLoader from "react-spinners/MoonLoader";
 
 const DailyShopModal = () => {

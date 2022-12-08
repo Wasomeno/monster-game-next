@@ -1,10 +1,10 @@
-import useTrades from "../../fetchers/useTrades";
+import useDailyTrades from "../../lib/queries/DailyTrader/useDailyTrades";
 import { ModalTitle, Paragraph } from "../Texts";
 import TradeDetails from "./TradeDetails";
 import MoonLoader from "react-spinners/MoonLoader";
 
 const DailyTrader = () => {
-  const trades = useTrades();
+  const trades = useDailyTrades();
   return (
     <>
       <div className="flex justify-center">

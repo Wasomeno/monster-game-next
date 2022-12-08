@@ -31,14 +31,18 @@ export const StartActivityButton = ({
   );
 };
 
-export const DangerButton = ({ text, onClick, condition }) => {
+export const DangerButton = ({ text, onClick, condition, loading }) => {
   return (
     <button
       disabled={condition}
-      className="bg-red-700 rounded-md tracking-wide p-2 w-3/12 m-2 font-monogram transition ease-in-out duration-300 text-white text-xl hover:bg-slate-50 hover:text-black disabled:bg-opacity-30 disabled:text-opacity-30"
+      className="flex justify-center bg-red-700 rounded-md tracking-wide p-2 w-3/12 m-2 font-monogram transition ease-in-out duration-300 text-white text-xl hover:bg-slate-50 hover:text-black disabled:bg-opacity-30 disabled:text-opacity-30"
       onClick={onClick}
     >
-      {text}
+      {loading ? (
+        <MoonLoader loading={loading} color="white" size={20} />
+      ) : (
+        text
+      )}
     </button>
   );
 };

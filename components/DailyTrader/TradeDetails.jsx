@@ -3,15 +3,15 @@ import React, { useState } from "react";
 import TradeAmountControl from "./TradeAmountControl";
 import { items } from "./itemsMap";
 import { Paragraph } from "../Texts";
-import { useTrader } from "../../mutations/traderMutations";
+import tradeItem from "../../lib/mutations/DailyTrader/tradeItem";
 import { StartActivityButton } from "../Buttons/Buttons";
-import { useUserDailyTradeLimit } from "../../fetchers/useTrades";
+import useUserDailyTradeLimit from "../../lib/queries/DailyTrader/useUserDailyTradeLimit";
 
 const TradeDetails = ({ details }) => {
   const { id, tradeDetails } = details;
   const [quantity, setQuantity] = useState(1);
   const { data: dailyLimit, isLoading } = useUserDailyTradeLimit();
-  const trade = useTrader({ id: id, quantity: quantity });
+  const trade = tradeItem({ id: id, quantity: quantity });
 
   return (
     <div className="flex justify-evenly items-center w-10/12 h-18">

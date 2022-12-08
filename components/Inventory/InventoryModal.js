@@ -4,7 +4,7 @@ import { BackButton } from "../Buttons/Buttons";
 import Modal from "../Modal";
 import InventoryItemDetails from "./InventoryItemDetails";
 import InventoryItems from "./InventoryItems";
-import useInventory from "../../fetchers/useInventory";
+import useInventory from "../../lib/queries/Inventory/useInventory";
 
 function InventoryModal({ showInventory, toggleShowInventory }) {
   const [activeItem, setActiveItem] = useState(0);

@@ -5,7 +5,7 @@ import { BackButton, StartActivityButton } from "../Buttons/Buttons";
 import Image from "next/image";
 import { ModalTitle } from "../Texts";
 import MonsterStats from "./MonsterStats";
-import useMonsterDetails from "../../fetchers/useMonsterDetails";
+import useMonsterDetails from "../../lib/queries/Monsters/useMonsterDetails";
 
 const MonsterDetails = ({ monster, toggleDetails }) => {
   const [showFeed, toggleShowFeed] = useToggle(false);

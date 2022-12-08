@@ -9,8 +9,8 @@ const ProfilePictureCard = ({
   return (
     <div
       className={
-        (picture === selectedPicture ? "bg-slate-400" : "") +
-        " m-1 border-2 border-white flex justify-center items-end w-32 h-32 rounded cursor-pointer transition duration-300 ease-in-out hover:bg-slate-400"
+        (picture === selectedPicture ? "bg-slate-500" : "") +
+        " col-span-2 h-32 m-1 border-2 border-white flex justify-center items-end rounded cursor-pointer transition duration-300 ease-in-out hover:bg-slate-500"
       }
       onClick={() => setSelectedPicture(picture)}
     >

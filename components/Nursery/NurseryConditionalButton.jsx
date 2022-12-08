@@ -1,25 +1,27 @@
-import {
-  finishResting as finish,
-  startResting as start,
-} from "../../mutations/nurseryMutations";
-
+import startResting from "../../lib/mutations/Nursery/startResting";
+import finishResting from "../../lib/mutations/Nursery/finishResting";
+import useNurseryTime from "../../lib/queries/Nursery/useNurseryTime";
 import { StartActivityButton } from "../Buttons/Buttons";
 import TimeButton from "../Buttons/TimeButton";
 
 const NurseryConditionalButton = ({ condition, duration, monsterSelected }) => {
-  const startResting = start({ duration: duration, monsters: monsterSelected });
-  const finishResting = finish();
+  const nurseryTime = useNurseryTime();
+  const start = startResting({
+    duration: duration,
+    monsters: monsterSelected,
+  });
+  const finish = finishResting();
 
   return condition ? (
     <StartActivityButton
       text="Send Monsters"
-      onClick={() => startResting()}
+      onClick={() => start()}
       condition={monsterSelected < 1}
     />
   ) : (
     <TimeButton
-      activity="nursery"
-      onClick={() => finishResting()}
+      timeData={nurseryTime}
+      onClick={() => finish()}
       width={"w-3/12"}
     />
   );

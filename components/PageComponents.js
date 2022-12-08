@@ -19,14 +19,14 @@ const PageComponents = ({ path }) => {
         <ModalButton
           text={"Dungeon"}
           y={"400px"}
-          x={"450px"}
+          x={"660px"}
           onClick={() => toggleShowDungeon()}
         />
 
         <ModalButton
           text={"Mission"}
           y={"320px"}
-          x={"580px"}
+          x={"800px"}
           onClick={() => toggleShowMission()}
         />
 
@@ -53,13 +53,13 @@ const PageComponents = ({ path }) => {
         <ModalButton
           text={"Nursery"}
           y={"370px"}
-          x={"125px"}
+          x={"340px"}
           onClick={() => toggleShowNursery()}
         />
         <ModalButton
           text={"Smelter"}
           y={"380px"}
-          x={"720px"}
+          x={"940px"}
           onClick={toggleShowSmelter}
         />
         <MonstersActivityModal
@@ -82,13 +82,13 @@ const PageComponents = ({ path }) => {
         <ModalButton
           text={"Trader"}
           y={"380px"}
-          x={"130px"}
+          x={"360px"}
           onClick={toggleShowTrader}
         />
         <ModalButton
           text={"Shop"}
           y={"380px"}
-          x={"735px"}
+          x={"980px"}
           onClick={toggleShowShop}
         />
         <Modal show={showShop} toggleShow={toggleShowShop}>
@@ -109,7 +109,7 @@ const PageComponents = ({ path }) => {
         <ModalButton
           text={"Altar"}
           y={"490px"}
-          x={"540px"}
+          x={"760px"}
           onClick={toggleShowAltar}
         />
 

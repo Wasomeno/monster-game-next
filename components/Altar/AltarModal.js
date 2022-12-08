@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { ModalTitle } from "../Texts";
 import Image from "next/image";
 import SummonAmountControl from "./SummonAmountControl";
-import useSummonMonster from "../../mutations/summonMonster";
+import summonMonster from "../../lib/mutations/Altar/summonMonster";
 import { StartActivityButton } from "../Buttons/Buttons";
 
 const AltarModal = () => {
   const [quantity, setQuantity] = useState(1);
-  const summon = useSummonMonster({ quantity: quantity });
+  const summon = summonMonster({ quantity: quantity });
   return (
     <>
       <ModalTitle>Monster Altar</ModalTitle>

@@ -440,7 +440,7 @@
 .selected-monster-box {
   transition: 0.25s;
   background-repeat: no-repeat;
-  background-position: 30% 0;
+  background-position: center center;
   background-size: 100px 120px;
   width: 4rem;
   height: 4rem;

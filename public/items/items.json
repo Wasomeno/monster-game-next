@@ -1,15 +1,18 @@
 [
   {
     "name": "Gold Coins",
-    "image": "/0.png"
+    "image": "/0.png",
+    "description": "Coins that you got from doing missions and dungeon"
   },
   {
     "name": "Berry",
-    "image": "/1.png"
+    "image": "/1.png",
+    "description": "Berry can be used to feed hungry monsters. you can get berry from missions and dungeon"
   },
   {
     "name": "Potion",
-    "image": "/2.png"
+    "image": "/2.png",
+    "description": "You can use this potion to restores monster energy so they can continue their missions and dungeon"
   },
   {
     "name": "Potion",
@@ -17,6 +20,7 @@
   },
   {
     "name": "Crystals",
-    "image": "/4.png"
+    "image": "/4.png",
+    "description": "Smelt this beauty for some rewards"
   }
 ]

@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { StartActivityButton } from "../Buttons/Buttons";
-import useItemAmount from "../../fetchers/useItemAmount";
+import useItemAmount from "../../lib/queries/useItemAmount";
 import { ModalTitle, Paragraph } from "../Texts";
 import Image from "next/image";
 import FeedAmountControl from "./FeedAmountControl";
-import feedMonster, { useEnergyPotion } from "../../mutations/feedMonster";
+import feedMonster from "../../lib/mutations/Feed/feedMonster";
+import useEnergyPotion from "../../lib/mutations/Feed/useEnergyPotion";
 
 const FeedModal = ({ showFeed, toggleShowFeed, monster, level }) => {
   const [amount, setAmount] = useState(1);
   const energyPotion = useItemAmount({ item: 2 });
   const feed = feedMonster({ amount: amount, level: level, monster: monster });
-  const drinkEnergyPotion = useEnergyPotion({ monster: monster });
+  const usePotion = useEnergyPotion({ monster: monster });
 
   if (!showFeed) return;
   return (
@@ -25,7 +26,7 @@ const FeedModal = ({ showFeed, toggleShowFeed, monster, level }) => {
         transition={{ type: "tween", duration: 0.25 }}
       />
       <motion.div
-        className="w-1/2 h-72 bg-slate-900 rounded-md absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+        className="w-1/2 h-72 bg-slate-900 rounded-md absolute -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 z-50"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -57,7 +58,7 @@ const FeedModal = ({ showFeed, toggleShowFeed, monster, level }) => {
             </div>
             <StartActivityButton
               text={"Use Potion"}
-              onClick={() => drinkEnergyPotion()}
+              onClick={() => usePotion()}
               size="medium"
             />
           </div>

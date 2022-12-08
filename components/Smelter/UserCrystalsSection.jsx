@@ -1,36 +1,28 @@
 import Image from "next/image";
 import React, { useState } from "react";
-import { useCrystals } from "../../fetchers/useSmelter";
-import { useSmelt } from "../../mutations/smelterMutations";
+import useCrystalsInventory from "../../lib/queries/Smelter/useCrystalsInventory";
+import startSmelting from "../../lib/mutations/Smelter/startSmelting";
 import { StartActivityButton } from "../Buttons/Buttons";
 import { Paragraph } from "../Texts";
+import CrystalsAmountControl from "./CrystalsAmountControl";
 
 const UserCrystalsSection = () => {
   const [crystalsAmount, setCrystalsAmount] = useState(0);
-  const crystalsInInventory = useCrystals({ key: "inventory" });
-  const startSmelt = useSmelt(crystalsAmount);
+  const crystalsInInventory = useCrystalsInventory({ key: "inventory" });
+  const start = startSmelting({ amount: crystalsAmount });
 
   return (
     <div className="w-4/12 text-center flex flex-col items-center gap-2">
       <Paragraph>Your Crystals</Paragraph>
-      <div className="w-4/6 flex justify-center items-center my-2">
-        <button className="bg-slate-50 p-1 w-8 h-8 rounded font-monogram text-xl flex justify-center items-center">
-          {"<"}
-        </button>
-        <div className="flex justify-center items-center w-3/6">
-          <Paragraph>
-            {crystalsAmount} / {crystalsInInventory.data?.toString()}
-          </Paragraph>
-        </div>
-
-        <button className="bg-slate-50 p-1 w-8 h-8 rounded font-monogram text-xl flex justify-center items-center">
-          {">"}
-        </button>
-      </div>
+      <CrystalsAmountControl
+        amount={crystalsAmount}
+        maxAmount={crystalsInInventory.data}
+        setAmount={setCrystalsAmount}
+      />
       <div className="flex justify-center w-full">
         <StartActivityButton
           text="Smelt"
-          onClick={() => startSmelt()}
+          onClick={() => start()}
           condition={crystalsAmount < 1}
           size="medium"
         />

@@ -4,16 +4,11 @@ import DurationControl from "./DurationControl";
 import { StartActivityButton } from "../Buttons/Buttons";
 import NurseryConditionalButton from "./NurseryConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
-import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
+import useMonstersOnNursery from "../../lib/queries/Nursery/useMonstersOnNursery";
 
 const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const [duration, setDuration] = useState(1);
-  const {
-    data: monstersOnNursery,
-    isLoading,
-    isError,
-  } = useMonstersOnActivity("nursery");
-
+  const monstersOnNursery = useMonstersOnNursery();
   return (
     <div className="flex w-full h-full flex-col justify-center">
       <ModalTitle>Nursery</ModalTitle>
@@ -33,7 +28,7 @@ const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           monstersOnActivity={monstersOnNursery}
         />
         <DurationControl
-          monstersOnNursery={monstersOnNursery?.length}
+          monstersOnNursery={monstersOnNursery.data?.length}
           duration={duration}
           setDuration={setDuration}
         />
@@ -41,13 +36,13 @@ const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
       <div className="flex justify-center p-2 my-3">
         <StartActivityButton
           text="Select Monsters"
-          condition={monstersOnNursery?.length > 0}
+          condition={monstersOnNursery.data?.length > 0}
           onClick={() => toggleShowSelectMonster()}
         />
         <NurseryConditionalButton
           duration={duration}
           monsterSelected={monsterSelected}
-          condition={monstersOnNursery?.length < 1}
+          condition={monstersOnNursery.data?.length < 1}
         />
       </div>
     </div>

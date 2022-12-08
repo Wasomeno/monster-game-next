@@ -4,12 +4,11 @@ import MissionSelectionControl from "./MissionSelectionControl";
 import { StartActivityButton } from "../Buttons/Buttons";
 import MissionsConditionalButton from "./MissionsConditionalButton";
 import ActivityMonstersSection from "../ActivityMonstersSection";
-import useMonstersOnActivity from "../../fetchers/useMonstersOnActivity";
+import useMonstersOnMission from "../../lib/queries/Mission/useMonstersOnMission";
 
 const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const [mission, setMission] = useState(1);
-  const monstersOnMission = useMonstersOnActivity("mission");
-
+  const monstersOnMission = useMonstersOnMission();
   return (
     <>
       <div className="flex justify-center items-center m-3">
@@ -44,12 +43,22 @@ const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           text="Select Monsters"
           condition={monstersOnMission.data?.length > 0}
           onClick={() => toggleShowSelectMonster()}
+          loading={monstersOnMission.isLoading}
         />
-        <MissionsConditionalButton
-          condition={monstersOnMission.data?.length < 1}
-          mission={mission}
-          monsterSelected={monsterSelected}
-        />
+
+        {monstersOnMission.isLoading || monstersOnMission.isFetching ? (
+          <StartActivityButton
+            loading={
+              monstersOnMission.isLoading || monstersOnMission.isFetching
+            }
+          />
+        ) : (
+          <MissionsConditionalButton
+            condition={monstersOnMission.data?.length < 1}
+            mission={mission}
+            monsterSelected={monsterSelected}
+          />
+        )}
       </div>
     </>
   );
