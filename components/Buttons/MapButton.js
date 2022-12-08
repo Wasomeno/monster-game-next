@@ -27,13 +27,11 @@ const MapButton = ({ link, x, y }) => {
       }}
     >
       <Link href={link}>
-        <a>
-          <div id="action-button">
-            <span className="text-xl tracking-wide font-normal p-2 relative z-20 font-monogram">
-              {buttonText.get(link)}
-            </span>
-          </div>
-        </a>
+        <div id="action-button">
+          <span className="text-xl tracking-wide font-normal p-2 relative z-20 font-monogram">
+            {buttonText.get(link)}
+          </span>
+        </div>
       </Link>
     </motion.div>
   );

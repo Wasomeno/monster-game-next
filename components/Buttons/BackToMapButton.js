@@ -7,13 +7,12 @@ const BackToMapButton = () => {
   if (route === "/") return;
   return (
     <div>
-      <Link href={"/"}>
-        <a
-          id="back-map-button"
-          className="border-light p-2 px-3 text-white rounded-pill"
-        >
-          Go to Map
-        </a>
+      <Link
+        href={"/"}
+        id="back-map-button"
+        className="border-light p-2 px-3 text-white rounded-pill"
+      >
+        Go to Map
       </Link>
     </div>
   );
