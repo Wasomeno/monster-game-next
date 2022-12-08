@@ -52,8 +52,8 @@ export const BackButton = ({ onClick }) => {
     <button className="p-3 absolute left-5" onClick={onClick}>
       <Image
         src="/icons/back_icon.png"
-        width={"40px"}
-        height={"30px"}
+        width={"40"}
+        height={"30"}
         alt="back-img"
       />
     </button>
