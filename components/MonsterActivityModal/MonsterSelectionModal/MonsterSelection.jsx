@@ -1,4 +1,3 @@
-import MoonLoader from "react-spinners/MoonLoader";
 import { useAccount } from "wagmi";
 
 import useInactiveMonsters from "@/components/reactQuery/queries/useInactiveMonsters";
