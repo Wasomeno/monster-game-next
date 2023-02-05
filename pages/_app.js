@@ -1,12 +1,13 @@
 import "../styles/globals.css";
+
 import { QueryClientProvider } from "@tanstack/react-query";
+import Head from "next/head";
+import { WagmiConfig } from "wagmi";
+
+import Layout from "../components/Layout";
 import LoadingScreen from "../components/LoadingScreen";
 import Toast from "../components/Toast";
-import Layout from "../components/Layout";
-import Head from "next/head";
 import { queryClient } from "../contexts/reactQueryClient";
-import SorryPage from "../components/SorryPage";
-import { WagmiConfig } from "wagmi";
 import wagmiClient from "../contexts/wagmiClient";
 
 function MyApp({ Component, pageProps }) {
@@ -22,7 +23,6 @@ function MyApp({ Component, pageProps }) {
         <Layout>
           <LoadingScreen />
           <Component {...pageProps} />
-          <SorryPage />
           <Toast />
         </Layout>
       </QueryClientProvider>

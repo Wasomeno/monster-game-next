@@ -1,9 +1,10 @@
-import { createClient, configureChains, chain } from "wagmi";
+import { createClient, configureChains } from "wagmi";
+import { goerli } from "wagmi/chains";
 import { infuraProvider } from "wagmi/providers/infura";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 
 const { chains, provider, webSocketProvider } = configureChains(
-  [chain.goerli],
+  [goerli],
   [infuraProvider({ apiKey: "10d1de5267e944c0a6580f6a690283a7" })]
 );
 

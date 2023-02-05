@@ -19,12 +19,11 @@ const MonsterCard = ({ monster, toggleDetails, setMonster }) => {
           Monster #{monster.id?.toString()}
         </h5>
       </div>
-      <div className="m-1 p-3">
+      <div className="m-1 p-3 w-20 h-36 relative">
         <Image
           src={"/monsters/" + (parseInt(monster?.id) + 1) + ".png"}
           alt="monster-img"
-          width="120"
-          height="120"
+          fill
           quality={75}
         />
       </div>

@@ -1,5 +1,4 @@
-import create from "zustand";
-import useToggle from "../hooks/useToggle";
+import { create } from "zustand";
 
 const loadingStore = create((set) => ({
   loading: false,
