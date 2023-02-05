@@ -1,37 +1,25 @@
 import { useAccount, useMutation } from "wagmi";
 
-import { invalidateQuery } from "../../../contexts/reactQueryClient";
 import { monsterGameContract } from "../../../hooks/useContract";
 import useMetamask from "../../../hooks/useMetamask";
-import { useLoading, useToast } from "../../../stores/stores";
+import { mutationSideEfffects } from "./mutationSideEffects";
+
+const queryKeys = (user) => [
+  ["monstersOnMission", user],
+  ["missionTime", user],
+  ["inactiveMonsters", user],
+];
 
 function finishMission() {
   const { address: user } = useAccount();
+  const invalidateQueryKeys = queryKeys(user);
   const monsterGameHandler = monsterGameContract();
   const provider = useMetamask();
   const { mutate } = useMutation(async () => {
     const transaction = await monsterGameHandler.finishMission();
     return await provider.waitForTransaction(transaction.hash);
-  }, finishMissionSides(user));
+  }, mutationSideEfffects("Finishing Mission", invalidateQueryKeys));
   return mutate;
 }
-
-const finishMissionSides = (user) => {
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
-  return {
-    onMutate: () => toggleLoading("Finishing mission"),
-    onSettled: () => {
-      toggleLoading();
-    },
-    onSuccess: () => {
-      toastSuccess("Mission Finished");
-      invalidateQuery(["monstersOnMission", user]);
-      invalidateQuery(["missionTime", user]);
-      invalidateQuery(["inactiveMonsters", user]);
-    },
-    onError: (error) => toastError(error.reason),
-  };
-};
 
 export default finishMission;

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import MoonLoader from "react-spinners/MoonLoader";
+
 import { useToastDetails } from "../stores/stores";
 
 const Toast = () => {
@@ -8,14 +9,14 @@ const Toast = () => {
   if (!show) return;
   return (
     <motion.div
-      className="bg-slate-800 border-2 border-slate-400 absolute z-30 bottom-3 w-4/12 h-20 p-2 rounded-md -translate-x-1/2 left-1/2"
+      className="absolute bottom-3 left-1/2 z-30 h-20 w-4/12 -translate-x-1/2 rounded-md border-2 border-slate-400 bg-slate-800 p-2"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ type: "tween", duration: 0.25 }}
     >
-      <div className="flex justify-center gap-4 items-center h-full">
-        <div className="w-2/12 flex justify-center items-center">
+      <div className="flex h-full items-center justify-center gap-4">
+        <div className="flex w-2/12 items-center justify-center">
           {condition === "success" ? (
             <Image
               src="/icons/checkmark_icon.png"
@@ -37,7 +38,7 @@ const Toast = () => {
           )}
         </div>
         <div className="w-8/12">
-          <h5 className="text-white m-0 text-center font-monogram text-2xl">
+          <h5 className="font-monogram m-0 text-center text-2xl text-white">
             {text}
           </h5>
         </div>

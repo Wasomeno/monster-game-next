@@ -1,15 +1,15 @@
 import AltarModal from "modules/altarPage/AltarModal";
-import DailyShopModal from "modules/cityHallPage/DailyShopModal";
-import DailyTrader from "modules/cityHallPage/DailyTraderModal";
-import DungeonModal from "modules/dungeonMissionPage/DungeonModal";
-import MissionModal from "modules/dungeonMissionPage/MissionModal";
-import NurseryModal from "modules/nurseryPage/NurseryModal";
-import SmelterModal from "modules/nurseryPage/SmelterModal";
+import { DailyShopModal } from "modules/cityHallPage/DailyShopModal";
+import { DailyTrader } from "modules/cityHallPage/DailyTraderModal";
+import { DungeonModal } from "modules/dungeonMissionPage/DungeonModal";
+import { MissionsModal } from "modules/dungeonMissionPage/MissionModal";
+import { NurseryModal } from "modules/nurseryPage/NurseryModal";
+import { SmelterModal } from "modules/nurseryPage/SmelterModal";
 
 import useToggle from "../hooks/useToggle";
 import ModalButton from "./Buttons/ModalButton";
 import Modal from "./Modal";
-import MonstersActivityModal from "./MonstersActivityModal";
+import { MonstersActivityModal } from "./MonsterActivityModal";
 
 const PageComponents = ({ path }) => {
   const Dungeon = () => {
@@ -38,7 +38,7 @@ const PageComponents = ({ path }) => {
         />
 
         <MonstersActivityModal
-          Child={MissionModal}
+          Child={MissionsModal}
           show={showMission}
           toggleShow={toggleShowMission}
         />

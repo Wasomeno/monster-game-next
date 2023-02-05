@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { ModalTitle, Paragraph } from "../Texts";
-import { StartActivityButton } from "../Buttons/Buttons";
-import ProfilePictureCard from "./ProfilePictureCard";
-import registerUser from "../../lib/mutations/registerUser";
+
+import registerUser from "@/components/reactQuery/mutations/registerUser";
+
 import { useToast } from "../../stores/stores";
+import { StartActivityButton } from "../Buttons/Buttons";
+import { ModalTitle, Paragraph } from "../Texts";
+import ProfilePictureCard from "./ProfilePictureCard";
 
 const RegisterModal = () => {
   const [, toastError] = useToast();
@@ -35,28 +37,28 @@ const RegisterModal = () => {
 
   return (
     <>
-      <div className="flex justify-center items-center">
+      <div className="flex items-center justify-center">
         <div className="w-8/12">
           <ModalTitle>Register</ModalTitle>
         </div>
       </div>
-      <div className="flex flex-col justify-center items-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4">
         <div className="w-full text-center">
           <Paragraph>Username</Paragraph>
           <input
             value={username}
             type="text"
-            className="w-1/4 rounded p-2 text-center font-monogram text-xl"
+            className="font-monogram w-1/4 rounded p-2 text-center text-xl"
             onChange={(e) => usernameHandler(e.target.value)}
           />
         </div>
 
         <div className="w-full">
-          <div className="flex justify-center items-center my-2">
+          <div className="my-2 flex items-center justify-center">
             <Paragraph>Choose your Profile Picture</Paragraph>
           </div>
-          <div className="flex justify-center w-full">
-            <div className="grid grid-cols-10 overflow-y-scroll w-5/6">
+          <div className="flex w-full justify-center">
+            <div className="grid w-5/6 grid-cols-10 overflow-y-scroll">
               {pictures.map((picture, index) => (
                 <ProfilePictureCard
                   key={index}
@@ -69,7 +71,7 @@ const RegisterModal = () => {
           </div>
         </div>
 
-        <div className="flex justify-center m-4 w-full">
+        <div className="m-4 flex w-full justify-center">
           <StartActivityButton text="Register" onClick={() => formHandler()} />
         </div>
       </div>

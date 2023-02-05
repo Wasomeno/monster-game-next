@@ -14,7 +14,12 @@ const useAccountDetails = () => {
       isConnected: account.isConnected,
       isReconnecting: account.isReconnecting,
     });
-  }, [account.status]);
+  }, [
+    account.address,
+    account.isConnected,
+    account.isReconnecting,
+    account.status,
+  ]);
 
   return details;
 };

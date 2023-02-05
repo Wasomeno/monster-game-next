@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { DangerButton, StartActivityButton } from "./Buttons";
 
 const TimeButton = ({ timeData, onClick }) => {
@@ -16,11 +15,7 @@ const TimeButton = ({ timeData, onClick }) => {
   };
 
   return time >= 0 ? (
-    <StartActivityButton
-      onClick={onClick}
-      text="Finish"
-      loading={isFetching || isLoading}
-    />
+    <StartActivityButton onClick={onClick} text="Finish" />
   ) : (
     <DangerButton
       condition={time <= 0}

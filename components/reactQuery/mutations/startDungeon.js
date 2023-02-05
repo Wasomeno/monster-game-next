@@ -1,37 +1,27 @@
 import { useMutation } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 
-import { invalidateQuery } from "../../../contexts/reactQueryClient";
 import { dungeonContract } from "../../../hooks/useContract";
 import useMetamask from "../../../hooks/useMetamask";
-import { useLoading, useToast } from "../../../stores/stores";
+import { mutationSideEfffects } from "./mutationSideEffects";
+
+const queryKeys = (user) => [
+  ["monstersOnDungeon", user],
+  ["dungeonTime", user],
+  ["inactiveMonsters", user],
+];
 
 function startDungeon(selectedMonsters) {
   const { address: user } = useAccount();
   const dungeonHandler = dungeonContract();
   const provider = useMetamask();
+  const invalidateQueryKeys = queryKeys(user);
   const { mutate } = useMutation(async () => {
     const transaction = await dungeonHandler.startDungeon(selectedMonsters);
     return await provider.waitForTransaction(transaction.hash);
-  }, startDungeonSides(user));
+  }, mutationSideEfffects("Starting Dungeon", invalidateQueryKeys));
 
   return mutate;
-}
-
-function startDungeonSides(user) {
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
-  return {
-    onMutate: () => toggleLoading("Starting dungeon"),
-    onSettled: () => toggleLoading(),
-    onSuccess: () => {
-      toastSuccess("Dungeon started");
-      invalidateQuery(["monstersOnDungeon", user]);
-      invalidateQuery(["dungeonTime", user]);
-      invalidateQuery(["inactiveMonsters", user]);
-    },
-    onError: (error) => toastError(error.reason),
-  };
 }
 
 export default startDungeon;

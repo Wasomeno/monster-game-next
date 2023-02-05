@@ -1,22 +1,20 @@
 import { useState } from "react";
 
-import ActivityMonstersSection from "@/components/ActivityMonstersSection";
 import { StartActivityButton } from "@/components/Buttons/Buttons";
+import ActivityMonstersSection from "@/components/MonsterActivityModal/MonsterSelectionModal/ActivityMonstersSection";
 import useMonstersOnMission from "@/components/reactQuery/queries/useMonstersOnMission";
 import { ModalTitle, Paragraph } from "@/components/Texts";
 
 import MissionsConditionalButton from "./MissionsConditionalButton";
 import MissionSelectionControl from "./MissionSelectionControl";
 
-const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
+export const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const [mission, setMission] = useState(1);
   const monstersOnMission = useMonstersOnMission();
   return (
-    <>
-      <div className="m-3 flex items-center justify-center">
-        <div className="w-6/12">
-          <ModalTitle>Missions</ModalTitle>
-        </div>
+    <div className="flex flex-col gap-4">
+      <div className="text-center">
+        <ModalTitle>Missions</ModalTitle>
       </div>
       <div className="flex justify-center">
         <div className="border-light w-6/12 rounded-md border border-opacity-25 p-3 text-center">
@@ -29,7 +27,7 @@ const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           </Paragraph>
         </div>
       </div>
-      <div className="my-3 flex justify-center">
+      <div className="flex justify-center">
         <ActivityMonstersSection
           monsterSelected={monsterSelected}
           monstersOnActivity={monstersOnMission}
@@ -40,30 +38,19 @@ const MissionsModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           setMission={setMission}
         />
       </div>
-      <div className="my-3 flex justify-center p-2">
+      <div className="flex justify-center">
         <StartActivityButton
           text="Select Monsters"
           condition={monstersOnMission.data?.length > 0}
           onClick={() => toggleShowSelectMonster()}
           loading={monstersOnMission.isLoading}
         />
-
-        {monstersOnMission.isLoading || monstersOnMission.isFetching ? (
-          <StartActivityButton
-            loading={
-              monstersOnMission.isLoading || monstersOnMission.isFetching
-            }
-          />
-        ) : (
-          <MissionsConditionalButton
-            condition={monstersOnMission.data?.length < 1}
-            mission={mission}
-            monsterSelected={monsterSelected}
-          />
-        )}
+        <MissionsConditionalButton
+          condition={monstersOnMission.data?.length < 1}
+          mission={mission}
+          monsterSelected={monsterSelected}
+        />
       </div>
-    </>
+    </div>
   );
 };
-
-export default MissionsModal;

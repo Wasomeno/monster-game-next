@@ -1,14 +1,14 @@
-import ActivityMonstersSection from "@/components/ActivityMonstersSection";
 import { StartActivityButton } from "@/components/Buttons/Buttons";
+import ActivityMonstersSection from "@/components/MonsterActivityModal/MonsterSelectionModal/ActivityMonstersSection";
 import useMonstersOnDungeon from "@/components/reactQuery/queries/useMonstersOnDungeon";
 import { ModalTitle, Paragraph } from "@/components/Texts";
 
 import DungeonConditionalButton from "./DungeonConditionalButton";
 
-const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
+export const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const monstersOnDungeon = useMonstersOnDungeon();
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <div className="flex justify-center">
         <ModalTitle>Dungeon</ModalTitle>
       </div>
@@ -23,13 +23,13 @@ const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           </Paragraph>
         </div>
       </div>
-      <div className="my-3 flex justify-center">
+      <div className="flex justify-center">
         <ActivityMonstersSection
           monsterSelected={monsterSelected}
           monstersOnActivity={monstersOnDungeon}
         />
       </div>
-      <div className="my-3 flex justify-center p-2">
+      <div className="flex justify-center p-2">
         <StartActivityButton
           text={"Select Monsters"}
           condition={monstersOnDungeon.data?.length > 0}
@@ -41,8 +41,6 @@ const DungeonModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           monstersAmount={monstersOnDungeon.data?.length}
         />
       </div>
-    </>
+    </div>
   );
 };
-
-export default DungeonModal;

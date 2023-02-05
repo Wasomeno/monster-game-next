@@ -1,12 +1,13 @@
-import NurseryABI from "../abi/Nursery.json";
-import MonsterABI from "../abi/Monsters.json";
-import DungeonABI from "../abi/Dungeon.json";
-import TraderABI from "../abi/Trader.json";
-import ItemsABI from "../abi/Items.json";
-import SmelterABI from "../abi/Smelter.json";
-import UsersDataABI from "../abi/UsersData.json";
-import MonsterGameABI from "../abi/MonsterGame.json";
 import { useContract, useProvider, useSigner } from "wagmi";
+
+import DungeonABI from "../abi/Dungeon.json";
+import ItemsABI from "../abi/Items.json";
+import MonsterGameABI from "../abi/MonsterGame.json";
+import MonsterABI from "../abi/Monsters.json";
+import NurseryABI from "../abi/Nursery.json";
+import SmelterABI from "../abi/Smelter.json";
+import TraderABI from "../abi/Trader.json";
+import UsersDataABI from "../abi/UsersData.json";
 
 const createContract = ({ contractAddress, abi }) => {
   const provider = useProvider();

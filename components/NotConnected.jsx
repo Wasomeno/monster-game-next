@@ -3,6 +3,7 @@ import { useAccount, useConnect, useNetwork, useSwitchNetwork } from "wagmi";
 
 import { useWallet } from "../hooks/useWallet";
 import { DangerButton, StartActivityButton } from "./Buttons/Buttons";
+import LoadingSpinner from "./LoadingSpinner";
 import { ModalTitle, Paragraph } from "./Texts";
 
 const NotConnected = () => {
@@ -15,7 +16,7 @@ const NotConnected = () => {
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-slate-800">
       {isScanning ? (
-        <p>Scanning For wallets</p>
+        <p className="font-mono text-xl text-white">Scanning For wallets...</p>
       ) : (
         <>
           <div className="p-2 text-center">
@@ -50,19 +51,19 @@ const NotConnected = () => {
           </div>
           {isConnected && chain?.id !== 5 && (
             <div className="w-50 my-4 flex items-center justify-center">
-              <Paragraph>You're Connected to the Wrong Network</Paragraph>
+              <Paragraph>You&aposre Connected to the Wrong Network</Paragraph>
             </div>
           )}
           {connectorLoading && (
             <div className="m-2 flex w-4/6 items-center justify-center gap-4">
-              <MoonLoader loading={connectorLoading} size="25" color="white" />
+              <LoadingSpinner />
               <Paragraph>Connecting Wallet</Paragraph>
             </div>
           )}
           {!isInstalled && !isScanning && (
             <div className="m-2 w-2/6 text-center ">
               <Paragraph>
-                You don't have metamask installed in your browser. install
+                You don&apost have metamask installed in your browser. install
                 metamask first so you can try the app :)
               </Paragraph>
             </div>

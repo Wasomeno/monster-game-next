@@ -1,15 +1,22 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import ethers from "ethers";
 import { useAccount, useMutation } from "wagmi";
 
 import { invalidateQuery } from "../../../contexts/reactQueryClient";
 import { usersDataContract } from "../../../hooks/useContract";
 import useMetamask from "../../../hooks/useMetamask";
-import { useLoading, useToast } from "../../../stores/stores";
+import { mutationSideEfffects } from "./mutationSideEffects";
+
+const queryKeys = (user) => [
+  ["userStatus", user],
+  ["userDetails", user],
+];
 
 const registerUser = ({ name, profileImage }) => {
   const { address: user } = useAccount();
   const provider = useMetamask();
   const userDataHandler = usersDataContract();
+  const invalidateQueryKeys = queryKeys(user);
   const { mutate } = useMutation(async () => {
     const nameToBytes = ethers.utils.formatBytes32String(name);
     const profileToBytes = ethers.utils.formatBytes32String(
@@ -20,24 +27,9 @@ const registerUser = ({ name, profileImage }) => {
       profileToBytes
     );
     return await provider.waitForTransaction(transaction.hash);
-  }, registerSides(user));
+  }, mutationSideEfffects("Registering User", invalidateQueryKeys));
 
   return mutate;
-};
-
-export const registerSides = (user) => {
-  const toggleLoading = useLoading();
-  const [toastSuccess, toastError] = useToast();
-  return {
-    onMutate: () => toggleLoading("Registering user"),
-    onSettled: () => toggleLoading(),
-    onSuccess: () => {
-      toastSuccess("Register Success! Welcome to Monster Game");
-      invalidateQuery(["userStatus", user]);
-      invalidateQuery(["userDetails", user]);
-    },
-    onError: (error) => toastError(error.reason),
-  };
 };
 
 export default registerUser;

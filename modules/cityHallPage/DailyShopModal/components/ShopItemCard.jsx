@@ -5,7 +5,7 @@ const ShopItemCard = ({ activeItem, item, setActiveItem }) => {
   return (
     <div
       id={activeItem === item.id ? "item-card-active" : "item-card"}
-      className="col-span-2 p-2 flex flex-col justify-center items-center text-center rounded bg-slate-50 bg-opacity-25 cursor-pointer"
+      className="col-span-2 flex cursor-pointer flex-col items-center justify-center rounded bg-slate-50 bg-opacity-25 p-2"
       onClick={() => setActiveItem(parseInt(item.id))}
     >
       <Image
@@ -16,7 +16,7 @@ const ShopItemCard = ({ activeItem, item, setActiveItem }) => {
         alt="shop-item-img"
       />
       <div className="p-1">
-        <h5 className="font-monogram text-xl tracking-wide text-white m-1">
+        <h5 className="font-monogram m-1 text-xl tracking-wide text-white">
           {item.name}
         </h5>
       </div>

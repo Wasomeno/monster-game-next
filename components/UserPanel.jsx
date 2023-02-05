@@ -1,10 +1,12 @@
 import { ethers } from "ethers";
-import InventoryModal from "./Inventory/InventoryModal";
-import MonstersModal from "./Monsters/MonstersModal";
 import Image from "next/image";
-import useItemAmount from "../lib/queries/useItemAmount";
-import useUserDetails from "../lib/queries/useUserDetails";
+
+import useItemAmount from "@/components/reactQuery/queries/useItemAmount";
+import useUserDetails from "@/components/reactQuery/queries/useUserDetails";
+
 import useToggle from "../hooks/useToggle";
+import { InventoryModal } from "./InventoryModal";
+import { MonstersModal } from "./MonstersModal";
 
 const defaultUserData = {
   name: "Unknown",
@@ -12,12 +14,12 @@ const defaultUserData = {
 
 const UserPanelLoading = () => {
   return (
-    <div className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm bg-slate-600 animate-pulse">
-      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
-      <div className="h-44 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+    <div className="z-5 absolute left-5 top-5 flex h-96 w-60 animate-pulse flex-col items-center justify-start rounded bg-slate-600 shadow-sm">
+      <div className="m-2 h-8 w-36 animate-pulse rounded bg-slate-500 shadow-md" />
+      <div className="m-2 h-44 w-36 animate-pulse rounded bg-slate-500 shadow-md" />
 
-      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
-      <div className="h-8 w-36 rounded shadow-md bg-slate-500 m-2 animate-pulse" />
+      <div className="m-2 h-8 w-36 animate-pulse rounded bg-slate-500 shadow-md" />
+      <div className="m-2 h-8 w-36 animate-pulse rounded bg-slate-500 shadow-md" />
     </div>
   );
 };
@@ -36,13 +38,13 @@ const UserPanel = () => {
     <UserPanelLoading />
   ) : (
     <>
-      <div className="h-96 w-60 flex flex-col justify-start items-center rounded absolute z-5 left-5 top-5 shadow-sm bg-slate-600 bg-opacity-40">
-        <h5 className="p-1 text-white font-monogram text-2xl tracking-wide m-1">
+      <div className="z-5 absolute left-5 top-5 flex h-96 w-60 flex-col items-center justify-start rounded bg-slate-600 bg-opacity-40 shadow-sm">
+        <h5 className="font-monogram m-1 p-1 text-2xl tracking-wide text-white">
           {!bytesToString(userDetails.name)
             ? defaultUserData.name
             : bytesToString(userDetails.name)}
         </h5>
-        <div className="border rounded-md border-slate-400 bg-opacity-25 p-2">
+        <div className="rounded-md border border-slate-400 bg-opacity-25 p-2">
           <Image
             src={
               "/profile/profile_" +
@@ -54,56 +56,54 @@ const UserPanel = () => {
             priority={true}
             quality={100}
             className="m-0"
+            alt="profile-image
+            "
           />
         </div>
-        <h5 className="p-1 m-1 text-white text-center font-monogram tracking-wide text-xl ">
+        <h5 className="font-monogram m-1 p-1 text-center text-xl tracking-wide text-white ">
           Gold: {parseInt(gold.data)}
         </h5>
         <div id="user-menu" className="flex flex-col">
           <button
-            className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
+            className="my-1 flex items-center rounded-lg bg-slate-900 p-2 px-3"
             onClick={() => toggleShowInventory()}
           >
-            <img
+            <Image
               src="/icons/bag_icon.png"
               className="m-1"
               alt="inventory-icon"
-              width={"18px"}
+              width="18"
+              height="18"
             />
-            <p className="p-1 text-white font-monogram tracking-wide text-lg">
+            <p className="font-monogram p-1 text-lg tracking-wide text-white">
               Inventory
             </p>
           </button>
           <button
-            className="bg-slate-900 p-2 px-3 rounded-lg flex items-center my-1"
+            className="my-1 flex items-center rounded-lg bg-slate-900 p-2 px-3"
             onClick={() => toggleShowMonsters()}
           >
-            <img
+            <Image
               src="/icons/bag_icon.png"
               className="m-1"
               alt="inventory-icon"
-              width={"18px"}
+              width="18"
+              height="18"
             />
-            <h5 className="p-1 text-white font-monogram tracking-wide text-lg">
+            <h5 className="font-monogram p-1 text-lg tracking-wide text-white">
               Monsters
             </h5>
           </button>
         </div>
       </div>
-
-      {showInventory && (
-        <InventoryModal
-          showInventory={showInventory}
-          toggleShowInventory={toggleShowInventory}
-        />
-      )}
-
-      {showMonsters && (
-        <MonstersModal
-          showMonsters={showMonsters}
-          toggleShowMonsters={toggleShowMonsters}
-        />
-      )}
+      <InventoryModal
+        showInventory={showInventory}
+        toggleShowInventory={toggleShowInventory}
+      />
+      <MonstersModal
+        showMonsters={showMonsters}
+        toggleShowMonsters={toggleShowMonsters}
+      />
     </>
   );
 };

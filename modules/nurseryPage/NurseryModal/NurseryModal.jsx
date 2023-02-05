@@ -1,19 +1,21 @@
 import { useState } from "react";
 
-import ActivityMonstersSection from "@/components/ActivityMonstersSection";
 import { StartActivityButton } from "@/components/Buttons/Buttons";
+import ActivityMonstersSection from "@/components/MonsterActivityModal/MonsterSelectionModal/ActivityMonstersSection";
 import useMonstersOnNursery from "@/components/reactQuery/queries/useMonstersOnNursery";
 import { ModalTitle, Paragraph } from "@/components/Texts";
 
 import DurationControl from "./components/DurationControl";
 import NurseryConditionalButton from "./components/NurseryConditionalButton";
 
-const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
+export const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
   const [duration, setDuration] = useState(1);
   const monstersOnNursery = useMonstersOnNursery();
   return (
-    <div className="flex h-full w-full flex-col justify-center">
-      <ModalTitle>Nursery</ModalTitle>
+    <div className="flex flex-col gap-4">
+      <div className="text-center">
+        <ModalTitle>Nursery</ModalTitle>
+      </div>
       <div className="flex justify-center">
         <div className="border-light w-6/12 rounded-md border border-opacity-25 p-3 text-center">
           <Paragraph>
@@ -24,7 +26,7 @@ const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           </Paragraph>
         </div>
       </div>
-      <div className="my-3 flex justify-center">
+      <div className="flex justify-center">
         <ActivityMonstersSection
           monsterSelected={monsterSelected}
           monstersOnActivity={monstersOnNursery}
@@ -35,7 +37,7 @@ const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
           setDuration={setDuration}
         />
       </div>
-      <div className="my-3 flex justify-center p-2">
+      <div className="flex justify-center">
         <StartActivityButton
           text="Select Monsters"
           condition={monstersOnNursery.data?.length > 0}
@@ -50,5 +52,3 @@ const NurseryModal = ({ monsterSelected, toggleShowSelectMonster }) => {
     </div>
   );
 };
-
-export default NurseryModal;

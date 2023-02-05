@@ -2,6 +2,7 @@ import { useMutation } from "wagmi";
 
 import { monsterGameContract } from "../../../hooks/useContract";
 import useMetamask from "../../../hooks/useMetamask";
+import { mutationSideEfffects } from "./mutationSideEffects";
 
 function useEnergyPotion(monster) {
   const monsterGameHandler = monsterGameContract();
@@ -9,7 +10,7 @@ function useEnergyPotion(monster) {
   const { mutate } = useMutation(async () => {
     const transaction = await monsterGameHandler.useEnergyPotion(monster, 1);
     return await provider.waitForTransaction(transaction.hash);
-  });
+  }, mutationSideEfffects("Using Energy Potion"));
   return mutate;
 }
 

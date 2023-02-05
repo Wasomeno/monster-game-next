@@ -6,10 +6,10 @@ import { ModalTitle, Paragraph } from "@/components/Texts";
 import SmeltingCrystals from "./components/SmeltingCrystals";
 import UserCrystalsSection from "./components/UserCrystalsSection";
 
-const SmelterModal = () => {
+export const SmelterModal = () => {
   return (
-    <>
-      <div className="flex items-center justify-center text-center">
+    <div className="flex flex-col gap-4">
+      <div className="text-center">
         <ModalTitle>Smelter</ModalTitle>
       </div>
       <div className="flex justify-center">
@@ -21,21 +21,18 @@ const SmelterModal = () => {
           </Paragraph>
         </div>
       </div>
-      <div className="my-3 flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <UserCrystalsSection />
-        <div className="w-2/12 text-center">
+        <div className="relative text-center">
           <Image
             src="/icons/back_icon.png"
             width={"40"}
             height={"30"}
             alt="arrow-icon"
-            className="rotate-180"
           />
         </div>
         <SmeltingCrystals />
       </div>
-    </>
+    </div>
   );
 };
-
-export default SmelterModal;
